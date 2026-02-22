@@ -11,7 +11,10 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { requireAuth } from "../middleware/auth.js";
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+/** Read lazily so dotenv has time to load the .env file */
+function getAnthropicApiKey() {
+  return process.env.ANTHROPIC_API_KEY;
+}
 
 const HEALTH_SYSTEM_PROMPT = `You are a helpful health education assistant. You help users understand their health data, trends, and metrics.
 
@@ -64,7 +67,8 @@ export async function llmRoutes(app: FastifyInstance) {
     "/llm/query",
     { preHandler: [requireAuth] },
     async (request, reply) => {
-      if (!ANTHROPIC_API_KEY) {
+      const apiKey = getAnthropicApiKey();
+      if (!apiKey) {
         return reply.status(503).send({
           type: "https://httpstatuses.com/503",
           title: "LLM service unavailable",
@@ -106,7 +110,7 @@ export async function llmRoutes(app: FastifyInstance) {
       }
 
       // Forward to Claude API with streaming
-      const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+      const client = new Anthropic({ apiKey: apiKey });
 
       reply.raw.writeHead(200, {
         "Content-Type": "text/event-stream",

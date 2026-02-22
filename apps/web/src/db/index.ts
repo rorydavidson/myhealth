@@ -55,6 +55,7 @@ export interface ImportRow {
   completedAt: Date | null;
   recordCount: number;
   status: string;
+  progressPct?: number; // 0-100, used during processing to show live progress
   dateRange: { earliest: Date; latest: Date } | null;
 }
 

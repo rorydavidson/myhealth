@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertCircle,
+  Calendar,
   CheckCircle2,
-  Clock,
   FileArchive,
   Loader2,
   Shield,
@@ -70,12 +70,128 @@ function ImportPage() {
   );
 }
 
+// --- Date range options ---
+
+type DateRangeOption = "18months" | "3years" | "all";
+
+function computeCutoffDate(option: DateRangeOption): string | undefined {
+  if (option === "all") return undefined;
+  const now = new Date();
+  if (option === "18months") {
+    now.setMonth(now.getMonth() - 18);
+  } else {
+    now.setFullYear(now.getFullYear() - 3);
+  }
+  return now.toISOString();
+}
+
+// --- Shared date range selector ---
+
+function DateRangeSelector({
+  fileName,
+  onStart,
+  onChangeFile,
+}: {
+  fileName: string;
+  onStart: (cutoffDate?: string) => void;
+  onChangeFile: () => void;
+}) {
+  const { t } = useTranslation("import");
+  const [selected, setSelected] = useState<DateRangeOption>("18months");
+
+  const options: { value: DateRangeOption; label: string; description: string }[] = [
+    {
+      value: "18months",
+      label: `${t("dateRange.last18Months")} ${t("dateRange.recommended")}`,
+      description: t("dateRange.fasterImport"),
+    },
+    {
+      value: "3years",
+      label: t("dateRange.last3Years"),
+      description: t("dateRange.moreHistory"),
+    },
+    {
+      value: "all",
+      label: t("dateRange.allData"),
+      description: t("dateRange.longestImport"),
+    },
+  ];
+
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900">
+      {/* Selected file */}
+      <div className="mb-4 flex items-center gap-2">
+        <FileArchive className="h-4 w-4 text-neutral-500" />
+        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          {fileName}
+        </span>
+      </div>
+
+      {/* Date range question */}
+      <div className="mb-4 flex items-center gap-2">
+        <Calendar className="h-4 w-4 text-neutral-500" />
+        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          {t("dateRange.title")}
+        </span>
+      </div>
+
+      {/* Radio options */}
+      <div className="mb-5 space-y-2">
+        {options.map((opt) => (
+          <label
+            key={opt.value}
+            className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+              selected === opt.value
+                ? "border-blue-400 bg-blue-50 dark:border-blue-600 dark:bg-blue-950"
+                : "border-neutral-200 hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600"
+            }`}
+          >
+            <input
+              type="radio"
+              name="dateRange"
+              value={opt.value}
+              checked={selected === opt.value}
+              onChange={() => setSelected(opt.value)}
+              className="mt-0.5"
+            />
+            <div>
+              <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                {opt.label}
+              </span>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">{opt.description}</p>
+            </div>
+          </label>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={() => onStart(computeCutoffDate(selected))}
+          className="rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+        >
+          {t("dateRange.startImport")}
+        </button>
+        <button
+          type="button"
+          onClick={onChangeFile}
+          className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+        >
+          {t("dateRange.changeFile")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // --- Dropzone with progress ---
 
 function AppleHealthDropzone() {
   const { t } = useTranslation("import");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const importHook = useImport();
   const { isImporting, phase, startImport, reset } = importHook;
@@ -86,9 +202,19 @@ function AppleHealthDropzone() {
         alert(t("errors.invalidFile"));
         return;
       }
-      startImport(file);
+      // Don't start immediately — show date range selector
+      setPendingFile(file);
     },
-    [startImport, t],
+    [t],
+  );
+
+  const handleStartImport = useCallback(
+    (cutoffDate?: string) => {
+      if (!pendingFile) return;
+      setPendingFile(null);
+      startImport(pendingFile, cutoffDate);
+    },
+    [pendingFile, startImport],
   );
 
   const handleDrop = useCallback(
@@ -124,6 +250,20 @@ function AppleHealthDropzone() {
   // Show progress UI when importing or after completion/failure
   if (isImporting || phase === "complete" || phase === "failed") {
     return <ImportProgressCard state={importHook} onReset={reset} />;
+  }
+
+  // Show date range selector when a file is selected
+  if (pendingFile) {
+    return (
+      <DateRangeSelector
+        fileName={pendingFile.name}
+        onStart={handleStartImport}
+        onChangeFile={() => {
+          setPendingFile(null);
+          fileInputRef.current?.click();
+        }}
+      />
+    );
   }
 
   return (
@@ -189,6 +329,7 @@ function HealthConnectDropzone() {
   const { t } = useTranslation("import");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const importHook = useImport();
   const { isImporting, phase, startHealthConnectImport, reset } = importHook;
@@ -199,9 +340,18 @@ function HealthConnectDropzone() {
         alert(t("errors.invalidJsonFile"));
         return;
       }
-      startHealthConnectImport(file);
+      setPendingFile(file);
     },
-    [startHealthConnectImport, t],
+    [t],
+  );
+
+  const handleStartImport = useCallback(
+    (cutoffDate?: string) => {
+      if (!pendingFile) return;
+      setPendingFile(null);
+      startHealthConnectImport(pendingFile, cutoffDate);
+    },
+    [pendingFile, startHealthConnectImport],
   );
 
   const handleDrop = useCallback(
@@ -235,6 +385,19 @@ function HealthConnectDropzone() {
 
   if (isImporting || phase === "complete" || phase === "failed") {
     return <ImportProgressCard state={importHook} onReset={reset} />;
+  }
+
+  if (pendingFile) {
+    return (
+      <DateRangeSelector
+        fileName={pendingFile.name}
+        onStart={handleStartImport}
+        onChangeFile={() => {
+          setPendingFile(null);
+          fileInputRef.current?.click();
+        }}
+      />
+    );
   }
 
   return (
@@ -461,6 +624,7 @@ function ImportHistoryRow({
     startedAt: Date;
     recordCount: number;
     status: string;
+    progressPct?: number;
   };
 }) {
   const { t } = useTranslation("import");
@@ -478,17 +642,20 @@ function ImportHistoryRow({
     }
   };
 
+  const isProcessing = imp.status === "processing";
+  const pct = imp.progressPct ?? 0;
+
   const statusLabel =
     imp.status === "completed"
       ? t("history.statusCompleted")
-      : imp.status === "processing"
-        ? t("history.statusProcessing")
+      : isProcessing
+        ? `${t("history.statusProcessing")} ${pct}%`
         : t("history.statusFailed");
 
   const statusColor =
     imp.status === "completed"
       ? "text-emerald-600 dark:text-emerald-400"
-      : imp.status === "processing"
+      : isProcessing
         ? "text-amber-600 dark:text-amber-400"
         : "text-rose-600 dark:text-rose-400";
 
@@ -510,16 +677,26 @@ function ImportHistoryRow({
       </td>
       <td className="py-3 pr-4 text-right tabular-nums">{imp.recordCount.toLocaleString()}</td>
       <td className="py-3 pr-4">
-        <span className={`inline-flex items-center gap-1 text-xs font-medium ${statusColor}`}>
-          {imp.status === "completed" ? (
-            <CheckCircle2 className="h-3.5 w-3.5" />
-          ) : imp.status === "processing" ? (
-            <Clock className="h-3.5 w-3.5" />
-          ) : (
-            <XCircle className="h-3.5 w-3.5" />
+        <div className="flex flex-col gap-1">
+          <span className={`inline-flex items-center gap-1 text-xs font-medium ${statusColor}`}>
+            {imp.status === "completed" ? (
+              <CheckCircle2 className="h-3.5 w-3.5" />
+            ) : isProcessing ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <XCircle className="h-3.5 w-3.5" />
+            )}
+            {statusLabel}
+          </span>
+          {isProcessing && (
+            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+              <div
+                className="h-full rounded-full bg-amber-500 transition-all duration-500"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
           )}
-          {statusLabel}
-        </span>
+        </div>
       </td>
       <td className="py-3 text-right">
         <button

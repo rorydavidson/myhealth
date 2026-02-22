@@ -10,6 +10,7 @@ export interface HCWorkerMessage {
   type: "start";
   jsonContent: string;
   importId: string;
+  cutoffDate?: string;
 }
 
 export interface HCWorkerProgress {
@@ -50,6 +51,14 @@ const PROGRESS_INTERVAL = 5000;
 
 let records: HCParsedRecord[] = [];
 let totalRecords = 0;
+let cutoffTimestamp: number | null = null;
+
+function isBeforeCutoff(dateStr: string): boolean {
+  if (cutoffTimestamp === null || !dateStr) return false;
+  const ts = new Date(dateStr).getTime();
+  if (Number.isNaN(ts)) return false;
+  return ts < cutoffTimestamp;
+}
 
 function flushBatch() {
   if (records.length > 0) {
@@ -151,6 +160,9 @@ function parseRecordWithType(recordType: string, rec: unknown): void {
   const endTime = extractTime(r.endTime ?? r.time ?? r.endZoneOffset ?? r.timestamp) || startTime;
 
   if (!startTime) return;
+
+  // Skip records older than the cutoff date
+  if (isBeforeCutoff(startTime)) return;
 
   const meta = r.metadata as Record<string, unknown> | undefined;
   const sourceName = extractString(
@@ -480,9 +492,10 @@ function mapNestedUnit(unit: string): string {
 // --- Worker entry point ---
 
 self.onmessage = (event: MessageEvent<HCWorkerMessage>) => {
-  const { jsonContent } = event.data;
+  const { jsonContent, cutoffDate } = event.data;
   records = [];
   totalRecords = 0;
+  cutoffTimestamp = cutoffDate ? new Date(cutoffDate).getTime() : null;
 
   try {
     const parsed = JSON.parse(jsonContent);

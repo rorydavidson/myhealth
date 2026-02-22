@@ -9,12 +9,12 @@
 import { parser as createSaxParser, type SAXParser } from "sax";
 
 // Message types — the worker accepts three message types:
-// "start" - initialize the parser (no data)
+// "start" - initialize the parser (with optional cutoff date for filtering)
 // "chunk" - feed a chunk of XML text to the parser
 // "end"   - signal that all chunks have been sent
 
 export type WorkerMessage =
-  | { type: "start"; importId: string }
+  | { type: "start"; importId: string; cutoffDate?: string }
   | { type: "chunk"; xmlChunk: string }
   | { type: "end" };
 
@@ -75,11 +75,24 @@ let saxParser: SAXParser;
 let records: ParsedRecord[] = [];
 let totalRecords = 0;
 let exportDate: string | null = null;
+let cutoffTimestamp: number | null = null; // Unix ms — records before this are skipped
 
 // Track current element context for nested data
 let insideCorrelation = false;
 let correlationType = "";
 let correlationRecords: ParsedRecord[] = [];
+
+/**
+ * Returns true if the record's date is before the cutoff and should be skipped.
+ * Apple Health dates are ISO-like: "2024-01-15 08:30:00 -0500"
+ */
+function isBeforeCutoff(dateStr: string): boolean {
+  if (cutoffTimestamp === null || !dateStr) return false;
+  const ts = new Date(dateStr).getTime();
+  // If parsing fails (NaN), don't skip — let it through
+  if (Number.isNaN(ts)) return false;
+  return ts < cutoffTimestamp;
+}
 
 function extractDeviceName(deviceStr: string): string {
   if (!deviceStr) return "";
@@ -111,6 +124,11 @@ function handleOpenTag(node: { name: string; attributes: Record<string, string> 
   }
 
   if (name === "Record") {
+    // Skip records older than the cutoff date
+    if (isBeforeCutoff(attrs.startDate ?? "")) {
+      return;
+    }
+
     const record: ParsedRecord = {
       type: attrs.type ?? "",
       value: attrs.value !== undefined ? Number.parseFloat(attrs.value) : null,
@@ -161,6 +179,11 @@ function handleOpenTag(node: { name: string; attributes: Record<string, string> 
   }
 
   if (name === "Workout") {
+    // Skip workouts older than the cutoff date
+    if (isBeforeCutoff(attrs.startDate ?? "")) {
+      return;
+    }
+
     // Convert workout to a record format
     const workoutRecord: ParsedRecord = {
       type: "HKWorkout",
@@ -189,6 +212,11 @@ function handleOpenTag(node: { name: string; attributes: Record<string, string> 
   }
 
   if (name === "ActivitySummary") {
+    // Skip activity summaries older than the cutoff date
+    if (isBeforeCutoff(attrs.dateComponents ?? "")) {
+      return;
+    }
+
     // Activity summaries provide daily roll-ups
     // We extract steps, distance, and energy if available
     if (attrs.activeEnergyBurned) {
@@ -256,13 +284,20 @@ function parseSleepStage(value: string): string | null {
   return stageMap[value] ?? null;
 }
 
-function initParser() {
+function initParser(cutoffDateStr?: string) {
   records = [];
   totalRecords = 0;
   exportDate = null;
   insideCorrelation = false;
   correlationType = "";
   correlationRecords = [];
+
+  // Set the cutoff timestamp for date filtering
+  if (cutoffDateStr) {
+    cutoffTimestamp = new Date(cutoffDateStr).getTime();
+  } else {
+    cutoffTimestamp = null;
+  }
 
   saxParser = createSaxParser(true, {
     trim: false,
@@ -287,7 +322,7 @@ self.onmessage = (event: MessageEvent<WorkerMessage>) => {
 
   try {
     if (msg.type === "start") {
-      initParser();
+      initParser(msg.cutoffDate);
       return;
     }
 

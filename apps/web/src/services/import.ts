@@ -68,11 +68,17 @@ const TEXT_CHUNK_SIZE = 64 * 1024;
  * directly to a Web Worker, without loading the full file into memory.
  *
  * Uses fflate's streaming Unzip to decompress chunks on the fly.
+ * Reports compressed bytes read via onBytesRead callback for progress tracking.
  */
-async function streamXmlFromZipToWorker(file: File, worker: Worker): Promise<void> {
+async function streamXmlFromZipToWorker(
+  file: File,
+  worker: Worker,
+  onBytesRead?: (bytesRead: number) => void,
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     let foundExportXml = false;
     let finished = false;
+    let totalBytesRead = 0;
 
     const unzipper = new Unzip((stream) => {
       // Check if this entry is the export.xml file
@@ -149,6 +155,10 @@ async function streamXmlFromZipToWorker(file: File, worker: Worker): Promise<voi
             return;
           }
 
+          // Track bytes read for progress reporting
+          totalBytesRead += value.byteLength;
+          onBytesRead?.(totalBytesRead);
+
           // Feed this chunk to the unzipper
           unzipper.push(value);
 
@@ -198,11 +208,13 @@ async function storeRecordBatch(records: HealthRecordRow[]): Promise<number> {
  *
  * @param file - The ZIP file from the user's file picker / drop
  * @param onProgress - Callback for progress updates
+ * @param cutoffDate - Optional ISO date string; records before this date are skipped
  * @returns The import ID and record count
  */
 export async function importAppleHealthFile(
   file: File,
   onProgress: ImportProgressCallback,
+  cutoffDate?: string,
 ): Promise<{ importId: string; recordCount: number }> {
   const importId = crypto.randomUUID();
   const fileName = file.name;
@@ -226,93 +238,130 @@ export async function importAppleHealthFile(
     completedAt: null,
     recordCount: 0,
     status: "processing",
+    progressPct: 0,
     dateRange: null,
   };
 
   await db.imports.put(importRecord);
   onProgress({ ...progress });
 
+  // Throttle DB progress updates to avoid hammering IndexedDB
+  let lastDbUpdate = 0;
+  const DB_UPDATE_INTERVAL = 2000; // ms
+
+  async function updateImportProgress(pct: number, storedCount: number) {
+    const now = Date.now();
+    if (now - lastDbUpdate >= DB_UPDATE_INTERVAL) {
+      lastDbUpdate = now;
+      await db.imports.update(importId, {
+        recordCount: storedCount,
+        progressPct: Math.round(pct),
+      });
+    }
+  }
+
   try {
     // Create worker and set up message handling
     const worker = createParserWorker();
+    // Use file size to estimate progress: parsing+storing is 0-85%, summaries 85-100%
+    const fileSize = file.size;
 
-    const result = await new Promise<{ totalRecords: number; exportDate: string | null }>(
-      (resolve, reject) => {
-        // Collect batches and store them as they arrive
-        let storageQueue = Promise.resolve();
+    const result = await new Promise<{
+      totalRecords: number;
+      exportDate: string | null;
+      bytesRead: number;
+    }>((resolve, reject) => {
+      // Collect batches and store them as they arrive
+      let storageQueue = Promise.resolve();
+      let bytesRead = 0;
 
-        worker.onmessage = (
-          event: MessageEvent<WorkerBatch | WorkerProgress | WorkerComplete | WorkerError>,
-        ) => {
-          const msg = event.data;
+      worker.onmessage = (
+        event: MessageEvent<WorkerBatch | WorkerProgress | WorkerComplete | WorkerError>,
+      ) => {
+        const msg = event.data;
 
-          if (msg.type === "batch") {
-            progress.recordsParsed += msg.records.length;
-            progress.phase = "storing";
+        if (msg.type === "batch") {
+          progress.recordsParsed += msg.records.length;
+          progress.phase = "storing";
+          onProgress({ ...progress });
+
+          // Queue storage operations sequentially
+          storageQueue = storageQueue.then(async () => {
+            const normalized = await normalizeAppleHealthRecords(msg.records, importId);
+            await storeRecordBatch(normalized);
+            progress.recordsStored += normalized.length;
             onProgress({ ...progress });
 
-            // Queue storage operations sequentially
-            storageQueue = storageQueue.then(async () => {
-              const normalized = await normalizeAppleHealthRecords(msg.records, importId);
-              await storeRecordBatch(normalized);
-              progress.recordsStored += normalized.length;
-              onProgress({ ...progress });
-            });
-          }
+            // Update DB with progress — parsing+storing takes 0-85%
+            const pct = fileSize > 0 ? (bytesRead / fileSize) * 85 : 0;
+            await updateImportProgress(Math.min(pct, 85), progress.recordsStored);
+          });
+        }
 
-          if (msg.type === "progress") {
-            progress.recordsParsed = msg.recordsParsed;
-            progress.phase = "parsing";
-            onProgress({ ...progress });
-          }
+        if (msg.type === "progress") {
+          progress.recordsParsed = msg.recordsParsed;
+          bytesRead = msg.bytesProcessed;
+          progress.phase = "parsing";
+          onProgress({ ...progress });
+        }
 
-          if (msg.type === "complete") {
-            // Wait for all storage to finish before resolving
-            storageQueue
-              .then(() => {
-                progress.totalRecords = msg.totalRecords;
-                worker.terminate();
-                resolve({
-                  totalRecords: msg.totalRecords,
-                  exportDate: msg.exportDate,
-                });
-              })
-              .catch(reject);
-          }
+        if (msg.type === "complete") {
+          // Wait for all storage to finish before resolving
+          storageQueue
+            .then(() => {
+              progress.totalRecords = msg.totalRecords;
+              worker.terminate();
+              resolve({
+                totalRecords: msg.totalRecords,
+                exportDate: msg.exportDate,
+                bytesRead,
+              });
+            })
+            .catch(reject);
+        }
 
-          if (msg.type === "error") {
-            worker.terminate();
-            reject(new Error(msg.message));
-          }
-        };
-
-        worker.onerror = (err) => {
+        if (msg.type === "error") {
           worker.terminate();
-          reject(new Error(err.message || "Worker error"));
-        };
+          reject(new Error(msg.message));
+        }
+      };
 
-        // Step 1: Initialize the worker's SAX parser
-        worker.postMessage({ type: "start", importId } satisfies WorkerMessage);
+      worker.onerror = (err) => {
+        worker.terminate();
+        reject(new Error(err.message || "Worker error"));
+      };
 
-        // Step 2: Stream ZIP → decompress → send XML chunks to worker
-        progress.phase = "parsing";
-        onProgress({ ...progress });
+      // Step 1: Initialize the worker's SAX parser
+      worker.postMessage({ type: "start", importId, cutoffDate } satisfies WorkerMessage);
 
-        streamXmlFromZipToWorker(file, worker).catch((err) => {
-          worker.terminate();
-          reject(err);
-        });
-      },
-    );
+      // Step 2: Stream ZIP → decompress → send XML chunks to worker
+      progress.phase = "parsing";
+      onProgress({ ...progress });
+
+      streamXmlFromZipToWorker(file, worker, (bytesRead) => {
+        // Update DB progress based on compressed bytes read vs file size
+        const pct = fileSize > 0 ? (bytesRead / fileSize) * 85 : 0;
+        updateImportProgress(Math.min(pct, 85), progress.recordsStored);
+      }).catch((err) => {
+        worker.terminate();
+        reject(err);
+      });
+    });
 
     // Step 3: Compute daily summaries
     progress.phase = "computing_summaries";
     onProgress({ ...progress });
+    await db.imports.update(importId, {
+      recordCount: progress.recordsStored,
+      progressPct: 85,
+    });
 
     const summaryCount = await computeDailySummaries(importId);
     progress.summariesComputed = summaryCount;
 
     // Step 4: Compute date range
+    await db.imports.update(importId, { progressPct: 95 });
+
     const storedRecords = await db.healthRecords
       .where("importId")
       .equals(importId)
@@ -332,6 +381,7 @@ export async function importAppleHealthFile(
       completedAt: new Date(),
       recordCount: progress.recordsStored,
       exportDate: result.exportDate ?? "",
+      progressPct: 100,
       dateRange,
     });
 
@@ -361,11 +411,13 @@ export async function importAppleHealthFile(
  *
  * @param file - The JSON file from the user's file picker / drop
  * @param onProgress - Callback for progress updates
+ * @param cutoffDate - Optional ISO date string; records before this date are skipped
  * @returns The import ID and record count
  */
 export async function importHealthConnectFile(
   file: File,
   onProgress: ImportProgressCallback,
+  cutoffDate?: string,
 ): Promise<{ importId: string; recordCount: number }> {
   const importId = crypto.randomUUID();
   const fileName = file.name;
@@ -388,15 +440,21 @@ export async function importHealthConnectFile(
     completedAt: null,
     recordCount: 0,
     status: "processing",
+    progressPct: 0,
     dateRange: null,
   };
 
   await db.imports.put(importRecord);
   onProgress({ ...progress });
 
+  // Throttle DB progress updates
+  let hcLastDbUpdate = 0;
+  const HC_DB_UPDATE_INTERVAL = 2000;
+
   try {
     // Step 1: Read JSON
     const jsonContent = await file.text();
+    await db.imports.update(importId, { progressPct: 10 });
 
     // Step 2: Parse JSON in Web Worker
     progress.phase = "parsing";
@@ -422,6 +480,22 @@ export async function importHealthConnectFile(
               await storeRecordBatch(normalized);
               progress.recordsStored += normalized.length;
               onProgress({ ...progress });
+
+              // Update DB with progress — parsing+storing is 10-85%
+              const now = Date.now();
+              if (now - hcLastDbUpdate >= HC_DB_UPDATE_INTERVAL) {
+                hcLastDbUpdate = now;
+                await db.imports.update(importId, {
+                  recordCount: progress.recordsStored,
+                  progressPct: Math.min(
+                    10 +
+                      Math.round(
+                        (progress.recordsStored / Math.max(progress.recordsParsed, 1)) * 75,
+                      ),
+                    85,
+                  ),
+                });
+              }
             });
           }
 
@@ -459,6 +533,7 @@ export async function importHealthConnectFile(
           type: "start",
           jsonContent,
           importId,
+          cutoffDate,
         } satisfies HCWorkerMessage);
       },
     );
@@ -466,11 +541,14 @@ export async function importHealthConnectFile(
     // Step 3: Compute daily summaries
     progress.phase = "computing_summaries";
     onProgress({ ...progress });
+    await db.imports.update(importId, { recordCount: progress.recordsStored, progressPct: 85 });
 
     const summaryCount = await computeDailySummaries(importId);
     progress.summariesComputed = summaryCount;
 
     // Step 4: Compute date range
+    await db.imports.update(importId, { progressPct: 95 });
+
     const storedRecords = await db.healthRecords
       .where("importId")
       .equals(importId)
@@ -489,6 +567,7 @@ export async function importHealthConnectFile(
       completedAt: new Date(),
       recordCount: progress.recordsStored,
       exportDate: result.exportDate ?? "",
+      progressPct: 100,
       dateRange,
     });
 

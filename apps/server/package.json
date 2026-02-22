@@ -21,6 +21,7 @@
     "@health-app/db": "workspace:*",
     "@health-app/shared": "workspace:*",
     "better-auth": "^1",
+    "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "fastify": "^5",
     "zod": "^3.24"

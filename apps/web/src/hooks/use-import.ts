@@ -40,7 +40,7 @@ const initialState: ImportState = {
 export function useImport() {
   const [state, setState] = useState<ImportState>(initialState);
 
-  const startImport = useCallback(async (file: File) => {
+  const startImport = useCallback(async (file: File, cutoffDate?: string) => {
     setState({
       isImporting: true,
       phase: "reading_zip",
@@ -53,17 +53,21 @@ export function useImport() {
     });
 
     try {
-      const result = await importAppleHealthFile(file, (progress: ImportProgress) => {
-        setState((prev) => ({
-          ...prev,
-          phase: progress.phase,
-          recordsParsed: progress.recordsParsed,
-          recordsStored: progress.recordsStored,
-          totalRecords: progress.totalRecords,
-          summariesComputed: progress.summariesComputed,
-          error: progress.error ?? null,
-        }));
-      });
+      const result = await importAppleHealthFile(
+        file,
+        (progress: ImportProgress) => {
+          setState((prev) => ({
+            ...prev,
+            phase: progress.phase,
+            recordsParsed: progress.recordsParsed,
+            recordsStored: progress.recordsStored,
+            totalRecords: progress.totalRecords,
+            summariesComputed: progress.summariesComputed,
+            error: progress.error ?? null,
+          }));
+        },
+        cutoffDate,
+      );
 
       setState((prev) => ({
         ...prev,
@@ -85,7 +89,7 @@ export function useImport() {
     }
   }, []);
 
-  const startHealthConnectImport = useCallback(async (file: File) => {
+  const startHealthConnectImport = useCallback(async (file: File, cutoffDate?: string) => {
     setState({
       isImporting: true,
       phase: "parsing",
@@ -98,17 +102,21 @@ export function useImport() {
     });
 
     try {
-      const result = await importHealthConnectFile(file, (progress: ImportProgress) => {
-        setState((prev) => ({
-          ...prev,
-          phase: progress.phase,
-          recordsParsed: progress.recordsParsed,
-          recordsStored: progress.recordsStored,
-          totalRecords: progress.totalRecords,
-          summariesComputed: progress.summariesComputed,
-          error: progress.error ?? null,
-        }));
-      });
+      const result = await importHealthConnectFile(
+        file,
+        (progress: ImportProgress) => {
+          setState((prev) => ({
+            ...prev,
+            phase: progress.phase,
+            recordsParsed: progress.recordsParsed,
+            recordsStored: progress.recordsStored,
+            totalRecords: progress.totalRecords,
+            summariesComputed: progress.summariesComputed,
+            error: progress.error ?? null,
+          }));
+        },
+        cutoffDate,
+      );
 
       setState((prev) => ({
         ...prev,

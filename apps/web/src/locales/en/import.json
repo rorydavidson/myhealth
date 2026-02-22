@@ -53,6 +53,18 @@
     "largeFile": "This is a large file ({{size}}). Import may take a few minutes.",
     "clearData": "This will add to your existing data. Duplicates are automatically detected."
   },
+  "dateRange": {
+    "title": "How much data do you want to import?",
+    "last18Months": "Last 18 months",
+    "last3Years": "Last 3 years",
+    "allData": "All data",
+    "recommended": "(recommended)",
+    "fasterImport": "Faster import, covers recent trends",
+    "moreHistory": "More historical data for trends",
+    "longestImport": "Complete history — may take several minutes for large files",
+    "startImport": "Start import",
+    "changeFile": "Change file"
+  },
   "errors": {
     "invalidFile": "Please select a .zip file from Apple Health export.",
     "invalidJsonFile": "Please select a .json file from Health Connect export.",
