@@ -33,6 +33,7 @@
     "i18next-browser-languagedetector": "^8",
     "lucide-react": "^0.474",
     "pdfjs-dist": "^5.4.624",
+    "pdfmake": "^0.3.5",
     "react": "^19",
     "react-dom": "^19",
     "react-i18next": "^15",
@@ -43,6 +44,8 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4",
     "@tanstack/router-plugin": "^1",
+    "@types/fhir": "^0.0.41",
+    "@types/pdfmake": "^0.3.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sax": "^1.2.7",

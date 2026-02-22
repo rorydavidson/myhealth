@@ -72,4 +72,11 @@ db.version(1).stores({
   imports: "id",
 });
 
+db.version(2).stores({
+  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+  dailySummaries: "id, [metricType+date]",
+  labResults: "id, date, category",
+  imports: "id, startedAt",
+});
+
 export { db };

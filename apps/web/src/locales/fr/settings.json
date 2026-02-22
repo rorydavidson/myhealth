@@ -28,8 +28,20 @@
     "warning": "La suppression des données de votre navigateur effacera définitivement vos données de santé. Nous recommandons d'exporter une sauvegarde régulièrement.",
     "clearAll": "Effacer toutes les données de santé",
     "clearConfirm": "Cela supprimera définitivement toutes vos données de santé. Cette action est irréversible. Êtes-vous sûr(e) ?",
-    "export": "Exporter une sauvegarde",
-    "importBackup": "Importer une sauvegarde"
+    "cancel": "Annuler",
+    "confirmDelete": "Oui, supprimer toutes les données",
+    "clearing": "Suppression…",
+    "export": "Exporter une sauvegarde (JSON)",
+    "exportCsv": "Exporter en CSV",
+    "importBackup": "Importer une sauvegarde",
+    "importing": "Importation…",
+    "importSuccess": "{{count}} enregistrements de santé importés avec succès.",
+    "importError": "Échec de l'importation du fichier de sauvegarde.",
+    "statsRecords": "Enregistrements de santé",
+    "statsSummaries": "Résumés quotidiens",
+    "statsLabResults": "Résultats de laboratoire",
+    "statsImports": "Importations",
+    "statsSize": "Taille estimée"
   },
   "saved": "Paramètres enregistrés"
 }

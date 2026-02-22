@@ -8,8 +8,13 @@
  * All processing happens client-side — nothing touches the server.
  */
 
-import { db, type DailySummaryRow, type HealthRecordRow, type ImportRow, type LabResultRow } from "@/db";
-import { computeDailySummaries } from "./aggregate";
+import {
+  type DailySummaryRow,
+  db,
+  type HealthRecordRow,
+  type ImportRow,
+  type LabResultRow,
+} from "@/db";
 
 const EXPORT_VERSION = 1;
 

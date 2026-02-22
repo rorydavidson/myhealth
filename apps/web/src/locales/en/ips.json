@@ -8,8 +8,27 @@
     "namePlaceholder": "As it should appear on the summary",
     "namePrivacy": "Your name is only included in the exported file — it is not stored or sent to our servers.",
     "timeRange": "Time range for vital signs",
+    "timeRanges": {
+      "30": "Last 30 days",
+      "90": "Last 90 days",
+      "180": "Last 6 months",
+      "365": "Last year"
+    },
     "labResultsSelect": "Select lab results to include",
+    "noLabResults": "No lab results uploaded yet.",
     "preview": "Preview summary"
+  },
+  "preview": {
+    "title": "Summary Preview",
+    "vitalSigns": "Vital Signs",
+    "labResults": "Lab Results",
+    "metric": "Metric",
+    "latestValue": "Latest Value",
+    "date": "Date",
+    "file": "File",
+    "tests": "Tests",
+    "noVitalSigns": "No vital sign data found in the selected time range.",
+    "noLabResults": "No lab results selected."
   },
   "sections": {
     "vitalSigns": "Vital Signs",
@@ -23,6 +42,7 @@
     "json": "Export as FHIR JSON",
     "jsonDescription": "Machine-readable format for EHR systems",
     "pdf": "Export as PDF",
-    "pdfDescription": "Human-readable summary for sharing with providers"
+    "pdfDescription": "Human-readable summary for sharing with providers",
+    "exporting": "Exporting…"
   }
 }

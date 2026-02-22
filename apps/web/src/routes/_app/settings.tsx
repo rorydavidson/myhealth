@@ -1,11 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check } from "lucide-react";
+import { AlertTriangle, Check, Download, HardDrive, Trash2, Upload } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { db } from "@/db";
 import { usePreferences, useUpdatePreferences } from "@/hooks/use-preferences";
 import { useSession } from "@/lib/auth-client";
+import {
+  clearAllData,
+  exportDataAsCsv,
+  exportDataAsJson,
+  importDataFromJson,
+} from "@/services/export";
 
 export const Route = createFileRoute("/_app/settings")({
   component: SettingsPage,
@@ -14,11 +22,140 @@ export const Route = createFileRoute("/_app/settings")({
 const selectClassName =
   "rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800";
 
+interface StorageStats {
+  healthRecords: number;
+  dailySummaries: number;
+  labResults: number;
+  imports: number;
+  estimatedSizeMB: string;
+}
+
+function useStorageStats() {
+  const [stats, setStats] = useState<StorageStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [healthRecords, dailySummaries, labResults, imports] = await Promise.all([
+        db.healthRecords.count(),
+        db.dailySummaries.count(),
+        db.labResults.count(),
+        db.imports.count(),
+      ]);
+
+      // Estimate storage usage via navigator.storage API
+      let estimatedSizeMB = "—";
+      if (navigator.storage?.estimate) {
+        const estimate = await navigator.storage.estimate();
+        if (estimate.usage) {
+          estimatedSizeMB = (estimate.usage / (1024 * 1024)).toFixed(1);
+        }
+      }
+
+      setStats({
+        healthRecords,
+        dailySummaries,
+        labResults,
+        imports,
+        estimatedSizeMB,
+      });
+    } catch {
+      // silently fail — stats are informational
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial load
+  useState(() => {
+    refresh();
+  });
+
+  return { stats, loading, refresh };
+}
+
 function SettingsPage() {
   const { t } = useTranslation("settings");
   const { data: session } = useSession();
   const { data: prefs, isPending } = usePreferences();
   const { mutate: update, isPending: isSaving, isSuccess } = useUpdatePreferences();
+
+  const { stats, loading: statsLoading, refresh: refreshStats } = useStorageStats();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearing, setClearing] = useState(false);
+
+  const handleExportJson = useCallback(async () => {
+    setExporting(true);
+    try {
+      await exportDataAsJson();
+    } finally {
+      setExporting(false);
+    }
+  }, []);
+
+  const handleExportCsv = useCallback(async () => {
+    setExporting(true);
+    try {
+      await exportDataAsCsv();
+    } finally {
+      setExporting(false);
+    }
+  }, []);
+
+  const handleImportBackup = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileSelected = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setImporting(true);
+      setImportResult(null);
+
+      try {
+        const result = await importDataFromJson(file);
+        setImportResult({
+          success: true,
+          message: t("storage.importSuccess", { count: result.recordCount }),
+        });
+        refreshStats();
+      } catch (err) {
+        setImportResult({
+          success: false,
+          message: err instanceof Error ? err.message : t("storage.importError"),
+        });
+      } finally {
+        setImporting(false);
+        // Reset file input so the same file can be selected again
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    },
+    [t, refreshStats],
+  );
+
+  const handleClearAll = useCallback(async () => {
+    setClearing(true);
+    try {
+      await clearAllData();
+      setShowClearConfirm(false);
+      refreshStats();
+    } finally {
+      setClearing(false);
+    }
+  }, [refreshStats]);
 
   if (isPending) {
     return (
@@ -106,7 +243,11 @@ function SettingsPage() {
           <select
             id="theme-select"
             value={prefs?.theme ?? "system"}
-            onChange={(e) => update({ theme: e.target.value as "light" | "dark" | "system" })}
+            onChange={(e) =>
+              update({
+                theme: e.target.value as "light" | "dark" | "system",
+              })
+            }
             disabled={isSaving}
             className={selectClassName}
           >
@@ -144,13 +285,149 @@ function SettingsPage() {
           {t("storage.description")}
         </p>
         <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">{t("storage.warning")}</p>
-        <div className="flex gap-3">
-          <Button type="button" variant="secondary" size="sm">
+
+        {/* Storage stats */}
+        <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-800">
+          <div className="mb-2 flex items-center gap-2">
+            <HardDrive className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {t("storage.usage")}
+            </span>
+          </div>
+          {statsLoading ? (
+            <Skeleton className="h-16 w-full" />
+          ) : stats ? (
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsRecords")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.healthRecords.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsSummaries")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.dailySummaries.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsLabResults")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.labResults.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsImports")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.imports.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">{t("storage.statsSize")}</div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.estimatedSizeMB} MB
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Export buttons */}
+        <div className="mb-4 flex flex-wrap gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleExportJson}
+            disabled={exporting}
+          >
+            <Download className="mr-1.5 h-3.5 w-3.5" />
             {t("storage.export")}
           </Button>
-          <Button type="button" variant="secondary" size="sm">
-            {t("storage.importBackup")}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleExportCsv}
+            disabled={exporting}
+          >
+            <Download className="mr-1.5 h-3.5 w-3.5" />
+            {t("storage.exportCsv")}
           </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleImportBackup}
+            disabled={importing}
+          >
+            <Upload className="mr-1.5 h-3.5 w-3.5" />
+            {importing ? t("storage.importing") : t("storage.importBackup")}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileSelected}
+            className="hidden"
+          />
+        </div>
+
+        {/* Import result */}
+        {importResult && (
+          <div
+            className={`mb-4 rounded-lg border p-3 text-sm ${
+              importResult.success
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-400"
+            }`}
+          >
+            {importResult.message}
+          </div>
+        )}
+
+        {/* Clear data */}
+        <div className="border-t border-neutral-200 pt-4 dark:border-neutral-700">
+          {!showClearConfirm ? (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowClearConfirm(true)}
+              className="text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950 dark:hover:text-rose-300"
+            >
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+              {t("storage.clearAll")}
+            </Button>
+          ) : (
+            <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 dark:border-rose-800 dark:bg-rose-950">
+              <div className="mb-3 flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                <p className="text-sm text-rose-700 dark:text-rose-300">
+                  {t("storage.clearConfirm")}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setShowClearConfirm(false)}
+                  disabled={clearing}
+                >
+                  {t("storage.cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleClearAll}
+                  disabled={clearing}
+                  className="bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-700 dark:hover:bg-rose-600"
+                >
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                  {clearing ? t("storage.clearing") : t("storage.confirmDelete")}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
     </div>

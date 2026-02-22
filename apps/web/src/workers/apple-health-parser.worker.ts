@@ -2,17 +2,21 @@
  * Apple Health XML Parser Web Worker
  *
  * Streams a large Apple Health export.xml using SAX parser.
+ * Accepts XML in chunks via "chunk" messages for memory-efficient streaming.
  * Posts parsed records back to the main thread in batches.
  * Never loads the entire XML into memory.
  */
 import { parser as createSaxParser, type SAXParser } from "sax";
 
-// Message types
-export interface WorkerMessage {
-  type: "start";
-  xmlContent: string;
-  importId: string;
-}
+// Message types — the worker accepts three message types:
+// "start" - initialize the parser (no data)
+// "chunk" - feed a chunk of XML text to the parser
+// "end"   - signal that all chunks have been sent
+
+export type WorkerMessage =
+  | { type: "start"; importId: string }
+  | { type: "chunk"; xmlChunk: string }
+  | { type: "end" };
 
 export interface WorkerProgress {
   type: "progress";
@@ -148,7 +152,7 @@ function handleOpenTag(node: { name: string; attributes: Record<string, string> 
           type: "progress",
           phase: "parsing",
           recordsParsed: totalRecords,
-          bytesProcessed: 0, // Not tracked in string mode
+          bytesProcessed: 0,
           totalBytes: 0,
         } satisfies WorkerProgress);
       }
@@ -252,42 +256,59 @@ function parseSleepStage(value: string): string | null {
   return stageMap[value] ?? null;
 }
 
-self.onmessage = (event: MessageEvent<WorkerMessage>) => {
-  const { xmlContent } = event.data;
+function initParser() {
   records = [];
   totalRecords = 0;
   exportDate = null;
+  insideCorrelation = false;
+  correlationType = "";
+  correlationRecords = [];
+
+  saxParser = createSaxParser(true, {
+    trim: false,
+    normalize: false,
+  });
+
+  saxParser.onopentag = handleOpenTag as (
+    // biome-ignore lint/complexity/noBannedTypes: SAX parser type requires empty object union
+    node: { name: string; attributes: Record<string, string> } | { name: string; attributes: {} },
+  ) => void;
+  saxParser.onclosetag = handleCloseTag;
+
+  saxParser.onerror = (err) => {
+    // SAX parser recovers from most errors, log and continue
+    console.warn("SAX parser error:", err.message);
+    saxParser.resume();
+  };
+}
+
+self.onmessage = (event: MessageEvent<WorkerMessage>) => {
+  const msg = event.data;
 
   try {
-    saxParser = createSaxParser(true, {
-      trim: false,
-      normalize: false,
-    });
+    if (msg.type === "start") {
+      initParser();
+      return;
+    }
 
-    saxParser.onopentag = handleOpenTag as (
-      // biome-ignore lint/complexity/noBannedTypes: SAX parser type requires empty object union
-      node: { name: string; attributes: Record<string, string> } | { name: string; attributes: {} },
-    ) => void;
-    saxParser.onclosetag = handleCloseTag;
+    if (msg.type === "chunk") {
+      // Feed this chunk to the SAX parser incrementally
+      saxParser.write(msg.xmlChunk);
+      return;
+    }
 
-    saxParser.onerror = (err) => {
-      // SAX parser recovers from most errors, log and continue
-      console.warn("SAX parser error:", err.message);
-      saxParser.resume();
-    };
+    if (msg.type === "end") {
+      // Close the parser and flush remaining records
+      saxParser.close();
+      flushBatch();
 
-    // Parse the XML content
-    saxParser.write(xmlContent);
-    saxParser.close();
-
-    // Flush remaining records
-    flushBatch();
-
-    self.postMessage({
-      type: "complete",
-      totalRecords,
-      exportDate,
-    } satisfies WorkerComplete);
+      self.postMessage({
+        type: "complete",
+        totalRecords,
+        exportDate,
+      } satisfies WorkerComplete);
+      return;
+    }
   } catch (err) {
     self.postMessage({
       type: "error",

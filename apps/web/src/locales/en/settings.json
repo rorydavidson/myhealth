@@ -28,8 +28,20 @@
     "warning": "Clearing your browser data will permanently delete your health data. We recommend exporting a backup regularly.",
     "clearAll": "Clear all health data",
     "clearConfirm": "This will permanently delete all your health data. This cannot be undone. Are you sure?",
-    "export": "Export backup",
-    "importBackup": "Import backup"
+    "cancel": "Cancel",
+    "confirmDelete": "Yes, delete all data",
+    "clearing": "Deleting…",
+    "export": "Export backup (JSON)",
+    "exportCsv": "Export as CSV",
+    "importBackup": "Import backup",
+    "importing": "Importing…",
+    "importSuccess": "Successfully imported {{count}} health records.",
+    "importError": "Failed to import backup file.",
+    "statsRecords": "Health records",
+    "statsSummaries": "Daily summaries",
+    "statsLabResults": "Lab results",
+    "statsImports": "Imports",
+    "statsSize": "Estimated size"
   },
   "saved": "Settings saved"
 }
