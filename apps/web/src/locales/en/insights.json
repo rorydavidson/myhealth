@@ -1,0 +1,29 @@
+{
+  "title": "Health Insights",
+  "chat": {
+    "placeholder": "Ask about your health data...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "welcome": "Ask me anything about your health data. I can help you understand trends, compare periods, and explain what your metrics mean.",
+    "examples": {
+      "sleep": "How was my sleep this week?",
+      "exercise": "Am I getting enough exercise?",
+      "labs": "What do my latest lab results mean?",
+      "trends": "What are my heart rate trends?"
+    }
+  },
+  "privacy": {
+    "standardMode": "Standard",
+    "enhancedMode": "Enhanced",
+    "standardDescription": "Only aggregated summaries are sent. No raw data leaves your device.",
+    "enhancedToggle": "Include detailed health data for a more specific response",
+    "enhancedWarning": "You are about to send detailed health data to {{provider}}. This data will leave your device and be processed by a third-party AI service.",
+    "enhancedDetail": "Only the data shown below will be sent.",
+    "dataSent": "Data sent to AI",
+    "showData": "Show data",
+    "hideData": "Hide data",
+    "consentConfirm": "I understand and want to proceed",
+    "neverSent": "Never sent: your name, date of birth, email, or device identifiers"
+  },
+  "disclaimer": "This is not medical advice. Always consult a healthcare professional for medical concerns."
+}

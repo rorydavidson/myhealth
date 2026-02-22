@@ -1,0 +1,29 @@
+{
+  "title": "Analyses de santé",
+  "chat": {
+    "placeholder": "Posez une question sur vos données de santé...",
+    "send": "Envoyer",
+    "thinking": "Réflexion en cours...",
+    "welcome": "Posez-moi n'importe quelle question sur vos données de santé. Je peux vous aider à comprendre les tendances, comparer des périodes et expliquer vos indicateurs.",
+    "examples": {
+      "sleep": "Comment était mon sommeil cette semaine ?",
+      "exercise": "Est-ce que je fais assez d'exercice ?",
+      "labs": "Que signifient mes derniers résultats de laboratoire ?",
+      "trends": "Quelles sont les tendances de ma fréquence cardiaque ?"
+    }
+  },
+  "privacy": {
+    "standardMode": "Standard",
+    "enhancedMode": "Détaillé",
+    "standardDescription": "Seuls des résumés agrégés sont envoyés. Aucune donnée brute ne quitte votre appareil.",
+    "enhancedToggle": "Inclure des données de santé détaillées pour une réponse plus précise",
+    "enhancedWarning": "Vous êtes sur le point d'envoyer des données de santé détaillées à {{provider}}. Ces données quitteront votre appareil et seront traitées par un service d'IA tiers.",
+    "enhancedDetail": "Seules les données affichées ci-dessous seront envoyées.",
+    "dataSent": "Données envoyées à l'IA",
+    "showData": "Afficher les données",
+    "hideData": "Masquer les données",
+    "consentConfirm": "Je comprends et je souhaite continuer",
+    "neverSent": "Jamais envoyés : votre nom, date de naissance, e-mail ou identifiants d'appareils"
+  },
+  "disclaimer": "Ceci ne constitue pas un avis médical. Consultez toujours un professionnel de santé pour toute question médicale."
+}

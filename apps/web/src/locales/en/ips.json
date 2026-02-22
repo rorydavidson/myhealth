@@ -1,0 +1,28 @@
+{
+  "title": "Patient Summary",
+  "description": "Generate an International Patient Summary (IPS) — a standardized health record you can share with healthcare providers.",
+  "whatIsIps": "What is an IPS?",
+  "whatIsIpsDetail": "An International Patient Summary is a minimal, portable health record following the HL7 FHIR standard (ISO/EN 27269). It contains essential clinical information for cross-border or cross-provider care.",
+  "form": {
+    "nameLabel": "Your name",
+    "namePlaceholder": "As it should appear on the summary",
+    "namePrivacy": "Your name is only included in the exported file — it is not stored or sent to our servers.",
+    "timeRange": "Time range for vital signs",
+    "labResultsSelect": "Select lab results to include",
+    "preview": "Preview summary"
+  },
+  "sections": {
+    "vitalSigns": "Vital Signs",
+    "results": "Results",
+    "medications": "Medication Summary",
+    "allergies": "Allergies and Intolerances",
+    "problems": "Problem List",
+    "noInformation": "No information available"
+  },
+  "export": {
+    "json": "Export as FHIR JSON",
+    "jsonDescription": "Machine-readable format for EHR systems",
+    "pdf": "Export as PDF",
+    "pdfDescription": "Human-readable summary for sharing with providers"
+  }
+}

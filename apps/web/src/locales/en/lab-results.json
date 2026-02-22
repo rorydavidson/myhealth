@@ -1,0 +1,63 @@
+{
+  "title": "Lab Results",
+  "upload": {
+    "title": "Upload Lab Report",
+    "dropzone": "Drop your lab report PDF here",
+    "dropzoneOr": "or click to browse",
+    "acceptedFormat": "Accepts PDF files",
+    "privacy": "Your lab results stay on this device."
+  },
+  "form": {
+    "dateLabel": "Date of test",
+    "categoryLabel": "Category",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "Add any notes about this lab result...",
+    "categories": {
+      "blood_panel": "Blood Panel (CBC)",
+      "lipid_panel": "Lipid Panel",
+      "thyroid": "Thyroid",
+      "metabolic": "Metabolic Panel",
+      "other": "Other"
+    }
+  },
+  "extraction": {
+    "extracting": "Extracting text from PDF...",
+    "reviewValues": "Review extracted values",
+    "testName": "Test",
+    "value": "Value",
+    "unit": "Unit",
+    "referenceRange": "Reference",
+    "flag": "Flag",
+    "loincCode": "LOINC Code",
+    "noValuesExtracted": "No structured values could be extracted. You can add them manually."
+  },
+  "list": {
+    "empty": "No lab results yet. Upload a PDF lab report to get started.",
+    "emptyDescription": "Upload a PDF lab report to store and track your results locally.",
+    "date": "Date",
+    "category": "Category",
+    "file": "File",
+    "values": "Values",
+    "deleteConfirm": "Are you sure you want to delete this lab result?",
+    "valuesCount": "{{count}} values extracted"
+  },
+  "detail": {
+    "viewPdf": "View PDF",
+    "extractedValues": "Extracted Values",
+    "notes": "Notes",
+    "noNotes": "No notes added",
+    "back": "Back to list"
+  },
+  "save": {
+    "saving": "Saving...",
+    "success": "Lab result saved successfully",
+    "button": "Save Lab Result"
+  },
+  "flags": {
+    "normal": "Normal",
+    "low": "Low",
+    "high": "High",
+    "critical_low": "Critical Low",
+    "critical_high": "Critical High"
+  }
+}

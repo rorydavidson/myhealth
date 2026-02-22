@@ -1,0 +1,95 @@
+{
+  "appName": "Health Dashboard",
+  "nav": {
+    "dashboard": "Dashboard",
+    "import": "Import Data",
+    "insights": "Insights",
+    "labResults": "Lab Results",
+    "trends": "Trends",
+    "settings": "Settings",
+    "patientSummary": "Patient Summary",
+    "workouts": "Workouts",
+    "profile": "Profile"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "export": "Export",
+    "import": "Import",
+    "upload": "Upload",
+    "retry": "Retry",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "learnMore": "Learn more",
+    "signOut": "Sign out"
+  },
+  "status": {
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "completed": "Completed",
+    "failed": "Failed",
+    "error": "Error"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "7d": "7d",
+    "30d": "30d",
+    "90d": "90d",
+    "1y": "1y",
+    "all": "All"
+  },
+  "privacy": {
+    "dataStaysLocal": "Your data stays on this device",
+    "nothingUploaded": "Nothing is uploaded to our servers"
+  },
+  "categories": {
+    "activity": "Activity",
+    "heart": "Heart",
+    "body": "Body",
+    "sleep": "Sleep",
+    "vitals": "Vitals",
+    "workouts": "Workouts",
+    "labResults": "Lab Results"
+  },
+  "metrics": {
+    "steps": "Steps",
+    "distance": "Distance",
+    "activeEnergy": "Active Energy",
+    "flightsClimbed": "Flights Climbed",
+    "heartRate": "Heart Rate",
+    "restingHeartRate": "Resting Heart Rate",
+    "hrv": "Heart Rate Variability",
+    "weight": "Weight",
+    "bodyFat": "Body Fat",
+    "sleep": "Sleep",
+    "bloodOxygen": "Blood Oxygen",
+    "bloodPressure": "Blood Pressure",
+    "respiratoryRate": "Respiratory Rate",
+    "workout": "Workout"
+  },
+  "units": {
+    "steps": "steps",
+    "km": "km",
+    "mi": "mi",
+    "kcal": "kcal",
+    "bpm": "bpm",
+    "ms": "ms",
+    "kg": "kg",
+    "lb": "lb",
+    "hr": "hr",
+    "min": "min",
+    "percent": "%",
+    "mmHg": "mmHg",
+    "breathsPerMin": "breaths/min",
+    "flights": "flights"
+  },
+  "disclaimer": "This is not medical advice. Consult a healthcare professional for medical concerns."
+}

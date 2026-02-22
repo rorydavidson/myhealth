@@ -1,0 +1,61 @@
+{
+  "title": "Importer des données de santé",
+  "appleHealth": {
+    "title": "Apple Health",
+    "description": "Téléversez votre export Apple Health (fichier .zip)",
+    "instructions": "Sur votre iPhone : app Santé → Profil → Exporter toutes les données de santé",
+    "dropzone": "Déposez votre export Apple Health ici",
+    "dropzoneOr": "ou cliquez pour parcourir",
+    "acceptedFormat": "Accepte les fichiers .zip de l'export Apple Health",
+    "browseFiles": "Parcourir les fichiers"
+  },
+  "googleHealth": {
+    "title": "Google Health Connect",
+    "description": "Téléversez votre export Health Connect (fichier .json)",
+    "instructions": "Sur votre Android : app Health Connect → Paramètres → Exporter les données",
+    "dropzone": "Déposez votre export Health Connect ici",
+    "dropzoneOr": "ou cliquez pour parcourir",
+    "acceptedFormat": "Accepte les fichiers .json de l'export Health Connect",
+    "browseFiles": "Parcourir les fichiers"
+  },
+  "progress": {
+    "readingZip": "Lecture du fichier ZIP...",
+    "parsingXml": "Analyse des données de santé...",
+    "storingRecords": "Enregistrement des données...",
+    "computingSummaries": "Calcul des résumés quotidiens...",
+    "complete": "Importation terminée !",
+    "recordsParsed": "{{count}} enregistrements analysés",
+    "recordsStored": "{{count}} enregistrements stockés",
+    "summariesComputed": "{{count}} résumés quotidiens calculés",
+    "recordsProcessed": "{{count}} enregistrements traités",
+    "failed": "Échec de l'importation",
+    "importAnother": "Importer un autre fichier",
+    "viewDashboard": "Voir le tableau de bord"
+  },
+  "history": {
+    "title": "Historique des importations",
+    "date": "Date",
+    "source": "Source",
+    "records": "Enregistrements",
+    "status": "Statut",
+    "noImports": "Aucune importation",
+    "deleteImport": "Supprimer",
+    "deleteConfirm": "Supprimer cette importation et ses {{count}} enregistrements ?",
+    "statusCompleted": "Terminée",
+    "statusProcessing": "En cours",
+    "statusFailed": "Échouée"
+  },
+  "privacy": {
+    "message": "Vos données restent sur cet appareil. Rien n'est envoyé à nos serveurs.",
+    "detail": "Toute l'analyse se fait dans votre navigateur à l'aide d'un processus en arrière-plan."
+  },
+  "warnings": {
+    "largeFile": "Ce fichier est volumineux ({{size}}). L'importation peut prendre quelques minutes.",
+    "clearData": "Ceci sera ajouté à vos données existantes. Les doublons sont automatiquement détectés."
+  },
+  "errors": {
+    "invalidFile": "Veuillez sélectionner un fichier .zip de l'export Apple Health.",
+    "invalidJsonFile": "Veuillez sélectionner un fichier .json de l'export Health Connect.",
+    "generic": "Une erreur est survenue lors de l'importation. Veuillez réessayer."
+  }
+}

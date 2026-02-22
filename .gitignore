@@ -1,0 +1,14 @@
+.vscode/settings.json
+
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+coverage/
+.DS_Store
+*.log
+.claude/
+.vscode/

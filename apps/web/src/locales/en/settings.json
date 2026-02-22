@@ -1,0 +1,35 @@
+{
+  "title": "Settings",
+  "profile": {
+    "title": "Profile",
+    "displayName": "Display name",
+    "email": "Email"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "units": "Units",
+    "unitsMetric": "Metric (kg, km)",
+    "unitsImperial": "Imperial (lb, mi)",
+    "timezone": "Timezone",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "fr": "Français"
+    },
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
+  },
+  "storage": {
+    "title": "Data Storage",
+    "usage": "Storage used",
+    "description": "All health data is stored locally in your browser.",
+    "warning": "Clearing your browser data will permanently delete your health data. We recommend exporting a backup regularly.",
+    "clearAll": "Clear all health data",
+    "clearConfirm": "This will permanently delete all your health data. This cannot be undone. Are you sure?",
+    "export": "Export backup",
+    "importBackup": "Import backup"
+  },
+  "saved": "Settings saved"
+}

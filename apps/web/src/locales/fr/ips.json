@@ -1,0 +1,28 @@
+{
+  "title": "Résumé patient",
+  "description": "Générez un résumé patient international (IPS) — un dossier de santé standardisé que vous pouvez partager avec vos professionnels de santé.",
+  "whatIsIps": "Qu'est-ce qu'un IPS ?",
+  "whatIsIpsDetail": "Un résumé patient international est un dossier de santé minimal et portable suivant le standard HL7 FHIR (ISO/EN 27269). Il contient les informations cliniques essentielles pour les soins transfrontaliers ou entre prestataires.",
+  "form": {
+    "nameLabel": "Votre nom",
+    "namePlaceholder": "Tel qu'il doit apparaître sur le résumé",
+    "namePrivacy": "Votre nom est uniquement inclus dans le fichier exporté — il n'est ni stocké ni envoyé à nos serveurs.",
+    "timeRange": "Période pour les signes vitaux",
+    "labResultsSelect": "Sélectionnez les résultats de laboratoire à inclure",
+    "preview": "Aperçu du résumé"
+  },
+  "sections": {
+    "vitalSigns": "Signes vitaux",
+    "results": "Résultats",
+    "medications": "Résumé des médicaments",
+    "allergies": "Allergies et intolérances",
+    "problems": "Liste des problèmes",
+    "noInformation": "Aucune information disponible"
+  },
+  "export": {
+    "json": "Exporter en FHIR JSON",
+    "jsonDescription": "Format lisible par machine pour les systèmes de dossiers médicaux",
+    "pdf": "Exporter en PDF",
+    "pdfDescription": "Résumé lisible à partager avec vos prestataires de santé"
+  }
+}

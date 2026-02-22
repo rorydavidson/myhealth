@@ -1,0 +1,63 @@
+{
+  "title": "Résultats de laboratoire",
+  "upload": {
+    "title": "Téléverser un rapport de laboratoire",
+    "dropzone": "Déposez votre rapport PDF ici",
+    "dropzoneOr": "ou cliquez pour parcourir",
+    "acceptedFormat": "Accepte les fichiers PDF",
+    "privacy": "Vos résultats de laboratoire restent sur cet appareil."
+  },
+  "form": {
+    "dateLabel": "Date du test",
+    "categoryLabel": "Catégorie",
+    "notesLabel": "Notes",
+    "notesPlaceholder": "Ajoutez des notes sur ce résultat...",
+    "categories": {
+      "blood_panel": "Bilan sanguin (NFS)",
+      "lipid_panel": "Bilan lipidique",
+      "thyroid": "Thyroïde",
+      "metabolic": "Bilan métabolique",
+      "other": "Autre"
+    }
+  },
+  "extraction": {
+    "extracting": "Extraction du texte du PDF...",
+    "reviewValues": "Vérifier les valeurs extraites",
+    "testName": "Test",
+    "value": "Valeur",
+    "unit": "Unité",
+    "referenceRange": "Référence",
+    "flag": "Indicateur",
+    "loincCode": "Code LOINC",
+    "noValuesExtracted": "Aucune valeur structurée n'a pu être extraite. Vous pouvez les ajouter manuellement."
+  },
+  "list": {
+    "empty": "Aucun résultat de laboratoire. Téléversez un rapport PDF pour commencer.",
+    "emptyDescription": "Téléversez un rapport PDF pour stocker et suivre vos résultats localement.",
+    "date": "Date",
+    "category": "Catégorie",
+    "file": "Fichier",
+    "values": "Valeurs",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce résultat de laboratoire ?",
+    "valuesCount": "{{count}} valeurs extraites"
+  },
+  "detail": {
+    "viewPdf": "Voir le PDF",
+    "extractedValues": "Valeurs extraites",
+    "notes": "Notes",
+    "noNotes": "Aucune note ajoutée",
+    "back": "Retour à la liste"
+  },
+  "save": {
+    "saving": "Enregistrement...",
+    "success": "Résultat de laboratoire enregistré",
+    "button": "Enregistrer le résultat"
+  },
+  "flags": {
+    "normal": "Normal",
+    "low": "Bas",
+    "high": "Élevé",
+    "critical_low": "Critique bas",
+    "critical_high": "Critique élevé"
+  }
+}

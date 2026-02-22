@@ -1,0 +1,95 @@
+{
+  "appName": "Tableau de Bord Santé",
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "import": "Importer des données",
+    "insights": "Analyses",
+    "labResults": "Résultats de laboratoire",
+    "trends": "Tendances",
+    "settings": "Paramètres",
+    "patientSummary": "Résumé patient",
+    "workouts": "Entraînements",
+    "profile": "Profil"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "export": "Exporter",
+    "import": "Importer",
+    "upload": "Téléverser",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "learnMore": "En savoir plus",
+    "signOut": "Se déconnecter"
+  },
+  "status": {
+    "loading": "Chargement...",
+    "processing": "Traitement en cours...",
+    "completed": "Terminé",
+    "failed": "Échoué",
+    "error": "Erreur"
+  },
+  "time": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "thisWeek": "Cette semaine",
+    "lastWeek": "Semaine dernière",
+    "thisMonth": "Ce mois-ci",
+    "lastMonth": "Mois dernier",
+    "7d": "7j",
+    "30d": "30j",
+    "90d": "90j",
+    "1y": "1a",
+    "all": "Tout"
+  },
+  "privacy": {
+    "dataStaysLocal": "Vos données restent sur cet appareil",
+    "nothingUploaded": "Rien n'est envoyé à nos serveurs"
+  },
+  "categories": {
+    "activity": "Activité",
+    "heart": "Cœur",
+    "body": "Corps",
+    "sleep": "Sommeil",
+    "vitals": "Signes vitaux",
+    "workouts": "Entraînements",
+    "labResults": "Résultats de laboratoire"
+  },
+  "metrics": {
+    "steps": "Pas",
+    "distance": "Distance",
+    "activeEnergy": "Énergie active",
+    "flightsClimbed": "Étages montés",
+    "heartRate": "Fréquence cardiaque",
+    "restingHeartRate": "Fréquence cardiaque au repos",
+    "hrv": "Variabilité de la fréquence cardiaque",
+    "weight": "Poids",
+    "bodyFat": "Masse grasse",
+    "sleep": "Sommeil",
+    "bloodOxygen": "Oxygène sanguin",
+    "bloodPressure": "Tension artérielle",
+    "respiratoryRate": "Fréquence respiratoire",
+    "workout": "Entraînement"
+  },
+  "units": {
+    "steps": "pas",
+    "km": "km",
+    "mi": "mi",
+    "kcal": "kcal",
+    "bpm": "bpm",
+    "ms": "ms",
+    "kg": "kg",
+    "lb": "lb",
+    "hr": "h",
+    "min": "min",
+    "percent": " %",
+    "mmHg": "mmHg",
+    "breathsPerMin": "resp./min",
+    "flights": "étages"
+  },
+  "disclaimer": "Ceci ne constitue pas un avis médical. Consultez un professionnel de santé pour toute question médicale."
+}

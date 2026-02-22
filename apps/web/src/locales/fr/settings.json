@@ -1,0 +1,35 @@
+{
+  "title": "Paramètres",
+  "profile": {
+    "title": "Profil",
+    "displayName": "Nom d'affichage",
+    "email": "E-mail"
+  },
+  "preferences": {
+    "title": "Préférences",
+    "units": "Unités",
+    "unitsMetric": "Métrique (kg, km)",
+    "unitsImperial": "Impérial (lb, mi)",
+    "timezone": "Fuseau horaire",
+    "language": "Langue",
+    "languages": {
+      "en": "English",
+      "fr": "Français"
+    },
+    "theme": "Thème",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système"
+  },
+  "storage": {
+    "title": "Stockage des données",
+    "usage": "Espace utilisé",
+    "description": "Toutes les données de santé sont stockées localement dans votre navigateur.",
+    "warning": "La suppression des données de votre navigateur effacera définitivement vos données de santé. Nous recommandons d'exporter une sauvegarde régulièrement.",
+    "clearAll": "Effacer toutes les données de santé",
+    "clearConfirm": "Cela supprimera définitivement toutes vos données de santé. Cette action est irréversible. Êtes-vous sûr(e) ?",
+    "export": "Exporter une sauvegarde",
+    "importBackup": "Importer une sauvegarde"
+  },
+  "saved": "Paramètres enregistrés"
+}

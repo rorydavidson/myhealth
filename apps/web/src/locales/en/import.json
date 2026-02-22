@@ -1,0 +1,61 @@
+{
+  "title": "Import Health Data",
+  "appleHealth": {
+    "title": "Apple Health",
+    "description": "Upload your Apple Health export (.zip file)",
+    "instructions": "On your iPhone: Health app → Profile → Export All Health Data",
+    "dropzone": "Drop your Apple Health export here",
+    "dropzoneOr": "or click to browse",
+    "acceptedFormat": "Accepts .zip files from Apple Health export",
+    "browseFiles": "Browse files"
+  },
+  "googleHealth": {
+    "title": "Google Health Connect",
+    "description": "Upload your Health Connect export (.json file)",
+    "instructions": "On your Android: Health Connect app → Settings → Export data",
+    "dropzone": "Drop your Health Connect export here",
+    "dropzoneOr": "or click to browse",
+    "acceptedFormat": "Accepts .json files from Health Connect export",
+    "browseFiles": "Browse files"
+  },
+  "progress": {
+    "readingZip": "Reading ZIP file...",
+    "parsingXml": "Parsing health data...",
+    "storingRecords": "Storing records...",
+    "computingSummaries": "Computing daily summaries...",
+    "complete": "Import complete!",
+    "recordsParsed": "{{count}} records parsed",
+    "recordsStored": "{{count}} records stored",
+    "summariesComputed": "{{count}} daily summaries computed",
+    "recordsProcessed": "{{count}} records processed",
+    "failed": "Import failed",
+    "importAnother": "Import another file",
+    "viewDashboard": "View dashboard"
+  },
+  "history": {
+    "title": "Import History",
+    "date": "Date",
+    "source": "Source",
+    "records": "Records",
+    "status": "Status",
+    "noImports": "No imports yet",
+    "deleteImport": "Delete",
+    "deleteConfirm": "Delete this import and all its {{count}} records?",
+    "statusCompleted": "Completed",
+    "statusProcessing": "Processing",
+    "statusFailed": "Failed"
+  },
+  "privacy": {
+    "message": "Your data stays on this device. Nothing is uploaded to our servers.",
+    "detail": "All parsing happens in your browser using a background worker."
+  },
+  "warnings": {
+    "largeFile": "This is a large file ({{size}}). Import may take a few minutes.",
+    "clearData": "This will add to your existing data. Duplicates are automatically detected."
+  },
+  "errors": {
+    "invalidFile": "Please select a .zip file from Apple Health export.",
+    "invalidJsonFile": "Please select a .json file from Health Connect export.",
+    "generic": "Something went wrong during import. Please try again."
+  }
+}

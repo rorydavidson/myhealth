@@ -1,0 +1,31 @@
+{
+  "name": "@health-app/shared",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./coding": {
+      "types": "./dist/coding/index.d.ts",
+      "import": "./dist/coding/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo"
+  },
+  "devDependencies": {
+    "typescript": "^5.8",
+    "zod": "^3.24"
+  },
+  "dependencies": {
+    "zod": "^3.24"
+  }
+}
