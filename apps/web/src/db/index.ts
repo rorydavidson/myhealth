@@ -46,6 +46,17 @@ export interface LabResultRow {
   createdAt: Date;
 }
 
+export interface ClinicalConditionRow {
+  id: string;
+  description: string; // User-entered description, e.g. "Type 2 Diabetes"
+  snomedCode: string; // e.g. "44054006"
+  snomedDisplay: string; // e.g. "Diabetes mellitus type 2"
+  onsetDate?: string; // YYYY-MM-DD, optional
+  status: "active" | "resolved" | "inactive";
+  notes?: string;
+  createdAt: Date;
+}
+
 export interface ImportRow {
   id: string;
   platform: string;
@@ -63,6 +74,7 @@ const db = new Dexie("HealthDashboard") as Dexie & {
   healthRecords: EntityTable<HealthRecordRow, "id">;
   dailySummaries: EntityTable<DailySummaryRow, "id">;
   labResults: EntityTable<LabResultRow, "id">;
+  clinicalConditions: EntityTable<ClinicalConditionRow, "id">;
   imports: EntityTable<ImportRow, "id">;
 };
 
@@ -77,6 +89,14 @@ db.version(2).stores({
   healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
   dailySummaries: "id, [metricType+date]",
   labResults: "id, date, category",
+  imports: "id, startedAt",
+});
+
+db.version(3).stores({
+  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+  dailySummaries: "id, [metricType+date]",
+  labResults: "id, date, category",
+  clinicalConditions: "id, snomedCode, status",
   imports: "id, startedAt",
 });
 

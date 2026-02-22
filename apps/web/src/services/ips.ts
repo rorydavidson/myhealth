@@ -655,19 +655,21 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
 
   // pdfmake needs vfs for fonts — use the built-in Roboto
   const pdfFonts = await import("pdfmake/build/vfs_fonts");
-  const pdfMakeModule = pdfMake as Record<string, unknown>;
-  const pdfFontsModule = pdfFonts as Record<string, unknown>;
-  pdfMakeModule.vfs =
-    pdfFontsModule.vfs ?? (pdfFontsModule.default as Record<string, unknown> | undefined)?.vfs;
 
-  const createPdfFn =
-    typeof pdfMakeModule.createPdf === "function"
-      ? (pdfMakeModule.createPdf as (def: unknown) => { download: (name: string) => void })
-      : ((pdfMakeModule.default as Record<string, unknown>).createPdf as (def: unknown) => {
-          download: (name: string) => void;
-        });
+  // Resolve the actual module exports (handles ESM default + CJS)
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const pdfMakeAny = pdfMake as any;
+  const pdfFontsAny = pdfFonts as any;
+  const pdfMakeResolved = pdfMakeAny.default ?? pdfMakeAny;
+  const pdfFontsResolved = pdfFontsAny.default ?? pdfFontsAny;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  const pdf = createPdfFn(docDefinition);
+  // Assign virtual file system for fonts
+  pdfMakeResolved.vfs = pdfFontsResolved.pdfMake?.vfs ?? pdfFontsResolved.vfs;
+
+  const pdf = pdfMakeResolved.createPdf(docDefinition) as {
+    download: (name: string) => void;
+  };
   pdf.download(`ips-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
