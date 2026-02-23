@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  envDir: resolve(__dirname, "../.."),
   plugins: [TanStackRouterVite(), react(), tailwindcss()],
   resolve: {
     alias: {

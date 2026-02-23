@@ -28,7 +28,11 @@
     "file": "Fichier",
     "tests": "Tests",
     "noVitalSigns": "Aucune donnée de signes vitaux trouvée dans la période sélectionnée.",
-    "noLabResults": "Aucun résultat de laboratoire sélectionné."
+    "noLabResults": "Aucun résultat de laboratoire sélectionné.",
+    "problemList": "Liste des problèmes",
+    "conditionCount_one": "{{count}} condition clinique sera incluse depuis votre page Conditions.",
+    "conditionCount_other": "{{count}} conditions cliniques seront incluses depuis votre page Conditions.",
+    "noConditions": "Aucune condition clinique enregistrée. Ajoutez des conditions sur la page Conditions pour remplir cette section."
   },
   "sections": {
     "vitalSigns": "Signes vitaux",

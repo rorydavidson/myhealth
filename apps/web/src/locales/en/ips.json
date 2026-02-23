@@ -28,7 +28,11 @@
     "file": "File",
     "tests": "Tests",
     "noVitalSigns": "No vital sign data found in the selected time range.",
-    "noLabResults": "No lab results selected."
+    "noLabResults": "No lab results selected.",
+    "problemList": "Problem List",
+    "conditionCount_one": "{{count}} clinical condition will be included from your Conditions page.",
+    "conditionCount_other": "{{count}} clinical conditions will be included from your Conditions page.",
+    "noConditions": "No clinical conditions recorded. Add conditions on the Conditions page to populate this section."
   },
   "sections": {
     "vitalSigns": "Vital Signs",

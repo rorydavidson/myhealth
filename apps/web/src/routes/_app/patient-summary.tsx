@@ -28,6 +28,7 @@ function PatientSummaryPage() {
   const [preview, setPreview] = useState<{
     vitalSignMetrics: Array<{ metric: string; latestDate: string; latestValue: string }>;
     labResults: Array<{ fileName: string; date: string; testCount: number }>;
+    conditionCount: number;
   } | null>(null);
 
   // Load lab results for selection
@@ -247,6 +248,18 @@ function PatientSummaryPage() {
             </div>
           ) : (
             <p className="text-sm text-neutral-400">{t("preview.noLabResults")}</p>
+          )}
+
+          {/* Conditions / Problem List preview */}
+          <h3 className="mb-2 mt-4 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {t("preview.problemList")}
+          </h3>
+          {preview.conditionCount > 0 ? (
+            <p className="text-sm text-neutral-900 dark:text-neutral-50">
+              {t("preview.conditionCount", { count: preview.conditionCount })}
+            </p>
+          ) : (
+            <p className="text-sm text-neutral-400">{t("preview.noConditions")}</p>
           )}
         </Card>
       )}

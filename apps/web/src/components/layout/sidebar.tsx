@@ -1,5 +1,6 @@
 import { Link, useMatchRoute } from "@tanstack/react-router";
 import {
+  ClipboardList,
   Dumbbell,
   FileHeart,
   FlaskConical,
@@ -50,6 +51,12 @@ const navItems: NavItem[] = [
     to: "/lab-results",
     icon: FlaskConical,
     color: "text-lab-results",
+  },
+  {
+    labelKey: "nav.conditions",
+    to: "/conditions",
+    icon: ClipboardList,
+    color: "text-violet-500",
   },
   {
     labelKey: "nav.insights",

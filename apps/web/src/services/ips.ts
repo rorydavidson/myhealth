@@ -11,6 +11,7 @@
  */
 
 import type { METRIC_CODING } from "@health-app/shared/coding";
+import type { ClinicalConditionRow } from "@/db";
 import { db } from "@/db";
 
 // IPS Section LOINC codes
@@ -71,6 +72,9 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   // Build Lab Result observations
   const labResultObservations = await buildLabResultObservations(patientId, includeLabResultIds);
 
+  // Build Condition resources from clinical conditions (Problem List)
+  const conditionResources = await buildConditionResources(patientId);
+
   // Build Composition resource
   const composition = buildComposition(
     compositionId,
@@ -78,6 +82,7 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
     now,
     vitalSignObservations,
     labResultObservations,
+    conditionResources,
   );
 
   // Assemble Bundle
@@ -86,6 +91,7 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
     patientResource,
     ...vitalSignObservations,
     ...labResultObservations,
+    ...conditionResources,
   ];
 
   return {
@@ -329,12 +335,69 @@ async function buildLabResultObservations(
   return observations;
 }
 
+/**
+ * Build FHIR Condition resources from locally stored clinical conditions.
+ * These populate the IPS "Problem List" section.
+ */
+async function buildConditionResources(patientId: string): Promise<FHIRResource[]> {
+  const conditions = await db.clinicalConditions.toArray();
+  if (conditions.length === 0) return [];
+
+  return conditions.map((c: ClinicalConditionRow) => {
+    const conditionId = crypto.randomUUID();
+
+    // Map app status to FHIR Condition clinicalStatus
+    const clinicalStatusMap: Record<string, { code: string; display: string }> = {
+      active: { code: "active", display: "Active" },
+      resolved: { code: "resolved", display: "Resolved" },
+      inactive: { code: "inactive", display: "Inactive" },
+    };
+    const clinicalStatus = clinicalStatusMap[c.status] ?? clinicalStatusMap.active;
+
+    const resource: FHIRResource = {
+      resourceType: "Condition",
+      id: conditionId,
+      clinicalStatus: {
+        coding: [
+          {
+            system: "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            code: clinicalStatus.code,
+            display: clinicalStatus.display,
+          },
+        ],
+      },
+      code: {
+        coding: [
+          {
+            system: "http://snomed.info/sct",
+            code: c.snomedCode,
+            display: c.snomedDisplay,
+          },
+        ],
+        text: c.snomedDisplay,
+      },
+      subject: { reference: `urn:uuid:${patientId}` },
+    };
+
+    if (c.onsetDate) {
+      (resource as Record<string, unknown>).onsetDateTime = `${c.onsetDate}T00:00:00Z`;
+    }
+
+    if (c.notes) {
+      (resource as Record<string, unknown>).note = [{ text: c.notes }];
+    }
+
+    return resource;
+  });
+}
+
 function buildComposition(
   compositionId: string,
   patientId: string,
   date: string,
   vitalSignObservations: FHIRResource[],
   labResultObservations: FHIRResource[],
+  conditionResources: FHIRResource[],
 ): FHIRResource {
   const sections: Array<{
     title: string;
@@ -385,10 +448,30 @@ function buildComposition(
     sections.push(emptySection(IPS_SECTIONS.results));
   }
 
-  // Required empty sections (app doesn't track these)
+  // Required sections — medications and allergies are not tracked by this app
   sections.push(emptySection(IPS_SECTIONS.medications));
   sections.push(emptySection(IPS_SECTIONS.allergies));
-  sections.push(emptySection(IPS_SECTIONS.problems));
+
+  // Problem List — populated from user-entered clinical conditions
+  if (conditionResources.length > 0) {
+    sections.push({
+      title: IPS_SECTIONS.problems.display,
+      code: {
+        coding: [
+          {
+            system: "http://loinc.org",
+            code: IPS_SECTIONS.problems.code,
+            display: IPS_SECTIONS.problems.display,
+          },
+        ],
+      },
+      entry: conditionResources.map((cond) => ({
+        reference: `urn:uuid:${cond.id}`,
+      })),
+    });
+  } else {
+    sections.push(emptySection(IPS_SECTIONS.problems));
+  }
 
   return {
     resourceType: "Composition",
@@ -653,23 +736,17 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
     },
   };
 
-  // pdfmake needs vfs for fonts — use the built-in Roboto
+  // pdfmake needs vfs for fonts — vfs_fonts exports the font files directly as its default export
   const pdfFonts = await import("pdfmake/build/vfs_fonts");
 
-  // Resolve the actual module exports (handles ESM default + CJS)
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const pdfMakeAny = pdfMake as any;
-  const pdfFontsAny = pdfFonts as any;
-  const pdfMakeResolved = pdfMakeAny.default ?? pdfMakeAny;
-  const pdfFontsResolved = pdfFontsAny.default ?? pdfFontsAny;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  const pdfMakeInstance = (pdfMake as Record<string, unknown>).default as Record<string, unknown>;
+  // The vfs_fonts default export IS the vfs object (keys are font file names)
+  pdfMakeInstance.vfs = (pdfFonts as Record<string, unknown>).default ?? pdfFonts;
 
-  // Assign virtual file system for fonts
-  pdfMakeResolved.vfs = pdfFontsResolved.pdfMake?.vfs ?? pdfFontsResolved.vfs;
-
-  const pdf = pdfMakeResolved.createPdf(docDefinition) as {
-    download: (name: string) => void;
-  };
+  const pdf = (pdfMakeInstance.createPdf as (def: unknown) => { download: (name: string) => void }).call(
+    pdfMakeInstance,
+    docDefinition,
+  );
   pdf.download(`ips-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
@@ -682,6 +759,7 @@ export async function getIPSPreview(
 ): Promise<{
   vitalSignMetrics: Array<{ metric: string; latestDate: string; latestValue: string }>;
   labResults: Array<{ fileName: string; date: string; testCount: number }>;
+  conditionCount: number;
 }> {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - timeRangeDays);
@@ -728,7 +806,9 @@ export async function getIPSPreview(
     }
   }
 
-  return { vitalSignMetrics, labResults };
+  const conditionCount = await db.clinicalConditions.count();
+
+  return { vitalSignMetrics, labResults, conditionCount };
 }
 
 function downloadBlob(blob: Blob, fileName: string): void {

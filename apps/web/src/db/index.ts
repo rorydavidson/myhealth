@@ -100,4 +100,12 @@ db.version(3).stores({
   imports: "id, startedAt",
 });
 
+db.version(4).stores({
+  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+  dailySummaries: "id, [metricType+date]",
+  labResults: "id, date, category",
+  clinicalConditions: "id, snomedCode, status, createdAt",
+  imports: "id, startedAt",
+});
+
 export { db };

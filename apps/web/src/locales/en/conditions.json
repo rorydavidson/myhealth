@@ -1,0 +1,38 @@
+{
+  "title": "Clinical Conditions",
+  "description": "Record your clinical conditions and health issues",
+  "descriptionDetail": "Search for your conditions using SNOMED CT — the international clinical terminology standard. These are included in your International Patient Summary (IPS) export as the Problem List.",
+  "privacy": "Your conditions are stored locally on this device and only included in the IPS when you export it.",
+  "addCondition": "Add condition",
+  "yourConditions": "Your Conditions",
+  "noConditions": "No clinical conditions recorded yet. Add your first condition to build your problem list.",
+  "fhirServer": "FHIR Terminology Server",
+  "status": {
+    "active": "Active",
+    "resolved": "Resolved",
+    "inactive": "Inactive"
+  },
+  "card": {
+    "onset": "Onset",
+    "added": "Added"
+  },
+  "form": {
+    "title": "Add a Clinical Condition",
+    "searchLabel": "Search for a condition",
+    "searchPlaceholder": "e.g. Type 2 diabetes, hypertension, asthma...",
+    "searchHint": "Type at least 2 characters to search SNOMED CT clinical findings.",
+    "searchError": "Could not reach the terminology server. Check your connection and try again.",
+    "noResults": "No matching conditions found. Try different search terms.",
+    "onsetDate": "Date of onset (optional)",
+    "onsetDateHint": "When was this condition first diagnosed or noticed?",
+    "status": "Status",
+    "statusActive": "Active — currently present",
+    "statusResolved": "Resolved — no longer present",
+    "statusInactive": "Inactive — in remission or controlled",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Any additional details about this condition...",
+    "save": "Add Condition",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "title": "Conditions cliniques",
+  "description": "Enregistrez vos conditions cliniques et problèmes de santé",
+  "descriptionDetail": "Recherchez vos conditions en utilisant SNOMED CT — la terminologie clinique internationale. Celles-ci sont incluses dans votre résumé patient international (IPS) en tant que liste de problèmes.",
+  "privacy": "Vos conditions sont stockées localement sur cet appareil et uniquement incluses dans l'IPS lors de l'exportation.",
+  "addCondition": "Ajouter une condition",
+  "yourConditions": "Vos conditions",
+  "noConditions": "Aucune condition clinique enregistrée. Ajoutez votre première condition pour construire votre liste de problèmes.",
+  "fhirServer": "Serveur de terminologie FHIR",
+  "status": {
+    "active": "Active",
+    "resolved": "Résolue",
+    "inactive": "Inactive"
+  },
+  "card": {
+    "onset": "Début",
+    "added": "Ajoutée"
+  },
+  "form": {
+    "title": "Ajouter une condition clinique",
+    "searchLabel": "Rechercher une condition",
+    "searchPlaceholder": "ex. Diabète de type 2, hypertension, asthme...",
+    "searchHint": "Saisissez au moins 2 caractères pour rechercher dans les constatations cliniques SNOMED CT.",
+    "searchError": "Impossible de joindre le serveur de terminologie. Vérifiez votre connexion et réessayez.",
+    "noResults": "Aucune condition correspondante trouvée. Essayez d'autres termes de recherche.",
+    "onsetDate": "Date de début (facultatif)",
+    "onsetDateHint": "Quand cette condition a-t-elle été diagnostiquée ou remarquée pour la première fois ?",
+    "status": "Statut",
+    "statusActive": "Active — actuellement présente",
+    "statusResolved": "Résolue — n'est plus présente",
+    "statusInactive": "Inactive — en rémission ou contrôlée",
+    "notes": "Notes (facultatif)",
+    "notesPlaceholder": "Tout détail supplémentaire sur cette condition...",
+    "save": "Ajouter la condition",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler"
+  }
+}
