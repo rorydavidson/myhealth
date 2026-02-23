@@ -6,7 +6,7 @@
  * Includes animated transitions when data changes (300ms ease).
  */
 
-import { useId } from "react";
+import { memo, useId, useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -57,7 +57,7 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-export function MetricChart({
+export const MetricChart = memo(function MetricChart({
   data,
   color,
   type = "area",
@@ -70,14 +70,18 @@ export function MetricChart({
   const fmt = useLocaleFormat();
   const gradientId = useId();
 
-  const chartData: ChartDataPoint[] = data.map((d) => ({
-    date: d.date,
-    value: d[valueField],
-    min: d.min,
-    max: d.max,
-    range: d.min != null && d.max != null ? [d.min, d.max] : null,
-    label: formatDate(d.date),
-  }));
+  const chartData: ChartDataPoint[] = useMemo(
+    () =>
+      data.map((d) => ({
+        date: d.date,
+        value: d[valueField],
+        min: d.min,
+        max: d.max,
+        range: d.min != null && d.max != null ? [d.min, d.max] : null,
+        label: formatDate(d.date),
+      })),
+    [data, valueField],
+  );
 
   if (chartData.length === 0) {
     return null;
@@ -229,4 +233,4 @@ export function MetricChart({
       )}
     </ResponsiveContainer>
   );
-}
+});

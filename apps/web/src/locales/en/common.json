@@ -12,7 +12,9 @@
     "allergies": "Allergies",
     "patientSummary": "Patient Summary",
     "workouts": "Workouts",
-    "profile": "Profile"
+    "profile": "Profile",
+    "help": "Help",
+    "privacy": "Privacy"
   },
   "actions": {
     "save": "Save",
@@ -50,8 +52,30 @@
     "all": "All"
   },
   "privacy": {
-    "dataStaysLocal": "Your data stays on this device",
-    "nothingUploaded": "Nothing is uploaded to our servers"
+    "pageTitle": "Privacy Policy",
+    "effectiveDate": "Effective: February 2026",
+    "corePrincipleTitle": "Your health data never leaves your device",
+    "corePrincipleBody": "Health Dashboard is built on a single foundational principle: your health data is yours alone. All health records are stored exclusively in your browser using IndexedDB — a private, local database that no server can access. We have no backend database for health data, and we never will.",
+    "onDeviceTitle": "What stays on your device",
+    "onDeviceBody": "The following data is stored locally in your browser and is never transmitted to our servers:",
+    "onDeviceList": [
+      "All health records imported from Apple Health or Google Health Connect",
+      "Lab results and uploaded PDF documents",
+      "Daily summaries, trends, and aggregated health statistics",
+      "Conditions, medications, and allergies you have entered",
+      "Workout history and activity data"
+    ],
+    "serverTitle": "What the server knows",
+    "serverBody": "Our server only handles the minimum necessary for authentication and app functionality:",
+    "serverList": [
+      "Your email address and account credentials (for login)",
+      "App preferences such as theme and language settings",
+      "Anonymised, aggregated health summaries sent for AI queries (e.g. '7-day step average: 8,200') — never raw records"
+    ],
+    "aiTitle": "AI-powered insights",
+    "aiBody": "When you use the AI insights feature, your device computes an anonymised summary of your health data and sends only that summary to our server, which forwards it to the AI provider. Raw health records, lab values, and personally identifiable information are never included unless you explicitly opt in to Enhanced Mode, which shows you exactly what will be sent before each query.",
+    "deletionTitle": "Deleting your data",
+    "deletionBody": "Because your health data lives in your browser, you can delete it at any time from the Settings page. Clearing your browser data or uninstalling the app also permanently removes all health records. We recommend exporting a backup before clearing your data."
   },
   "categories": {
     "activity": "Activity",
@@ -94,5 +118,78 @@
     "breathsPerMin": "breaths/min",
     "flights": "flights"
   },
-  "disclaimer": "This is not medical advice. Consult a healthcare professional for medical concerns."
+  "disclaimer": "This is not medical advice. Consult a healthcare professional for medical concerns.",
+  "help": {
+    "pageTitle": "Help & FAQ",
+    "subtitle": "Answers to common questions about Health Dashboard.",
+    "contact": "Still have questions? Reach out via the feedback link in Settings.",
+    "section": {
+      "gettingStarted": "Getting Started",
+      "privacy": "Privacy & Security",
+      "data": "Your Data",
+      "ai": "AI Insights"
+    },
+    "faq": {
+      "gettingStarted": [
+        {
+          "q": "How do I import my Apple Health data?",
+          "a": "On your iPhone, open the Health app, tap your profile picture, scroll to the bottom and tap 'Export All Health Data'. This creates a ZIP file. On the Import page in Health Dashboard, tap 'Import Apple Health Export' and select that ZIP file. Parsing happens entirely on your device."
+        },
+        {
+          "q": "How do I import Google Health Connect data?",
+          "a": "Use the Health Connect app on Android to export your data, then upload the resulting ZIP file on the Import page. All parsing happens locally on your device."
+        },
+        {
+          "q": "How long does importing take?",
+          "a": "Import time depends on how much data you have. A typical multi-year Apple Health export (100–500 MB) takes 1–5 minutes. The app parses data in a background worker so you can continue using the app during import."
+        },
+        {
+          "q": "Can I import data multiple times?",
+          "a": "Yes. The app detects duplicate records by source identifier and skips them, so re-importing an export or importing a newer export is safe."
+        }
+      ],
+      "privacy": [
+        {
+          "q": "Does Health Dashboard upload my health data?",
+          "a": "No. Your health data is stored exclusively in your browser's IndexedDB database and never leaves your device. The only data sent to our servers is your account credentials (for login) and anonymised health summaries when you use the AI insights feature."
+        },
+        {
+          "q": "What happens if I clear my browser data?",
+          "a": "Clearing your browser's site data or cache will permanently delete all your health records from this app, because they are stored locally. We strongly recommend exporting a backup from the Settings page before clearing browser data."
+        },
+        {
+          "q": "Is my data shared with third parties?",
+          "a": "Your raw health data is never shared with any third party. When you use AI insights, an anonymised summary (not raw records) is sent to our AI provider (Anthropic). You can review exactly what is sent before each query."
+        }
+      ],
+      "data": [
+        {
+          "q": "How do I back up my data?",
+          "a": "Go to Settings and use the 'Export Data' option to download a full JSON backup of all your health records. Keep this file somewhere safe — it can be re-imported into the app to restore your data."
+        },
+        {
+          "q": "How do I delete all my data?",
+          "a": "Go to Settings and tap 'Clear All Data'. This permanently deletes all health records from your browser. This action cannot be undone, so export a backup first if you want to keep your data."
+        },
+        {
+          "q": "What is the International Patient Summary (IPS)?",
+          "a": "An IPS is a standardised clinical health record (HL7 FHIR format) that you can share with healthcare providers when travelling or switching doctors. Health Dashboard can generate one from your stored data on the Patient Summary page."
+        }
+      ],
+      "ai": [
+        {
+          "q": "What data does the AI see?",
+          "a": "In standard mode, the AI receives only anonymised aggregates — for example '7-day average steps: 8,200' — never raw records or personally identifiable information. In Enhanced Mode (opt-in per query), you can choose to include specific lab values or detailed metrics, and you will see exactly what is sent before confirming."
+        },
+        {
+          "q": "Is my AI conversation stored?",
+          "a": "Conversations are stored locally in your browser only. Our server does not log prompt contents or responses. Each query is processed and returned without being saved server-side."
+        },
+        {
+          "q": "Can the AI diagnose conditions?",
+          "a": "No. The AI provides general health education and helps you understand your data. It cannot diagnose conditions, prescribe treatments, or replace professional medical advice. Always consult a qualified healthcare provider for medical concerns."
+        }
+      ]
+    }
+  }
 }

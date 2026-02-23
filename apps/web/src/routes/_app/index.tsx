@@ -17,9 +17,8 @@ import {
   Upload,
   Wind,
 } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { lazy, Suspense, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MetricChart } from "@/components/charts/metric-chart";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
 import { DateRangeSelector } from "@/components/ui/date-range-selector";
@@ -32,6 +31,10 @@ import {
   useHasHealthData,
 } from "@/hooks/use-health-data";
 import { useLocaleFormat } from "@/hooks/use-locale-format";
+
+const MetricChart = lazy(() =>
+  import("@/components/charts/metric-chart").then((m) => ({ default: m.MetricChart })),
+);
 
 export const Route = createFileRoute("/_app/")({
   component: DashboardPage,
@@ -404,15 +407,17 @@ function ChartCard({
         <span style={{ color }}>{icon}</span>
         <CardTitle>{title}</CardTitle>
       </div>
-      <MetricChart
-        data={data}
-        color={color}
-        type={type}
-        valueField={valueField}
-        unit={unit}
-        showYAxis={showYAxis}
-        showRange={showRange}
-      />
+      <Suspense fallback={<Skeleton className="h-[200px] w-full" />}>
+        <MetricChart
+          data={data}
+          color={color}
+          type={type}
+          valueField={valueField}
+          unit={unit}
+          showYAxis={showYAxis}
+          showRange={showRange}
+        />
+      </Suspense>
     </Card>
   );
 }

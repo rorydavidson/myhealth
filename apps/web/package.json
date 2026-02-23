@@ -11,7 +11,8 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "test": "vitest run",
-    "clean": "rm -rf dist .turbo"
+    "clean": "rm -rf dist .turbo",
+    "check:i18n": "tsx scripts/check-i18n.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5",
@@ -50,8 +51,11 @@
     "@types/react-dom": "^19",
     "@types/sax": "^1.2.7",
     "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "happy-dom": "^20.7.0",
     "tailwindcss": "^4",
     "typescript": "^5.8",
-    "vite": "^6"
+    "vite": "^6",
+    "vitest": "^4.0.18"
   }
 }

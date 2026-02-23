@@ -137,6 +137,26 @@ export function Sidebar() {
         })}
       </nav>
 
+      {/* Help & Privacy links */}
+      {!collapsed && (
+        <div className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <div className="flex gap-4">
+            <Link
+              to="/help"
+              className="text-xs text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+            >
+              {t("nav.help")}
+            </Link>
+            <Link
+              to="/privacy"
+              className="text-xs text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+            >
+              {t("nav.privacy")}
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Collapse toggle */}
       <div className="border-t border-neutral-200 p-2 dark:border-neutral-800">
         <button

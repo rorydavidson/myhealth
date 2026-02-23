@@ -1,7 +1,7 @@
 import { CATEGORY_COLORS } from "@health-app/shared";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Dumbbell, Upload } from "lucide-react";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
@@ -143,7 +143,7 @@ function WorkoutTypeFilter({
 
 // --- Workout Table ---
 
-function WorkoutTable({ workouts }: { workouts: HealthRecordRow[] }) {
+const WorkoutTable = memo(function WorkoutTable({ workouts }: { workouts: HealthRecordRow[] }) {
   const { t } = useTranslation("dashboard");
   const fmt = useLocaleFormat();
 
@@ -179,9 +179,9 @@ function WorkoutTable({ workouts }: { workouts: HealthRecordRow[] }) {
       </div>
     </Card>
   );
-}
+});
 
-function WorkoutRow({
+const WorkoutRow = memo(function WorkoutRow({
   workout,
   fmt,
 }: {
@@ -199,7 +199,10 @@ function WorkoutRow({
   const calories = meta?.totalEnergyBurned ? Number.parseFloat(meta.totalEnergyBurned) : null;
 
   return (
-    <tr className="border-b border-neutral-100 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/30">
+    <tr
+      className="border-b border-neutral-100 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/30"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "0 52px" }}
+    >
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
           <span
@@ -227,7 +230,7 @@ function WorkoutRow({
       </td>
     </tr>
   );
-}
+});
 
 // --- Monthly Frequency Chart ---
 

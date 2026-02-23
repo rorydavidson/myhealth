@@ -12,7 +12,9 @@
     "allergies": "Allergies",
     "patientSummary": "Résumé patient",
     "workouts": "Entraînements",
-    "profile": "Profil"
+    "profile": "Profil",
+    "help": "Aide",
+    "privacy": "Confidentialité"
   },
   "actions": {
     "save": "Enregistrer",
@@ -50,8 +52,30 @@
     "all": "Tout"
   },
   "privacy": {
-    "dataStaysLocal": "Vos données restent sur cet appareil",
-    "nothingUploaded": "Rien n'est envoyé à nos serveurs"
+    "pageTitle": "Politique de confidentialité",
+    "effectiveDate": "En vigueur : février 2026",
+    "corePrincipleTitle": "Vos données de santé ne quittent jamais votre appareil",
+    "corePrincipleBody": "Health Dashboard repose sur un principe fondamental : vos données de santé vous appartiennent. Tous les dossiers de santé sont stockés exclusivement dans votre navigateur via IndexedDB — une base de données locale et privée à laquelle aucun serveur ne peut accéder. Nous ne disposons d'aucune base de données côté serveur pour les données de santé, et ce ne sera jamais le cas.",
+    "onDeviceTitle": "Ce qui reste sur votre appareil",
+    "onDeviceBody": "Les données suivantes sont stockées localement dans votre navigateur et ne sont jamais transmises à nos serveurs :",
+    "onDeviceList": [
+      "Tous les dossiers de santé importés depuis Apple Health ou Google Health Connect",
+      "Les résultats de laboratoire et les documents PDF téléchargés",
+      "Les résumés quotidiens, tendances et statistiques de santé agrégées",
+      "Les maladies, médicaments et allergies que vous avez saisis",
+      "L'historique des entraînements et les données d'activité"
+    ],
+    "serverTitle": "Ce que le serveur connaît",
+    "serverBody": "Notre serveur ne traite que le minimum nécessaire pour l'authentification et les fonctionnalités de l'application :",
+    "serverList": [
+      "Votre adresse e-mail et vos identifiants (pour la connexion)",
+      "Les préférences de l'application comme le thème et la langue",
+      "Des résumés de santé anonymisés et agrégés envoyés lors de requêtes IA (ex. : « moyenne de pas sur 7 jours : 8 200 ») — jamais de données brutes"
+    ],
+    "aiTitle": "Insights propulsés par l'IA",
+    "aiBody": "Lorsque vous utilisez la fonctionnalité d'insights IA, votre appareil calcule un résumé anonymisé de vos données de santé et envoie uniquement ce résumé à notre serveur, qui le transmet au fournisseur d'IA. Les dossiers bruts, les valeurs de laboratoire et les informations personnellement identifiables ne sont jamais inclus, sauf si vous optez explicitement pour le Mode Amélioré, qui vous montre exactement ce qui sera envoyé avant chaque requête.",
+    "deletionTitle": "Suppression de vos données",
+    "deletionBody": "Comme vos données de santé résident dans votre navigateur, vous pouvez les supprimer à tout moment depuis la page Paramètres. La suppression des données du site ou la désinstallation de l'application supprime également définitivement tous les dossiers de santé. Nous vous recommandons d'exporter une sauvegarde avant de supprimer vos données."
   },
   "categories": {
     "activity": "Activité",
@@ -94,5 +118,78 @@
     "breathsPerMin": "resp./min",
     "flights": "étages"
   },
-  "disclaimer": "Ceci ne constitue pas un avis médical. Consultez un professionnel de santé pour toute question médicale."
+  "disclaimer": "Ceci ne constitue pas un avis médical. Consultez un professionnel de santé pour toute question médicale.",
+  "help": {
+    "pageTitle": "Aide & FAQ",
+    "subtitle": "Réponses aux questions fréquentes sur Health Dashboard.",
+    "contact": "D'autres questions ? Utilisez le lien de retour dans les Paramètres.",
+    "section": {
+      "gettingStarted": "Premiers pas",
+      "privacy": "Confidentialité & Sécurité",
+      "data": "Vos données",
+      "ai": "Insights IA"
+    },
+    "faq": {
+      "gettingStarted": [
+        {
+          "q": "Comment importer mes données Apple Health ?",
+          "a": "Sur votre iPhone, ouvrez l'app Santé, appuyez sur votre photo de profil, faites défiler jusqu'en bas et appuyez sur « Exporter toutes les données de santé ». Cela crée un fichier ZIP. Sur la page Importation de Health Dashboard, appuyez sur « Importer l'export Apple Health » et sélectionnez ce fichier. L'analyse se fait entièrement sur votre appareil."
+        },
+        {
+          "q": "Comment importer les données Google Health Connect ?",
+          "a": "Utilisez l'application Health Connect sur Android pour exporter vos données, puis téléchargez le fichier ZIP sur la page Importation. Tout le traitement se fait localement sur votre appareil."
+        },
+        {
+          "q": "Combien de temps dure l'importation ?",
+          "a": "La durée dépend de la quantité de données. Un export Apple Health typique sur plusieurs années (100–500 Mo) prend 1 à 5 minutes. L'application analyse les données en arrière-plan, vous pouvez donc continuer à l'utiliser pendant l'importation."
+        },
+        {
+          "q": "Puis-je importer des données plusieurs fois ?",
+          "a": "Oui. L'application détecte les doublons par identifiant source et les ignore, donc importer à nouveau un export ou un export plus récent est sûr."
+        }
+      ],
+      "privacy": [
+        {
+          "q": "Health Dashboard télécharge-t-il mes données de santé ?",
+          "a": "Non. Vos données de santé sont stockées exclusivement dans la base de données IndexedDB de votre navigateur et ne quittent jamais votre appareil. Les seules données envoyées à nos serveurs sont vos identifiants (pour la connexion) et des résumés de santé anonymisés lors de l'utilisation des insights IA."
+        },
+        {
+          "q": "Que se passe-t-il si j'efface les données de mon navigateur ?",
+          "a": "Effacer les données du site ou le cache de votre navigateur supprimera définitivement tous vos dossiers de santé de cette application, car ils sont stockés localement. Nous vous recommandons vivement d'exporter une sauvegarde depuis la page Paramètres avant de supprimer les données du navigateur."
+        },
+        {
+          "q": "Mes données sont-elles partagées avec des tiers ?",
+          "a": "Vos données de santé brutes ne sont jamais partagées avec des tiers. Lors de l'utilisation des insights IA, un résumé anonymisé (et non des données brutes) est envoyé à notre fournisseur d'IA (Anthropic). Vous pouvez consulter exactement ce qui est envoyé avant chaque requête."
+        }
+      ],
+      "data": [
+        {
+          "q": "Comment sauvegarder mes données ?",
+          "a": "Accédez aux Paramètres et utilisez l'option « Exporter les données » pour télécharger une sauvegarde JSON complète de tous vos dossiers de santé. Conservez ce fichier en lieu sûr — il peut être réimporté dans l'application pour restaurer vos données."
+        },
+        {
+          "q": "Comment supprimer toutes mes données ?",
+          "a": "Accédez aux Paramètres et appuyez sur « Supprimer toutes les données ». Cela supprime définitivement tous les dossiers de santé de votre navigateur. Cette action est irréversible, alors exportez une sauvegarde d'abord si vous souhaitez conserver vos données."
+        },
+        {
+          "q": "Qu'est-ce que le Résumé Patient International (IPS) ?",
+          "a": "Un IPS est un dossier clinique standardisé (format HL7 FHIR) que vous pouvez partager avec des professionnels de santé lors de voyages ou de changements de médecin. Health Dashboard peut en générer un depuis vos données stockées sur la page Résumé Patient."
+        }
+      ],
+      "ai": [
+        {
+          "q": "Quelles données l'IA voit-elle ?",
+          "a": "En mode standard, l'IA ne reçoit que des agrégats anonymisés — par exemple « moyenne de pas sur 7 jours : 8 200 » — jamais de données brutes ni d'informations personnellement identifiables. En Mode Amélioré (opt-in par requête), vous pouvez choisir d'inclure des valeurs de laboratoire spécifiques ou des métriques détaillées, et vous verrez exactement ce qui est envoyé avant de confirmer."
+        },
+        {
+          "q": "Ma conversation IA est-elle stockée ?",
+          "a": "Les conversations sont stockées localement dans votre navigateur uniquement. Notre serveur n'enregistre pas les contenus des requêtes ni les réponses. Chaque requête est traitée et renvoyée sans être sauvegardée côté serveur."
+        },
+        {
+          "q": "L'IA peut-elle diagnostiquer des maladies ?",
+          "a": "Non. L'IA fournit des informations générales sur la santé et vous aide à comprendre vos données. Elle ne peut pas diagnostiquer des maladies, prescrire des traitements ni remplacer un avis médical professionnel. Consultez toujours un professionnel de santé qualifié pour toute préoccupation médicale."
+        }
+      ]
+    }
+  }
 }
