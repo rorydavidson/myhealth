@@ -21,8 +21,8 @@ cp .env.example .env
 docker compose up -d
 
 # 4. Run database migrations
-pnpm --filter @health-app/db generate
-pnpm --filter @health-app/db migrate
+pnpm --filter @health-app/db db:generate
+pnpm --filter @health-app/db db:migrate
 
 # 5. Start everything
 pnpm dev
