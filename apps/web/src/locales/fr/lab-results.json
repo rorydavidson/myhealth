@@ -29,7 +29,8 @@
     "referenceRange": "Référence",
     "flag": "Indicateur",
     "loincCode": "Code LOINC",
-    "noValuesExtracted": "Aucune valeur structurée n'a pu être extraite. Vous pouvez les ajouter manuellement."
+    "noValuesExtracted": "Aucune valeur structurée n'a pu être extraite. Vous pouvez les ajouter manuellement.",
+    "addValue": "Ajouter une valeur"
   },
   "list": {
     "empty": "Aucun résultat de laboratoire. Téléversez un rapport PDF pour commencer.",
@@ -46,7 +47,9 @@
     "extractedValues": "Valeurs extraites",
     "notes": "Notes",
     "noNotes": "Aucune note ajoutée",
-    "back": "Retour à la liste"
+    "back": "Retour à la liste",
+    "cancel": "Annuler",
+    "saveNotes": "Enregistrer les notes"
   },
   "save": {
     "saving": "Enregistrement...",

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, FlaskConical, Shield, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Check, FlaskConical, Pencil, Plus, Shield, Trash2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   type LabCategory,
   type StructuredValue,
   saveLabResult,
+  updateLabNotes,
 } from "@/services/lab-results";
 
 export const Route = createFileRoute("/_app/lab-results")({
@@ -403,7 +404,6 @@ function ReviewForm({
 }) {
   const { t } = useTranslation("lab-results");
   const categories: LabCategory[] = ["blood_panel", "lipid_panel", "thyroid", "metabolic", "other"];
-  const values = Object.entries(state.structuredValues);
 
   return (
     <div className="space-y-4">
@@ -465,57 +465,36 @@ function ReviewForm({
         </div>
       </Card>
 
-      {/* Extracted values */}
+      {/* Extracted values — editable */}
       <Card>
-        <CardTitle className="mb-3">{t("extraction.reviewValues")}</CardTitle>
+        <div className="mb-3 flex items-center justify-between">
+          <CardTitle>{t("extraction.reviewValues")}</CardTitle>
+          <button
+            type="button"
+            onClick={() => {
+              const key = `__new_${Date.now()}`;
+              setState((s) => ({
+                ...s,
+                structuredValues: {
+                  ...s.structuredValues,
+                  [key]: { value: 0, unit: "", flag: undefined, referenceRange: undefined },
+                },
+              }));
+            }}
+            className="flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {t("extraction.addValue")}
+          </button>
+        </div>
 
-        {values.length === 0 ? (
+        {Object.keys(state.structuredValues).length === 0 ? (
           <p className="text-sm text-neutral-500">{t("extraction.noValuesExtracted")}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                  <th className="px-3 py-2 text-left font-medium text-neutral-500">
-                    {t("extraction.testName")}
-                  </th>
-                  <th className="px-3 py-2 text-right font-medium text-neutral-500">
-                    {t("extraction.value")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-neutral-500">
-                    {t("extraction.unit")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-neutral-500">
-                    {t("extraction.referenceRange")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-neutral-500">
-                    {t("extraction.flag")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-neutral-500">
-                    {t("extraction.loincCode")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {values.map(([name, val]) => (
-                  <tr key={name} className="border-b border-neutral-100 dark:border-neutral-800">
-                    <td className="px-3 py-2 font-medium text-neutral-900 dark:text-neutral-100">
-                      {name}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums text-neutral-900 dark:text-neutral-100">
-                      {val.value}
-                    </td>
-                    <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400">{val.unit}</td>
-                    <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400">
-                      {val.referenceRange ?? "—"}
-                    </td>
-                    <td className="px-3 py-2">{val.flag && <FlagBadge flag={val.flag} />}</td>
-                    <td className="px-3 py-2 text-xs text-neutral-400">{val.loincCode ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <EditableValuesTable
+            values={state.structuredValues}
+            onChange={(values) => setState((s) => ({ ...s, structuredValues: values }))}
+          />
         )}
       </Card>
 
@@ -529,19 +508,236 @@ function ReviewForm({
   );
 }
 
+// --- Editable Values Table (shared by ReviewForm and DetailView) ---
+
+function EditableValuesTable({
+  values,
+  onChange,
+}: {
+  values: Record<string, StructuredValue>;
+  onChange: (values: Record<string, StructuredValue>) => void;
+}) {
+  const { t } = useTranslation("lab-results");
+
+  const updateRow = (oldKey: string, newKey: string, val: StructuredValue) => {
+    const next: Record<string, StructuredValue> = {};
+    for (const [k, v] of Object.entries(values)) {
+      if (k === oldKey) {
+        next[newKey || oldKey] = val;
+      } else {
+        next[k] = v;
+      }
+    }
+    onChange(next);
+  };
+
+  const deleteRow = (key: string) => {
+    const next = { ...values };
+    delete next[key];
+    onChange(next);
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-neutral-200 dark:border-neutral-700">
+            <th className="px-2 py-2 text-left font-medium text-neutral-500">{t("extraction.testName")}</th>
+            <th className="px-2 py-2 text-right font-medium text-neutral-500">{t("extraction.value")}</th>
+            <th className="px-2 py-2 text-left font-medium text-neutral-500">{t("extraction.unit")}</th>
+            <th className="px-2 py-2 text-left font-medium text-neutral-500">{t("extraction.referenceRange")}</th>
+            <th className="px-2 py-2 text-left font-medium text-neutral-500">{t("extraction.flag")}</th>
+            <th className="px-2 py-2" />
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(values).map(([name, val]) => (
+            <EditableValueRow
+              key={name}
+              name={name}
+              val={val}
+              onUpdate={(newName, newVal) => updateRow(name, newName, newVal)}
+              onDelete={() => deleteRow(name)}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function EditableValueRow({
+  name,
+  val,
+  onUpdate,
+  onDelete,
+}: {
+  name: string;
+  val: StructuredValue;
+  onUpdate: (name: string, val: StructuredValue) => void;
+  onDelete: () => void;
+}) {
+  const isNew = name.startsWith("__new_");
+  const [editing, setEditing] = useState(isNew);
+  const [draft, setDraft] = useState({ name: isNew ? "" : name, ...val });
+
+  const commit = () => {
+    if (!draft.name.trim()) return;
+    onUpdate(draft.name.trim(), {
+      value: draft.value,
+      unit: draft.unit,
+      flag: draft.flag,
+      referenceRange: draft.referenceRange || undefined,
+      loincCode: val.loincCode,
+    });
+    setEditing(false);
+  };
+
+  const cancel = () => {
+    if (isNew) {
+      onDelete();
+    } else {
+      setDraft({ name, ...val });
+      setEditing(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <tr className="border-b border-neutral-100 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-800/30">
+        <td className="px-2 py-1.5">
+          <input
+            autoFocus
+            value={draft.name}
+            onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+            placeholder="Test name"
+            className="w-full rounded border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-600 dark:bg-neutral-900"
+          />
+        </td>
+        <td className="px-2 py-1.5">
+          <input
+            type="number"
+            value={draft.value}
+            onChange={(e) => setDraft((d) => ({ ...d, value: Number(e.target.value) }))}
+            className="w-20 rounded border border-neutral-300 bg-white px-2 py-1 text-right text-xs tabular-nums dark:border-neutral-600 dark:bg-neutral-900"
+          />
+        </td>
+        <td className="px-2 py-1.5">
+          <input
+            value={draft.unit}
+            onChange={(e) => setDraft((d) => ({ ...d, unit: e.target.value }))}
+            placeholder="unit"
+            className="w-20 rounded border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-600 dark:bg-neutral-900"
+          />
+        </td>
+        <td className="px-2 py-1.5">
+          <input
+            value={draft.referenceRange ?? ""}
+            onChange={(e) => setDraft((d) => ({ ...d, referenceRange: e.target.value || undefined }))}
+            placeholder="e.g. 70 - 100"
+            className="w-28 rounded border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-neutral-600 dark:bg-neutral-900"
+          />
+        </td>
+        <td className="px-2 py-1.5">
+          <select
+            value={draft.flag ?? ""}
+            onChange={(e) => setDraft((d) => ({ ...d, flag: e.target.value || undefined }))}
+            className="rounded border border-neutral-300 bg-white px-1 py-1 text-xs dark:border-neutral-600 dark:bg-neutral-900"
+          >
+            <option value="">—</option>
+            <option value="normal">Normal</option>
+            <option value="low">Low</option>
+            <option value="high">High</option>
+          </select>
+        </td>
+        <td className="px-2 py-1.5">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={commit}
+              className="rounded p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+            >
+              <Check className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={cancel}
+              className="rounded p-1 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className="group border-b border-neutral-100 dark:border-neutral-800">
+      <td className="px-2 py-2 font-medium text-neutral-900 dark:text-neutral-100">{name}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-neutral-900 dark:text-neutral-100">{val.value}</td>
+      <td className="px-2 py-2 text-neutral-600 dark:text-neutral-400">{val.unit}</td>
+      <td className="px-2 py-2 text-neutral-500 dark:text-neutral-400">{val.referenceRange ?? "—"}</td>
+      <td className="px-2 py-2">{val.flag && <FlagBadge flag={val.flag} />}</td>
+      <td className="px-2 py-2">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-300"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 // --- Detail View ---
 
 function DetailView({ result, onBack }: { result: LabResultRow; onBack: () => void }) {
   const { t } = useTranslation("lab-results");
   const fmt = useLocaleFormat();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const values = Object.entries(result.structuredValues);
+
+  // Local editable copy of structured values (persisted on change)
+  const [localValues, setLocalValues] = useState<Record<string, StructuredValue>>(
+    result.structuredValues,
+  );
+
+  // Editable notes
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesDraft, setNotesDraft] = useState(result.notes ?? "");
+  const [notesSaving, setNotesSaving] = useState(false);
 
   useEffect(() => {
     const url = createPdfUrl(result.pdfBlob);
     setPdfUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [result.pdfBlob]);
+
+  const handleValuesChange = useCallback(
+    async (updated: Record<string, StructuredValue>) => {
+      setLocalValues(updated);
+      await db.labResults.update(result.id, { structuredValues: updated });
+    },
+    [result.id],
+  );
+
+  const handleSaveNotes = async () => {
+    setNotesSaving(true);
+    await updateLabNotes(result.id, notesDraft);
+    setNotesSaving(false);
+    setEditingNotes(false);
+  };
 
   return (
     <div>
@@ -572,48 +768,78 @@ function DetailView({ result, onBack }: { result: LabResultRow; onBack: () => vo
           )}
         </Card>
 
-        {/* Extracted values + notes */}
+        {/* Values + notes */}
         <div className="space-y-4">
+          {/* Editable values */}
           <Card>
-            <CardTitle className="mb-3">{t("detail.extractedValues")}</CardTitle>
-            {values.length === 0 ? (
+            <div className="mb-3 flex items-center justify-between">
+              <CardTitle>{t("detail.extractedValues")}</CardTitle>
+              <button
+                type="button"
+                onClick={() => {
+                  const key = `__new_${Date.now()}`;
+                  handleValuesChange({
+                    ...localValues,
+                    [key]: { value: 0, unit: "", flag: undefined, referenceRange: undefined },
+                  });
+                }}
+                className="flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {t("extraction.addValue")}
+              </button>
+            </div>
+            {Object.keys(localValues).length === 0 ? (
               <p className="text-sm text-neutral-500">{t("extraction.noValuesExtracted")}</p>
             ) : (
-              <div className="space-y-2">
-                {values.map(([name, val]) => (
-                  <div
-                    key={name}
-                    className="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2 dark:bg-neutral-800/50"
-                  >
-                    <div>
-                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                        {name}
-                      </span>
-                      {val.loincCode && (
-                        <span className="ml-2 text-xs text-neutral-400">LOINC {val.loincCode}</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="tabular-nums text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                        {val.value} {val.unit}
-                      </span>
-                      {val.referenceRange && (
-                        <span className="text-xs text-neutral-400">({val.referenceRange})</span>
-                      )}
-                      {val.flag && <FlagBadge flag={val.flag} />}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <EditableValuesTable values={localValues} onChange={handleValuesChange} />
             )}
           </Card>
 
-          {/* Notes */}
+          {/* Editable notes */}
           <Card>
-            <CardTitle className="mb-2">{t("detail.notes")}</CardTitle>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              {result.notes || t("detail.noNotes")}
-            </p>
+            <div className="mb-2 flex items-center justify-between">
+              <CardTitle>{t("detail.notes")}</CardTitle>
+              {!editingNotes && (
+                <button
+                  type="button"
+                  onClick={() => setEditingNotes(true)}
+                  className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-300"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {editingNotes ? (
+              <div className="space-y-2">
+                <textarea
+                  autoFocus
+                  value={notesDraft}
+                  onChange={(e) => setNotesDraft(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotesDraft(result.notes ?? "");
+                      setEditingNotes(false);
+                    }}
+                    className="rounded-lg px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    {t("detail.cancel")}
+                  </button>
+                  <Button onClick={handleSaveNotes} disabled={notesSaving}>
+                    {notesSaving ? t("save.saving") : t("detail.saveNotes")}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-400">
+                {notesDraft || t("detail.noNotes")}
+              </p>
+            )}
           </Card>
         </div>
       </div>

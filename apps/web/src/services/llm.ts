@@ -198,7 +198,10 @@ function formatValue(value: number, metricType: MetricType): string {
 
 // --- API interaction ---
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+// In dev, use a relative URL so requests go through the Vite proxy (avoids CORS).
+// In production builds, VITE_API_URL should point to the deployed server.
+const API_BASE =
+  import.meta.env.DEV ? "" : (import.meta.env.VITE_API_URL ?? "");
 
 /**
  * Stream an LLM query to the server and yield text chunks.

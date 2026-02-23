@@ -29,7 +29,8 @@
     "referenceRange": "Reference",
     "flag": "Flag",
     "loincCode": "LOINC Code",
-    "noValuesExtracted": "No structured values could be extracted. You can add them manually."
+    "noValuesExtracted": "No structured values could be extracted. You can add them manually.",
+    "addValue": "Add value"
   },
   "list": {
     "empty": "No lab results yet. Upload a PDF lab report to get started.",
@@ -46,7 +47,9 @@
     "extractedValues": "Extracted Values",
     "notes": "Notes",
     "noNotes": "No notes added",
-    "back": "Back to list"
+    "back": "Back to list",
+    "cancel": "Cancel",
+    "saveNotes": "Save notes"
   },
   "save": {
     "saving": "Saving...",

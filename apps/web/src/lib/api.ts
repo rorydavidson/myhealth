@@ -1,4 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
+// Use relative URL in dev so Vite proxy handles CORS; absolute in production.
+const API_BASE =
+  import.meta.env.DEV ? "" : (import.meta.env.VITE_API_URL ?? "");
 
 export interface UserPreferences {
   units: "metric" | "imperial";
