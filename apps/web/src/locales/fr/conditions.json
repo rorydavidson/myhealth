@@ -14,7 +14,9 @@
   },
   "card": {
     "onset": "Début",
-    "added": "Ajoutée"
+    "added": "Ajoutée",
+    "generatingSummary": "Génération du résumé IA…",
+    "summary": "Résumé IA"
   },
   "form": {
     "title": "Ajouter une condition clinique",

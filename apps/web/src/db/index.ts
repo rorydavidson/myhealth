@@ -55,6 +55,8 @@ export interface ClinicalConditionRow {
   status: "active" | "resolved" | "inactive";
   notes?: string;
   createdAt: Date;
+  /** AI-generated plain-text summary of the condition, generated once on add and cached here. */
+  aiSummary?: string;
 }
 
 export interface MedicationRow {
@@ -81,6 +83,8 @@ export interface AllergyRow {
   onsetDate?: string; // YYYY-MM-DD
   notes?: string;
   createdAt: Date;
+  /** AI-generated plain-text summary of the allergen/condition, generated once on add and cached here. */
+  aiSummary?: string;
 }
 
 export interface ImportRow {
@@ -137,6 +141,17 @@ db.version(4).stores({
 });
 
 db.version(5).stores({
+  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+  dailySummaries: "id, [metricType+date]",
+  labResults: "id, date, category",
+  clinicalConditions: "id, snomedCode, status, createdAt",
+  medications: "id, snomedCode, status, createdAt",
+  allergies: "id, snomedCode, category, createdAt",
+  imports: "id, startedAt",
+});
+
+// Version 6: add aiSummary field to clinicalConditions and allergies (optional field, no index change needed)
+db.version(6).stores({
   healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
   dailySummaries: "id, [metricType+date]",
   labResults: "id, date, category",

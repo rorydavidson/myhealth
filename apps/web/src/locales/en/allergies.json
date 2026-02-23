@@ -28,7 +28,9 @@
     "criticality": "Criticality",
     "reaction": "Reaction",
     "onset": "Onset",
-    "added": "Added"
+    "added": "Added",
+    "generatingSummary": "Generating AI summary…",
+    "summary": "AI summary"
   },
   "form": {
     "title": "Add an Allergy or Adverse Reaction",

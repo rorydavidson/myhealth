@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   AlertCircle,
+  Bot,
   Check,
   Loader2,
   Plus,
@@ -15,8 +16,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/markdown";
 import type { AllergyRow } from "@/db";
 import { db } from "@/db";
+import { generateConceptSummary } from "@/services/llm";
 import {
   getFhirTerminologyUrl,
   type SnomedConcept,
@@ -199,8 +202,9 @@ function AddAllergyForm({ onAdded, onCancel }: { onAdded: () => void; onCancel: 
 
       setSaving(true);
       try {
+        const id = crypto.randomUUID();
         const allergy: AllergyRow = {
-          id: crypto.randomUUID(),
+          id,
           snomedCode: selectedConcept.code,
           snomedDisplay: selectedConcept.display,
           type,
@@ -213,7 +217,14 @@ function AddAllergyForm({ onAdded, onCancel }: { onAdded: () => void; onCancel: 
         };
 
         await db.allergies.add(allergy);
-        onAdded();
+        onAdded(); // close form immediately
+
+        // Generate AI summary in background — update record when done
+        generateConceptSummary(selectedConcept.code, selectedConcept.display, "allergen")
+          .then((summary) => db.allergies.update(id, { aiSummary: summary }))
+          .catch(() => {
+            // Silently swallow errors — the card simply won't show a summary
+          });
       } finally {
         setSaving(false);
       }
@@ -463,6 +474,8 @@ function AllergyCard({
   const { t } = useTranslation("allergies");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const isGeneratingSummary = allergy.aiSummary === undefined;
+
   return (
     <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
       <div className="flex items-start justify-between gap-3">
@@ -494,6 +507,21 @@ function AllergyCard({
               {t("card.added")}: {allergy.createdAt.toLocaleDateString()}
             </span>
           </div>
+
+          {/* AI summary */}
+          {isGeneratingSummary ? (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
+              <Bot className="h-3.5 w-3.5 shrink-0" />
+              <span>{t("card.generatingSummary")}</span>
+              <Loader2 className="h-3 w-3 animate-spin" />
+            </div>
+          ) : allergy.aiSummary ? (
+            <div className="mt-2 flex items-start gap-1.5">
+              <Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-400 dark:text-rose-500" />
+              <Markdown size="compact">{allergy.aiSummary}</Markdown>
+            </div>
+          ) : null}
+
           {allergy.reaction && (
             <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
               {t("card.reaction")}: {allergy.reaction}

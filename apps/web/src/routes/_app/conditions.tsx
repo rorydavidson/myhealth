@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   AlertCircle,
+  Bot,
   Check,
   ClipboardList,
   Loader2,
@@ -15,8 +16,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/markdown";
 import type { ClinicalConditionRow } from "@/db";
 import { db } from "@/db";
+import { generateConceptSummary } from "@/services/llm";
 import {
   getFhirTerminologyUrl,
   type SnomedConcept,
@@ -194,8 +197,9 @@ function AddConditionForm({ onAdded, onCancel }: { onAdded: () => void; onCancel
 
       setSaving(true);
       try {
+        const id = crypto.randomUUID();
         const condition: ClinicalConditionRow = {
-          id: crypto.randomUUID(),
+          id,
           description: selectedConcept.display,
           snomedCode: selectedConcept.code,
           snomedDisplay: selectedConcept.display,
@@ -206,7 +210,14 @@ function AddConditionForm({ onAdded, onCancel }: { onAdded: () => void; onCancel
         };
 
         await db.clinicalConditions.add(condition);
-        onAdded();
+        onAdded(); // close form immediately
+
+        // Generate AI summary in background — update record when done
+        generateConceptSummary(selectedConcept.code, selectedConcept.display, "condition")
+          .then((summary) => db.clinicalConditions.update(id, { aiSummary: summary }))
+          .catch(() => {
+            // Silently swallow errors — the card simply won't show a summary
+          });
       } finally {
         setSaving(false);
       }
@@ -410,6 +421,11 @@ function ConditionCard({
   const { t } = useTranslation("conditions");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // aiSummary is undefined while generating (record newly added but LLM hasn't responded yet).
+  // We detect this by checking: record exists but aiSummary is undefined. Once the LLM
+  // responds, Dexie useLiveQuery re-renders with the summary populated.
+  const isGeneratingSummary = condition.aiSummary === undefined;
+
   return (
     <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
       <div className="flex items-start justify-between gap-3">
@@ -435,6 +451,21 @@ function ConditionCard({
               {t("card.added")}: {condition.createdAt.toLocaleDateString()}
             </span>
           </div>
+
+          {/* AI summary */}
+          {isGeneratingSummary ? (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
+              <Bot className="h-3.5 w-3.5 shrink-0" />
+              <span>{t("card.generatingSummary")}</span>
+              <Loader2 className="h-3 w-3 animate-spin" />
+            </div>
+          ) : condition.aiSummary ? (
+            <div className="mt-2 flex items-start gap-1.5">
+              <Bot className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-400 dark:text-violet-500" />
+              <Markdown size="compact">{condition.aiSummary}</Markdown>
+            </div>
+          ) : null}
+
           {condition.notes && (
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">{condition.notes}</p>
           )}

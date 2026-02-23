@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Markdown } from "@/components/ui/markdown";
 import {
   buildEnhancedContext,
   buildStandardContext,
@@ -266,8 +267,10 @@ function MessageBubble({ message, isStreaming }: { message: ChatMessage; isStrea
             <Loader2 className="h-3 w-3 animate-spin" />
             {t("chat.thinking")}
           </span>
-        ) : (
+        ) : isUser ? (
           <div className="whitespace-pre-wrap">{message.content}</div>
+        ) : (
+          <Markdown>{message.content}</Markdown>
         )}
       </div>
       {isUser && (

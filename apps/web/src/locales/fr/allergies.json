@@ -28,7 +28,9 @@
     "criticality": "Criticité",
     "reaction": "Réaction",
     "onset": "Début",
-    "added": "Ajoutée"
+    "added": "Ajoutée",
+    "generatingSummary": "Génération du résumé IA…",
+    "summary": "Résumé IA"
   },
   "form": {
     "title": "Ajouter une allergie ou réaction indésirable",

@@ -14,7 +14,9 @@
   },
   "card": {
     "onset": "Onset",
-    "added": "Added"
+    "added": "Added",
+    "generatingSummary": "Generating AI summary…",
+    "summary": "AI summary"
   },
   "form": {
     "title": "Add a Clinical Condition",

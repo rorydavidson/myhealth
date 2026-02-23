@@ -261,6 +261,79 @@ export async function* streamLLMQuery(
 }
 
 /**
+ * Generate a short plain-text summary of a clinical concept (condition or allergen).
+ *
+ * Uses the SNOMED CT preferred term and code to ask the LLM for a concise, plain-language
+ * paragraph explaining the concept. The result is stored in IndexedDB so it is never
+ * re-fetched on subsequent page loads.
+ *
+ * Returns the summary string, or throws if the request fails.
+ */
+export async function generateConceptSummary(
+  snomedCode: string,
+  snomedDisplay: string,
+  conceptType: "condition" | "allergen",
+): Promise<string> {
+  const typeLabel = conceptType === "condition" ? "clinical condition" : "allergen or allergic condition";
+  const prompt =
+    `Summarise the ${typeLabel} identified by SNOMED CT code ${snomedCode} — preferred term: "${snomedDisplay}".\n\n` +
+    `Write 2–3 plain-language sentences suitable for a patient's personal health record. ` +
+    `Cover what the concept is, how it typically presents, and any important patient-facing considerations but do not make the information too overwhelming. ` +
+    `Base the summary strictly on this specific SNOMED CT concept (code ${snomedCode}, "${snomedDisplay}") — do not generalise to related conditions. ` +
+    `Do not give treatment recommendations. Keep the tone factual and educational.`;
+
+  const res = await fetch(`${API_BASE}/api/llm/query`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages: [{ role: "user", content: prompt }],
+      healthContext: "",
+      stream: false,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail ?? err.title ?? "LLM request failed");
+  }
+
+  // The server streams SSE even for single-turn queries — collect all text chunks.
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No response body");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let fullText = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data: ")) continue;
+      const data = trimmed.slice(6);
+      if (data === "[DONE]") break;
+      try {
+        const parsed = JSON.parse(data) as { text?: string; error?: string };
+        if (parsed.error) throw new Error(parsed.error);
+        if (parsed.text) fullText += parsed.text;
+      } catch (e) {
+        if (e instanceof SyntaxError) continue;
+        throw e;
+      }
+    }
+  }
+
+  return fullText.trim();
+}
+
+/**
  * Generate a unique message ID.
  */
 export function createMessageId(): string {
