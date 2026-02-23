@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, Check, Download, HardDrive, Trash2, Upload } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/db";
 import { usePreferences, useUpdatePreferences } from "@/hooks/use-preferences";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import {
   clearAllData,
   exportDataAsCsv,
@@ -83,6 +83,31 @@ function SettingsPage() {
 
   const { stats, loading: statsLoading, refresh: refreshStats } = useStorageStats();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [nameInput, setNameInput] = useState(session?.user?.name ?? "");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
+
+  // Sync nameInput when session loads
+  useEffect(() => {
+    if (session?.user?.name && !nameInput) {
+      setNameInput(session.user.name);
+    }
+  }, [session?.user?.name]);
+
+  const handleSaveName = useCallback(async () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed || trimmed === session?.user?.name) return;
+    setNameSaving(true);
+    setNameSaved(false);
+    try {
+      await authClient.updateUser({ name: trimmed });
+      setNameSaved(true);
+      setTimeout(() => setNameSaved(false), 3000);
+    } finally {
+      setNameSaving(false);
+    }
+  }, [nameInput, session?.user?.name]);
 
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -179,18 +204,47 @@ function SettingsPage() {
 
       {/* Profile */}
       <Card className="mb-6">
-        <h2 className="mb-4 text-lg font-semibold">{t("profile.title")}</h2>
-        <div className="space-y-3">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{t("profile.title")}</h2>
+          {nameSaved && (
+            <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+              <Check className="h-3 w-3" />
+              {t("profile.nameSaved")}
+            </span>
+          )}
+        </div>
+        <div className="space-y-4">
           <div>
-            <span className="block text-sm font-medium text-neutral-500 dark:text-neutral-400">
-              {t("profile.displayName")}
-            </span>
-            <span className="text-sm text-neutral-900 dark:text-neutral-50">
-              {session?.user?.name ?? "—"}
-            </span>
+            <label
+              htmlFor="profile-name"
+              className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              {t("profile.yourName")}
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="profile-name"
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSaveName()}
+                placeholder={t("profile.namePlaceholder")}
+                disabled={nameSaving}
+                className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleSaveName}
+                disabled={nameSaving || !nameInput.trim() || nameInput.trim() === session?.user?.name}
+              >
+                {nameSaving ? t("profile.savingName") : t("profile.saveName")}
+              </Button>
+            </div>
           </div>
           <div>
-            <span className="block text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            <span className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
               {t("profile.email")}
             </span>
             <span className="text-sm text-neutral-900 dark:text-neutral-50">

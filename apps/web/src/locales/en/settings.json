@@ -2,8 +2,12 @@
   "title": "Settings",
   "profile": {
     "title": "Profile",
-    "displayName": "Display name",
-    "email": "Email"
+    "yourName": "Your Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email",
+    "saveName": "Save",
+    "savingName": "Saving…",
+    "nameSaved": "Name updated"
   },
   "preferences": {
     "title": "Preferences",

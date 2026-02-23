@@ -40,8 +40,9 @@ The server uses sensible defaults for local development. For production, set the
 | `CORS_ORIGIN` | `http://localhost:5173` | Allowed CORS origin |
 | `PORT` | `3001` | Server port |
 | `LOG_LEVEL` | `info` | Fastify log level |
+| `VITE_FHIR_TERMINOLOGY_URL` | `https://r4.ontoserver.csiro.au/fhir` | FHIR terminology server for SNOMED CT condition search |
 
-Create an `.env` file in `apps/server/` to override any of these locally.
+Create a `.env` file in the monorepo root to override any of these locally.
 
 ## Project Structure
 
@@ -97,6 +98,12 @@ pnpm --filter @health-app/web test
 - Client-side text extraction with LOINC code auto-assignment
 - Track lab values over time
 
+### Conditions (Problem List)
+- Maintain a personal problem list of clinical diagnoses
+- Search SNOMED CT concepts live via a configurable FHIR terminology server
+- Matched synonyms are shown alongside preferred terms in search results
+- Conditions are included in the Patient Summary (IPS) export
+
 ### LLM Insights
 - Chat with AI about your health data
 - **Standard mode** (default): Only aggregated summaries sent — no raw data leaves your device
@@ -104,8 +111,10 @@ pnpm --filter @health-app/web test
 
 ### Patient Summary (IPS)
 - Generate an International Patient Summary (HL7 FHIR R4)
+- Includes vital signs, lab results, and conditions (problem list)
 - Export as FHIR JSON for EHR systems or PDF for sharing with providers
-- All generation happens client-side
+- All generation happens entirely client-side — the bundle never touches the server
+- Patient name is pre-filled from your profile and can be edited before export
 
 ### Data Portability
 - Export all data as JSON (full fidelity backup) or CSV

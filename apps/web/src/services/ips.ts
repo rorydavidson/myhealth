@@ -601,6 +601,14 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
   const observations = entries
     .filter((e) => e.resource.resourceType === "Observation")
     .map((e) => e.resource);
+  const conditions = entries
+    .filter((e) => e.resource.resourceType === "Condition")
+    .map((e) => e.resource);
+
+  // Build a unified lookup map by id covering both observations and conditions
+  const resourceById = new Map<string, FHIRResource>();
+  for (const obs of observations) resourceById.set(obs.id as string, obs);
+  for (const cond of conditions) resourceById.set(cond.id as string, cond);
 
   const patientName =
     (patient?.name as Array<{ text?: string }> | undefined)?.[0]?.text ?? "Unknown";
@@ -650,14 +658,55 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
       continue;
     }
 
-    const sectionObs = (section.entry ?? [])
+    const sectionResources = (section.entry ?? [])
       .map((entry) => {
         const refId = entry.reference.replace("urn:uuid:", "");
-        return observations.find((o) => o.id === refId);
+        return resourceById.get(refId);
       })
       .filter(Boolean) as FHIRResource[];
 
-    if (sectionObs.length > 0) {
+    if (sectionResources.length === 0) continue;
+
+    // Check if this section contains conditions (Problem List) or observations
+    const hasConditions = sectionResources.some((r) => r.resourceType === "Condition");
+
+    if (hasConditions) {
+      // Render Problem List as a conditions table
+      const tableBody: Array<Array<string | Record<string, unknown>>> = [
+        [
+          { text: "Condition", style: "tableHeader" },
+          { text: "Status", style: "tableHeader" },
+          { text: "Onset", style: "tableHeader" },
+        ],
+      ];
+
+      for (const cond of sectionResources) {
+        const code = cond.code as { text?: string } | undefined;
+        const conditionName = code?.text ?? "—";
+
+        const clinicalStatus = cond.clinicalStatus as
+          | { coding?: Array<{ code?: string }> }
+          | undefined;
+        const status = clinicalStatus?.coding?.[0]?.code ?? "—";
+
+        const onsetStr = (cond.onsetDateTime as string | undefined)
+          ? new Date(cond.onsetDateTime as string).toLocaleDateString()
+          : "—";
+
+        tableBody.push([conditionName, status, onsetStr]);
+      }
+
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto"],
+          body: tableBody,
+        },
+        layout: "lightHorizontalLines",
+        margin: [0, 0, 0, 4],
+      });
+    } else {
+      // Render observations (vital signs, lab results)
       const tableBody: Array<Array<string | Record<string, unknown>>> = [
         [
           { text: "Test", style: "tableHeader" },
@@ -666,7 +715,7 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
         ],
       ];
 
-      for (const obs of sectionObs) {
+      for (const obs of sectionResources) {
         const code = obs.code as { text?: string } | undefined;
         const testName = code?.text ?? "—";
 

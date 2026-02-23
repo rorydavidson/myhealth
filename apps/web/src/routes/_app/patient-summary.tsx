@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { db } from "@/db";
+import { useSession } from "@/lib/auth-client";
 import { exportIPSAsJson, exportIPSAsPdf, getIPSPreview } from "@/services/ips";
 
 export const Route = createFileRoute("/_app/patient-summary")({
@@ -20,9 +21,17 @@ const inputClassName =
 
 function PatientSummaryPage() {
   const { t } = useTranslation("ips");
+  const { data: session } = useSession();
 
-  const [patientName, setPatientName] = useState("");
+  const [patientName, setPatientName] = useState(session?.user?.name ?? "");
   const [timeRangeDays, setTimeRangeDays] = useState(90);
+
+  // Pre-fill name from session once it loads (only if user hasn't typed anything)
+  useEffect(() => {
+    if (session?.user?.name && !patientName) {
+      setPatientName(session.user.name);
+    }
+  }, [session?.user?.name]);
   const [selectedLabIds, setSelectedLabIds] = useState<string[]>([]);
   const [exporting, setExporting] = useState(false);
   const [preview, setPreview] = useState<{
