@@ -32,7 +32,15 @@
     "problemList": "Problem List",
     "conditionCount_one": "{{count}} clinical condition will be included from your Conditions page.",
     "conditionCount_other": "{{count}} clinical conditions will be included from your Conditions page.",
-    "noConditions": "No clinical conditions recorded. Add conditions on the Conditions page to populate this section."
+    "noConditions": "No clinical conditions recorded. Add conditions on the Conditions page to populate this section.",
+    "medicationSummary": "Medication Summary",
+    "medicationCount_one": "{{count}} medication will be included from your Medications page.",
+    "medicationCount_other": "{{count}} medications will be included from your Medications page.",
+    "noMedications": "No medications recorded. Add medications on the Medications page to populate this section.",
+    "allergiesSummary": "Allergies and Intolerances",
+    "allergyCount_one": "{{count}} allergy or adverse reaction will be included from your Allergies page.",
+    "allergyCount_other": "{{count}} allergies or adverse reactions will be included from your Allergies page.",
+    "noAllergies": "No allergies recorded. Add allergies on the Allergies page to populate this section."
   },
   "sections": {
     "vitalSigns": "Vital Signs",

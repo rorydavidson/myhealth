@@ -1,0 +1,61 @@
+{
+  "title": "Allergies et réactions indésirables",
+  "description": "Enregistrez vos allergies et réactions indésirables",
+  "descriptionDetail": "Recherchez des allergènes en utilisant SNOMED CT — la terminologie clinique internationale. Ceux-ci sont inclus dans votre résumé patient international (IPS) dans la section Allergies et réactions indésirables.",
+  "privacy": "Vos allergies sont stockées localement sur cet appareil et uniquement incluses dans l'IPS lors de l'exportation.",
+  "addAllergy": "Ajouter une allergie",
+  "yourAllergies": "Vos allergies et réactions",
+  "noAllergies": "Aucune allergie ou réaction indésirable enregistrée.",
+  "fhirServer": "Serveur de terminologie FHIR",
+  "type": {
+    "allergy": "Allergie",
+    "intolerance": "Intolérance"
+  },
+  "category": {
+    "food": "Alimentaire",
+    "medication": "Médicament",
+    "environment": "Environnement",
+    "biologic": "Biologique"
+  },
+  "criticality": {
+    "low": "Faible",
+    "high": "Élevée",
+    "unable-to-assess": "Impossible à évaluer"
+  },
+  "card": {
+    "type": "Type",
+    "category": "Catégorie",
+    "criticality": "Criticité",
+    "reaction": "Réaction",
+    "onset": "Début",
+    "added": "Ajoutée"
+  },
+  "form": {
+    "title": "Ajouter une allergie ou réaction indésirable",
+    "searchLabel": "Rechercher une substance / allergène",
+    "searchPlaceholder": "ex. Pénicilline, Arachide, Latex, Ibuprofène...",
+    "searchHint": "Saisissez au moins 2 caractères pour rechercher dans les substances SNOMED CT.",
+    "searchError": "Impossible de joindre le serveur de terminologie. Vérifiez votre connexion et réessayez.",
+    "noResults": "Aucune substance correspondante trouvée. Essayez d'autres termes de recherche.",
+    "type": "Type",
+    "typeAllergy": "Allergie — réaction à médiation immune",
+    "typeIntolerance": "Intolérance — réaction indésirable non immune",
+    "category": "Catégorie",
+    "categoryFood": "Alimentaire",
+    "categoryMedication": "Médicament",
+    "categoryEnvironment": "Environnemental",
+    "categoryBiologic": "Biologique",
+    "criticality": "Criticité",
+    "criticalityLow": "Faible — peu susceptible d'être mortelle",
+    "criticalityHigh": "Élevée — potentiellement mortelle",
+    "criticalityUnableToAssess": "Impossible à évaluer",
+    "reaction": "Description de la réaction (facultatif)",
+    "reactionPlaceholder": "ex. urticaire, gonflement, anaphylaxie",
+    "onsetDate": "Date de début (facultatif)",
+    "notes": "Notes (facultatif)",
+    "notesPlaceholder": "Tout détail supplémentaire sur cette allergie...",
+    "save": "Ajouter l'allergie",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler"
+  }
+}

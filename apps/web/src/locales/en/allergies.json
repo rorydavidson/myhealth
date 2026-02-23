@@ -1,0 +1,61 @@
+{
+  "title": "Allergies & Adverse Reactions",
+  "description": "Record your allergies and adverse reactions",
+  "descriptionDetail": "Search for allergens using SNOMED CT — the international clinical terminology standard. These are included in your International Patient Summary (IPS) export as the Allergies and Adverse Reactions section.",
+  "privacy": "Your allergies are stored locally on this device and only included in the IPS when you export it.",
+  "addAllergy": "Add allergy",
+  "yourAllergies": "Your Allergies & Reactions",
+  "noAllergies": "No allergies or adverse reactions recorded yet.",
+  "fhirServer": "FHIR Terminology Server",
+  "type": {
+    "allergy": "Allergy",
+    "intolerance": "Intolerance"
+  },
+  "category": {
+    "food": "Food",
+    "medication": "Medication",
+    "environment": "Environment",
+    "biologic": "Biologic"
+  },
+  "criticality": {
+    "low": "Low",
+    "high": "High",
+    "unable-to-assess": "Unable to assess"
+  },
+  "card": {
+    "type": "Type",
+    "category": "Category",
+    "criticality": "Criticality",
+    "reaction": "Reaction",
+    "onset": "Onset",
+    "added": "Added"
+  },
+  "form": {
+    "title": "Add an Allergy or Adverse Reaction",
+    "searchLabel": "Search for a substance / allergen",
+    "searchPlaceholder": "e.g. Penicillin, Peanut, Latex, Ibuprofen...",
+    "searchHint": "Type at least 2 characters to search SNOMED CT substances.",
+    "searchError": "Could not reach the terminology server. Check your connection and try again.",
+    "noResults": "No matching substances found. Try different search terms.",
+    "type": "Type",
+    "typeAllergy": "Allergy — immune-mediated reaction",
+    "typeIntolerance": "Intolerance — non-immune adverse reaction",
+    "category": "Category",
+    "categoryFood": "Food",
+    "categoryMedication": "Medication",
+    "categoryEnvironment": "Environmental",
+    "categoryBiologic": "Biologic",
+    "criticality": "Criticality",
+    "criticalityLow": "Low — unlikely to be life-threatening",
+    "criticalityHigh": "High — potentially life-threatening",
+    "criticalityUnableToAssess": "Unable to assess",
+    "reaction": "Reaction description (optional)",
+    "reactionPlaceholder": "e.g. hives, swelling, anaphylaxis",
+    "onsetDate": "Date of onset (optional)",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Any additional details about this allergy...",
+    "save": "Add Allergy",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  }
+}

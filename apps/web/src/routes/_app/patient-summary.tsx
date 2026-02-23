@@ -38,6 +38,8 @@ function PatientSummaryPage() {
     vitalSignMetrics: Array<{ metric: string; latestDate: string; latestValue: string }>;
     labResults: Array<{ fileName: string; date: string; testCount: number }>;
     conditionCount: number;
+    medicationCount: number;
+    allergyCount: number;
   } | null>(null);
 
   // Load lab results for selection
@@ -269,6 +271,30 @@ function PatientSummaryPage() {
             </p>
           ) : (
             <p className="text-sm text-neutral-400">{t("preview.noConditions")}</p>
+          )}
+
+          {/* Medication Summary preview */}
+          <h3 className="mb-2 mt-4 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {t("preview.medicationSummary")}
+          </h3>
+          {preview.medicationCount > 0 ? (
+            <p className="text-sm text-neutral-900 dark:text-neutral-50">
+              {t("preview.medicationCount", { count: preview.medicationCount })}
+            </p>
+          ) : (
+            <p className="text-sm text-neutral-400">{t("preview.noMedications")}</p>
+          )}
+
+          {/* Allergies preview */}
+          <h3 className="mb-2 mt-4 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {t("preview.allergiesSummary")}
+          </h3>
+          {preview.allergyCount > 0 ? (
+            <p className="text-sm text-neutral-900 dark:text-neutral-50">
+              {t("preview.allergyCount", { count: preview.allergyCount })}
+            </p>
+          ) : (
+            <p className="text-sm text-neutral-400">{t("preview.noAllergies")}</p>
           )}
         </Card>
       )}

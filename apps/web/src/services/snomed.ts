@@ -21,6 +21,17 @@ const SNOMED_SYNONYM_CODE = "900000000000013009";
 // SNOMED CT "Clinical finding" hierarchy: 404684003
 const CLINICAL_FINDING_ECL = "< 404684003 |Clinical finding|";
 
+// Pharmaceutical / biologic products — for medication search
+const MEDICATION_ECL = "< 373873005 |Pharmaceutical / biologic product|";
+
+// Substances — covers food, drug, environmental, biologic allergens
+const SUBSTANCE_ECL = "< 105590001 |Substance|";
+
+// Allergic/adverse reaction disorders — covers named conditions like "Hay fever",
+// "Penicillin allergy", "Peanut allergy" (subtype of Clinical finding)
+// 473010000 = Hypersensitivity condition
+const ALLERGY_DISORDER_ECL = "< 473010000 |Hypersensitivity condition|";
+
 export interface SnomedConcept {
   code: string;
   display: string; // Preferred term
@@ -71,6 +82,130 @@ export async function searchSnomedConditions(
 
   try {
     const result = await fhirExpandValueSet(fallbackParams, query.trim());
+    if (result) return result;
+  } catch {
+    // Final fallback failed
+  }
+
+  return { concepts: [], total: 0 };
+}
+
+/**
+ * Search SNOMED CT for pharmaceutical/biologic products matching a text filter.
+ * Used for medication lookup.
+ */
+export async function searchSnomedMedications(
+  query: string,
+  count = 15,
+): Promise<SnomedSearchResult> {
+  if (!query.trim() || query.trim().length < 2) {
+    return { concepts: [], total: 0 };
+  }
+
+  const eclParams = new URLSearchParams({
+    url: `${SNOMED_SYSTEM}?fhir_vs=ecl/${encodeURIComponent(MEDICATION_ECL)}`,
+    filter: query.trim(),
+    count: String(count),
+    includeDesignations: "true",
+  });
+
+  try {
+    const result = await fhirExpandValueSet(eclParams, query.trim());
+    if (result && result.concepts.length > 0) return result;
+  } catch {
+    // Fall through to simpler search
+  }
+
+  const fallbackParams = new URLSearchParams({
+    url: `${SNOMED_SYSTEM}?fhir_vs`,
+    filter: query.trim(),
+    count: String(count),
+    includeDesignations: "true",
+  });
+
+  try {
+    const result = await fhirExpandValueSet(fallbackParams, query.trim());
+    if (result) return result;
+  } catch {
+    // Final fallback failed
+  }
+
+  return { concepts: [], total: 0 };
+}
+
+/**
+ * Search SNOMED CT for allergens and allergic conditions matching a text filter.
+ * Used for allergy/adverse reaction lookup.
+ *
+ * Searches two hierarchies in parallel and merges results:
+ *   1. Substance hierarchy — individual allergens (Pollen, Penicillin, Peanut)
+ *   2. Hypersensitivity condition hierarchy — named allergic disorders (Hay fever,
+ *      Penicillin allergy, Peanut allergy)
+ *
+ * Both are valid for FHIR AllergyIntolerance.code per the IPS specification.
+ */
+export async function searchSnomedSubstances(
+  query: string,
+  count = 15,
+): Promise<SnomedSearchResult> {
+  if (!query.trim() || query.trim().length < 2) {
+    return { concepts: [], total: 0 };
+  }
+
+  const trimmed = query.trim();
+  const perHierarchyCount = count;
+
+  // Search both hierarchies concurrently
+  const [substanceResult, disorderResult] = await Promise.allSettled([
+    fhirExpandValueSet(
+      new URLSearchParams({
+        url: `${SNOMED_SYSTEM}?fhir_vs=ecl/${encodeURIComponent(SUBSTANCE_ECL)}`,
+        filter: trimmed,
+        count: String(perHierarchyCount),
+        includeDesignations: "true",
+      }),
+      trimmed,
+    ),
+    fhirExpandValueSet(
+      new URLSearchParams({
+        url: `${SNOMED_SYSTEM}?fhir_vs=ecl/${encodeURIComponent(ALLERGY_DISORDER_ECL)}`,
+        filter: trimmed,
+        count: String(perHierarchyCount),
+        includeDesignations: "true",
+      }),
+      trimmed,
+    ),
+  ]);
+
+  const seen = new Set<string>();
+  const merged: SnomedConcept[] = [];
+
+  for (const settled of [substanceResult, disorderResult]) {
+    if (settled.status === "fulfilled" && settled.value?.concepts) {
+      for (const concept of settled.value.concepts) {
+        if (!seen.has(concept.code)) {
+          seen.add(concept.code);
+          merged.push(concept);
+        }
+      }
+    }
+  }
+
+  if (merged.length > 0) {
+    return { concepts: merged.slice(0, count), total: merged.length };
+  }
+
+  // Fallback: unconstrained SNOMED CT search
+  try {
+    const result = await fhirExpandValueSet(
+      new URLSearchParams({
+        url: `${SNOMED_SYSTEM}?fhir_vs`,
+        filter: trimmed,
+        count: String(count),
+        includeDesignations: "true",
+      }),
+      trimmed,
+    );
     if (result) return result;
   } catch {
     // Final fallback failed

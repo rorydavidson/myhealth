@@ -1,0 +1,47 @@
+{
+  "title": "Médicaments",
+  "description": "Enregistrez votre historique de médicaments",
+  "descriptionDetail": "Recherchez des médicaments en utilisant SNOMED CT — la terminologie clinique internationale. Ceux-ci sont inclus dans votre résumé patient international (IPS) en tant que résumé de médication.",
+  "privacy": "Vos médicaments sont stockés localement sur cet appareil et uniquement inclus dans l'IPS lors de l'exportation.",
+  "addMedication": "Ajouter un médicament",
+  "yourMedications": "Vos médicaments",
+  "noMedications": "Aucun médicament enregistré. Ajoutez votre premier médicament pour construire votre historique.",
+  "fhirServer": "Serveur de terminologie FHIR",
+  "ongoing": "En cours",
+  "status": {
+    "active": "Actif",
+    "stopped": "Arrêté",
+    "on-hold": "En pause"
+  },
+  "card": {
+    "dose": "Dose",
+    "started": "Début",
+    "ended": "Fin",
+    "reason": "Motif",
+    "added": "Ajouté"
+  },
+  "form": {
+    "title": "Ajouter un médicament",
+    "searchLabel": "Rechercher un médicament",
+    "searchPlaceholder": "ex. Metformine, Lisinopril, Amoxicilline...",
+    "searchHint": "Saisissez au moins 2 caractères pour rechercher dans les produits pharmaceutiques SNOMED CT.",
+    "searchError": "Impossible de joindre le serveur de terminologie. Vérifiez votre connexion et réessayez.",
+    "noResults": "Aucun médicament correspondant trouvé. Essayez d'autres termes de recherche.",
+    "dose": "Dose (facultatif)",
+    "dosePlaceholder": "ex. 500mg deux fois par jour",
+    "startDate": "Date de début (facultatif)",
+    "endDate": "Date de fin (facultatif)",
+    "endDateHint": "Laissez vide si ce médicament est encore en cours.",
+    "status": "Statut",
+    "statusActive": "Actif — en cours de prise",
+    "statusStopped": "Arrêté — plus pris",
+    "statusOnHold": "En pause — temporairement suspendu",
+    "reason": "Motif / indication (facultatif)",
+    "reasonPlaceholder": "ex. prescrit pour l'hypertension",
+    "notes": "Notes (facultatif)",
+    "notesPlaceholder": "Tout détail supplémentaire sur ce médicament...",
+    "save": "Ajouter le médicament",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler"
+  }
+}

@@ -7,7 +7,9 @@ import {
   LayoutDashboard,
   PanelLeft,
   PanelLeftClose,
+  Pill,
   Settings,
+  ShieldAlert,
   Sparkles,
   TrendingUp,
   Upload,
@@ -57,6 +59,18 @@ const navItems: NavItem[] = [
     to: "/conditions",
     icon: ClipboardList,
     color: "text-violet-500",
+  },
+  {
+    labelKey: "nav.medications",
+    to: "/medications",
+    icon: Pill,
+    color: "text-sky-500",
+  },
+  {
+    labelKey: "nav.allergies",
+    to: "/allergies",
+    icon: ShieldAlert,
+    color: "text-rose-500",
   },
   {
     labelKey: "nav.insights",

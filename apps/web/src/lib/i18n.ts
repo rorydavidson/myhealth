@@ -10,6 +10,8 @@ import importEn from "../locales/en/import.json";
 import insightsEn from "../locales/en/insights.json";
 import ipsEn from "../locales/en/ips.json";
 import labResultsEn from "../locales/en/lab-results.json";
+import medicationsEn from "../locales/en/medications.json";
+import allergiesEn from "../locales/en/allergies.json";
 import settingsEn from "../locales/en/settings.json";
 import authFr from "../locales/fr/auth.json";
 import commonFr from "../locales/fr/common.json";
@@ -19,6 +21,8 @@ import importFr from "../locales/fr/import.json";
 import insightsFr from "../locales/fr/insights.json";
 import ipsFr from "../locales/fr/ips.json";
 import labResultsFr from "../locales/fr/lab-results.json";
+import medicationsFr from "../locales/fr/medications.json";
+import allergiesFr from "../locales/fr/allergies.json";
 import settingsFr from "../locales/fr/settings.json";
 
 export const defaultNS = "common";
@@ -32,6 +36,8 @@ export const resources = {
     import: importEn,
     insights: insightsEn,
     "lab-results": labResultsEn,
+    medications: medicationsEn,
+    allergies: allergiesEn,
     settings: settingsEn,
     ips: ipsEn,
   },
@@ -43,6 +49,8 @@ export const resources = {
     import: importFr,
     insights: insightsFr,
     "lab-results": labResultsFr,
+    medications: medicationsFr,
+    allergies: allergiesFr,
     settings: settingsFr,
     ips: ipsFr,
   },

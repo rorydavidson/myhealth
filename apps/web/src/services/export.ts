@@ -9,14 +9,16 @@
  */
 
 import {
+  type AllergyRow,
   type DailySummaryRow,
   db,
   type HealthRecordRow,
   type ImportRow,
   type LabResultRow,
+  type MedicationRow,
 } from "@/db";
 
-const EXPORT_VERSION = 1;
+const EXPORT_VERSION = 2;
 
 // --- Types ---
 
@@ -27,6 +29,8 @@ interface ExportData {
   dailySummaries: DailySummaryRow[];
   imports: ImportRow[];
   labResults: SerializedLabResult[];
+  medications?: MedicationRow[];
+  allergies?: AllergyRow[];
 }
 
 interface SerializedLabResult {
@@ -48,12 +52,15 @@ interface SerializedLabResult {
  * Lab result PDFs are encoded as base64.
  */
 export async function exportDataAsJson(): Promise<void> {
-  const [healthRecords, dailySummaries, imports, labResults] = await Promise.all([
-    db.healthRecords.toArray(),
-    db.dailySummaries.toArray(),
-    db.imports.toArray(),
-    db.labResults.toArray(),
-  ]);
+  const [healthRecords, dailySummaries, imports, labResults, medications, allergies] =
+    await Promise.all([
+      db.healthRecords.toArray(),
+      db.dailySummaries.toArray(),
+      db.imports.toArray(),
+      db.labResults.toArray(),
+      db.medications.toArray(),
+      db.allergies.toArray(),
+    ]);
 
   // Serialize lab results — convert PDF blobs to base64
   const serializedLabs: SerializedLabResult[] = [];
@@ -86,6 +93,8 @@ export async function exportDataAsJson(): Promise<void> {
     dailySummaries,
     imports,
     labResults: serializedLabs,
+    medications,
+    allergies,
   };
 
   const json = JSON.stringify(exportData);
@@ -206,6 +215,24 @@ export async function importDataFromJson(file: File): Promise<{ recordCount: num
     }
   }
 
+  // Import medications
+  if (data.medications && data.medications.length > 0) {
+    const medications = data.medications.map((m) => ({
+      ...m,
+      createdAt: new Date(m.createdAt),
+    }));
+    await db.medications.bulkPut(medications);
+  }
+
+  // Import allergies
+  if (data.allergies && data.allergies.length > 0) {
+    const allergies = data.allergies.map((a) => ({
+      ...a,
+      createdAt: new Date(a.createdAt),
+    }));
+    await db.allergies.bulkPut(allergies);
+  }
+
   // Recompute summaries if we imported raw records but no summaries
   if (data.healthRecords.length > 0 && (!data.dailySummaries || data.dailySummaries.length === 0)) {
     const { recomputeAllSummaries } = await import("./aggregate");
@@ -224,6 +251,8 @@ export async function clearAllData(): Promise<void> {
     db.dailySummaries.clear(),
     db.imports.clear(),
     db.labResults.clear(),
+    db.medications.clear(),
+    db.allergies.clear(),
   ]);
 }
 

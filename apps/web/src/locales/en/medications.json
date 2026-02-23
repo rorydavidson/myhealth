@@ -1,0 +1,47 @@
+{
+  "title": "Medications",
+  "description": "Record your medication history",
+  "descriptionDetail": "Search for medications using SNOMED CT — the international clinical terminology standard. These are included in your International Patient Summary (IPS) export as the Medication Summary.",
+  "privacy": "Your medications are stored locally on this device and only included in the IPS when you export it.",
+  "addMedication": "Add medication",
+  "yourMedications": "Your Medications",
+  "noMedications": "No medications recorded yet. Add your first medication to build your medication history.",
+  "fhirServer": "FHIR Terminology Server",
+  "ongoing": "Ongoing",
+  "status": {
+    "active": "Active",
+    "stopped": "Stopped",
+    "on-hold": "On hold"
+  },
+  "card": {
+    "dose": "Dose",
+    "started": "Started",
+    "ended": "Ended",
+    "reason": "Reason",
+    "added": "Added"
+  },
+  "form": {
+    "title": "Add a Medication",
+    "searchLabel": "Search for a medication",
+    "searchPlaceholder": "e.g. Metformin, Lisinopril, Amoxicillin...",
+    "searchHint": "Type at least 2 characters to search SNOMED CT pharmaceutical products.",
+    "searchError": "Could not reach the terminology server. Check your connection and try again.",
+    "noResults": "No matching medications found. Try different search terms.",
+    "dose": "Dose (optional)",
+    "dosePlaceholder": "e.g. 500mg twice daily",
+    "startDate": "Start date (optional)",
+    "endDate": "End date (optional)",
+    "endDateHint": "Leave blank if this medication is ongoing.",
+    "status": "Status",
+    "statusActive": "Active — currently taking",
+    "statusStopped": "Stopped — no longer taking",
+    "statusOnHold": "On hold — temporarily paused",
+    "reason": "Reason / indication (optional)",
+    "reasonPlaceholder": "e.g. prescribed for hypertension",
+    "notes": "Notes (optional)",
+    "notesPlaceholder": "Any additional details about this medication...",
+    "save": "Add Medication",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  }
+}

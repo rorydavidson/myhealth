@@ -57,6 +57,32 @@ export interface ClinicalConditionRow {
   createdAt: Date;
 }
 
+export interface MedicationRow {
+  id: string;
+  snomedCode: string; // SNOMED CT code for the pharmaceutical product
+  snomedDisplay: string; // Preferred term, e.g. "Metformin"
+  dose?: string; // Free text, e.g. "500mg twice daily"
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD, absent = ongoing
+  status: "active" | "stopped" | "on-hold";
+  reason?: string; // Free text, e.g. "type 2 diabetes"
+  notes?: string;
+  createdAt: Date;
+}
+
+export interface AllergyRow {
+  id: string;
+  snomedCode: string; // SNOMED CT code for the allergen substance
+  snomedDisplay: string; // Preferred term, e.g. "Penicillin"
+  type: "allergy" | "intolerance";
+  category: "food" | "medication" | "environment" | "biologic";
+  criticality: "low" | "high" | "unable-to-assess";
+  reaction?: string; // Free text, e.g. "hives, anaphylaxis"
+  onsetDate?: string; // YYYY-MM-DD
+  notes?: string;
+  createdAt: Date;
+}
+
 export interface ImportRow {
   id: string;
   platform: string;
@@ -75,6 +101,8 @@ const db = new Dexie("HealthDashboard") as Dexie & {
   dailySummaries: EntityTable<DailySummaryRow, "id">;
   labResults: EntityTable<LabResultRow, "id">;
   clinicalConditions: EntityTable<ClinicalConditionRow, "id">;
+  medications: EntityTable<MedicationRow, "id">;
+  allergies: EntityTable<AllergyRow, "id">;
   imports: EntityTable<ImportRow, "id">;
 };
 
@@ -105,6 +133,16 @@ db.version(4).stores({
   dailySummaries: "id, [metricType+date]",
   labResults: "id, date, category",
   clinicalConditions: "id, snomedCode, status, createdAt",
+  imports: "id, startedAt",
+});
+
+db.version(5).stores({
+  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+  dailySummaries: "id, [metricType+date]",
+  labResults: "id, date, category",
+  clinicalConditions: "id, snomedCode, status, createdAt",
+  medications: "id, snomedCode, status, createdAt",
+  allergies: "id, snomedCode, category, createdAt",
   imports: "id, startedAt",
 });
 

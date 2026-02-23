@@ -32,7 +32,15 @@
     "problemList": "Liste des problèmes",
     "conditionCount_one": "{{count}} condition clinique sera incluse depuis votre page Conditions.",
     "conditionCount_other": "{{count}} conditions cliniques seront incluses depuis votre page Conditions.",
-    "noConditions": "Aucune condition clinique enregistrée. Ajoutez des conditions sur la page Conditions pour remplir cette section."
+    "noConditions": "Aucune condition clinique enregistrée. Ajoutez des conditions sur la page Conditions pour remplir cette section.",
+    "medicationSummary": "Résumé des médicaments",
+    "medicationCount_one": "{{count}} médicament sera inclus depuis votre page Médicaments.",
+    "medicationCount_other": "{{count}} médicaments seront inclus depuis votre page Médicaments.",
+    "noMedications": "Aucun médicament enregistré. Ajoutez des médicaments sur la page Médicaments pour remplir cette section.",
+    "allergiesSummary": "Allergies et intolérances",
+    "allergyCount_one": "{{count}} allergie ou réaction indésirable sera incluse depuis votre page Allergies.",
+    "allergyCount_other": "{{count}} allergies ou réactions indésirables seront incluses depuis votre page Allergies.",
+    "noAllergies": "Aucune allergie enregistrée. Ajoutez des allergies sur la page Allergies pour remplir cette section."
   },
   "sections": {
     "vitalSigns": "Signes vitaux",

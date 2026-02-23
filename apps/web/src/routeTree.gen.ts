@@ -18,10 +18,12 @@ import { Route as AppWorkoutsRouteImport } from './routes/_app/workouts'
 import { Route as AppTrendsRouteImport } from './routes/_app/trends'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppPatientSummaryRouteImport } from './routes/_app/patient-summary'
+import { Route as AppMedicationsRouteImport } from './routes/_app/medications'
 import { Route as AppLabResultsRouteImport } from './routes/_app/lab-results'
 import { Route as AppInsightsRouteImport } from './routes/_app/insights'
 import { Route as AppImportRouteImport } from './routes/_app/import'
 import { Route as AppConditionsRouteImport } from './routes/_app/conditions'
+import { Route as AppAllergiesRouteImport } from './routes/_app/allergies'
 
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
@@ -67,6 +69,11 @@ const AppPatientSummaryRoute = AppPatientSummaryRouteImport.update({
   path: '/patient-summary',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMedicationsRoute = AppMedicationsRouteImport.update({
+  id: '/medications',
+  path: '/medications',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLabResultsRoute = AppLabResultsRouteImport.update({
   id: '/lab-results',
   path: '/lab-results',
@@ -87,16 +94,23 @@ const AppConditionsRoute = AppConditionsRouteImport.update({
   path: '/conditions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAllergiesRoute = AppAllergiesRouteImport.update({
+  id: '/allergies',
+  path: '/allergies',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/sign-up': typeof SignUpRoute
+  '/allergies': typeof AppAllergiesRoute
   '/conditions': typeof AppConditionsRoute
   '/import': typeof AppImportRoute
   '/insights': typeof AppInsightsRoute
   '/lab-results': typeof AppLabResultsRoute
+  '/medications': typeof AppMedicationsRoute
   '/patient-summary': typeof AppPatientSummaryRoute
   '/settings': typeof AppSettingsRoute
   '/trends': typeof AppTrendsRoute
@@ -106,10 +120,12 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/sign-up': typeof SignUpRoute
+  '/allergies': typeof AppAllergiesRoute
   '/conditions': typeof AppConditionsRoute
   '/import': typeof AppImportRoute
   '/insights': typeof AppInsightsRoute
   '/lab-results': typeof AppLabResultsRoute
+  '/medications': typeof AppMedicationsRoute
   '/patient-summary': typeof AppPatientSummaryRoute
   '/settings': typeof AppSettingsRoute
   '/trends': typeof AppTrendsRoute
@@ -122,10 +138,12 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/sign-up': typeof SignUpRoute
+  '/_app/allergies': typeof AppAllergiesRoute
   '/_app/conditions': typeof AppConditionsRoute
   '/_app/import': typeof AppImportRoute
   '/_app/insights': typeof AppInsightsRoute
   '/_app/lab-results': typeof AppLabResultsRoute
+  '/_app/medications': typeof AppMedicationsRoute
   '/_app/patient-summary': typeof AppPatientSummaryRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/trends': typeof AppTrendsRoute
@@ -139,10 +157,12 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/sign-up'
+    | '/allergies'
     | '/conditions'
     | '/import'
     | '/insights'
     | '/lab-results'
+    | '/medications'
     | '/patient-summary'
     | '/settings'
     | '/trends'
@@ -152,10 +172,12 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/sign-up'
+    | '/allergies'
     | '/conditions'
     | '/import'
     | '/insights'
     | '/lab-results'
+    | '/medications'
     | '/patient-summary'
     | '/settings'
     | '/trends'
@@ -167,10 +189,12 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/sign-up'
+    | '/_app/allergies'
     | '/_app/conditions'
     | '/_app/import'
     | '/_app/insights'
     | '/_app/lab-results'
+    | '/_app/medications'
     | '/_app/patient-summary'
     | '/_app/settings'
     | '/_app/trends'
@@ -250,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPatientSummaryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/medications': {
+      id: '/_app/medications'
+      path: '/medications'
+      fullPath: '/medications'
+      preLoaderRoute: typeof AppMedicationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/lab-results': {
       id: '/_app/lab-results'
       path: '/lab-results'
@@ -278,14 +309,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppConditionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/allergies': {
+      id: '/_app/allergies'
+      path: '/allergies'
+      fullPath: '/allergies'
+      preLoaderRoute: typeof AppAllergiesRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppAllergiesRoute: typeof AppAllergiesRoute
   AppConditionsRoute: typeof AppConditionsRoute
   AppImportRoute: typeof AppImportRoute
   AppInsightsRoute: typeof AppInsightsRoute
   AppLabResultsRoute: typeof AppLabResultsRoute
+  AppMedicationsRoute: typeof AppMedicationsRoute
   AppPatientSummaryRoute: typeof AppPatientSummaryRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTrendsRoute: typeof AppTrendsRoute
@@ -294,10 +334,12 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAllergiesRoute: AppAllergiesRoute,
   AppConditionsRoute: AppConditionsRoute,
   AppImportRoute: AppImportRoute,
   AppInsightsRoute: AppInsightsRoute,
   AppLabResultsRoute: AppLabResultsRoute,
+  AppMedicationsRoute: AppMedicationsRoute,
   AppPatientSummaryRoute: AppPatientSummaryRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTrendsRoute: AppTrendsRoute,

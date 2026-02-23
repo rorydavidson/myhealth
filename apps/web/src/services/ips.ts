@@ -11,7 +11,7 @@
  */
 
 import type { METRIC_CODING } from "@health-app/shared/coding";
-import type { ClinicalConditionRow } from "@/db";
+import type { AllergyRow, ClinicalConditionRow, MedicationRow } from "@/db";
 import { db } from "@/db";
 
 // IPS Section LOINC codes
@@ -75,6 +75,12 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   // Build Condition resources from clinical conditions (Problem List)
   const conditionResources = await buildConditionResources(patientId);
 
+  // Build MedicationStatement resources
+  const medicationResources = await buildMedicationStatementResources(patientId);
+
+  // Build AllergyIntolerance resources
+  const allergyResources = await buildAllergyIntoleranceResources(patientId);
+
   // Build Composition resource
   const composition = buildComposition(
     compositionId,
@@ -83,6 +89,8 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
     vitalSignObservations,
     labResultObservations,
     conditionResources,
+    medicationResources,
+    allergyResources,
   );
 
   // Assemble Bundle
@@ -92,6 +100,8 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
     ...vitalSignObservations,
     ...labResultObservations,
     ...conditionResources,
+    ...medicationResources,
+    ...allergyResources,
   ];
 
   return {
@@ -391,6 +401,139 @@ async function buildConditionResources(patientId: string): Promise<FHIRResource[
   });
 }
 
+/**
+ * Build FHIR MedicationStatement resources from locally stored medications.
+ * These populate the IPS "History of Medication use" section.
+ */
+async function buildMedicationStatementResources(patientId: string): Promise<FHIRResource[]> {
+  const medications = await db.medications.toArray();
+  if (medications.length === 0) return [];
+
+  return medications.map((m: MedicationRow) => {
+    const medicationId = crypto.randomUUID();
+
+    // Map app status to FHIR MedicationStatement status
+    const statusMap: Record<string, string> = {
+      active: "active",
+      stopped: "stopped",
+      "on-hold": "on-hold",
+    };
+    const fhirStatus = statusMap[m.status] ?? "unknown";
+
+    const resource: FHIRResource = {
+      resourceType: "MedicationStatement",
+      id: medicationId,
+      status: fhirStatus,
+      medicationCodeableConcept: {
+        coding: [
+          {
+            system: "http://snomed.info/sct",
+            code: m.snomedCode,
+            display: m.snomedDisplay,
+          },
+        ],
+        text: m.snomedDisplay,
+      },
+      subject: { reference: `urn:uuid:${patientId}` },
+    };
+
+    if (m.dose) {
+      (resource as Record<string, unknown>).dosage = [{ text: m.dose }];
+    }
+
+    if (m.startDate) {
+      (resource as Record<string, unknown>).effectivePeriod = {
+        start: `${m.startDate}T00:00:00Z`,
+        ...(m.endDate ? { end: `${m.endDate}T00:00:00Z` } : {}),
+      };
+    }
+
+    if (m.reason) {
+      (resource as Record<string, unknown>).reasonCode = [{ text: m.reason }];
+    }
+
+    if (m.notes) {
+      (resource as Record<string, unknown>).note = [{ text: m.notes }];
+    }
+
+    return resource;
+  });
+}
+
+/**
+ * Build FHIR AllergyIntolerance resources from locally stored allergies.
+ * These populate the IPS "Allergies and adverse reactions" section.
+ */
+async function buildAllergyIntoleranceResources(patientId: string): Promise<FHIRResource[]> {
+  const allergies = await db.allergies.toArray();
+  if (allergies.length === 0) return [];
+
+  return allergies.map((a: AllergyRow) => {
+    const allergyId = crypto.randomUUID();
+
+    // Map criticality
+    const criticalityMap: Record<string, string> = {
+      low: "low",
+      high: "high",
+      "unable-to-assess": "unable-to-assess",
+    };
+
+    // Map category
+    const categoryMap: Record<string, string> = {
+      food: "food",
+      medication: "medication",
+      environment: "environment",
+      biologic: "biologic",
+    };
+
+    const resource: FHIRResource = {
+      resourceType: "AllergyIntolerance",
+      id: allergyId,
+      clinicalStatus: {
+        coding: [
+          {
+            system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+            code: "active",
+            display: "Active",
+          },
+        ],
+      },
+      type: a.type,
+      category: [categoryMap[a.category] ?? a.category],
+      criticality: criticalityMap[a.criticality] ?? "unable-to-assess",
+      code: {
+        coding: [
+          {
+            system: "http://snomed.info/sct",
+            code: a.snomedCode,
+            display: a.snomedDisplay,
+          },
+        ],
+        text: a.snomedDisplay,
+      },
+      patient: { reference: `urn:uuid:${patientId}` },
+    };
+
+    if (a.onsetDate) {
+      (resource as Record<string, unknown>).onsetDateTime = `${a.onsetDate}T00:00:00Z`;
+    }
+
+    if (a.reaction) {
+      (resource as Record<string, unknown>).reaction = [
+        {
+          manifestation: [{ text: a.reaction }],
+        },
+      ];
+    }
+
+    if (a.notes) {
+      (resource as Record<string, unknown>).note = [{ text: a.notes }];
+    }
+
+    return resource;
+  });
+}
+
 function buildComposition(
   compositionId: string,
   patientId: string,
@@ -398,6 +541,8 @@ function buildComposition(
   vitalSignObservations: FHIRResource[],
   labResultObservations: FHIRResource[],
   conditionResources: FHIRResource[],
+  medicationResources: FHIRResource[],
+  allergyResources: FHIRResource[],
 ): FHIRResource {
   const sections: Array<{
     title: string;
@@ -448,9 +593,47 @@ function buildComposition(
     sections.push(emptySection(IPS_SECTIONS.results));
   }
 
-  // Required sections — medications and allergies are not tracked by this app
-  sections.push(emptySection(IPS_SECTIONS.medications));
-  sections.push(emptySection(IPS_SECTIONS.allergies));
+  // Medications section
+  if (medicationResources.length > 0) {
+    sections.push({
+      title: IPS_SECTIONS.medications.display,
+      code: {
+        coding: [
+          {
+            system: "http://loinc.org",
+            code: IPS_SECTIONS.medications.code,
+            display: IPS_SECTIONS.medications.display,
+          },
+        ],
+      },
+      entry: medicationResources.map((med) => ({
+        reference: `urn:uuid:${med.id}`,
+      })),
+    });
+  } else {
+    sections.push(emptySection(IPS_SECTIONS.medications));
+  }
+
+  // Allergies section
+  if (allergyResources.length > 0) {
+    sections.push({
+      title: IPS_SECTIONS.allergies.display,
+      code: {
+        coding: [
+          {
+            system: "http://loinc.org",
+            code: IPS_SECTIONS.allergies.code,
+            display: IPS_SECTIONS.allergies.display,
+          },
+        ],
+      },
+      entry: allergyResources.map((al) => ({
+        reference: `urn:uuid:${al.id}`,
+      })),
+    });
+  } else {
+    sections.push(emptySection(IPS_SECTIONS.allergies));
+  }
 
   // Problem List — populated from user-entered clinical conditions
   if (conditionResources.length > 0) {
@@ -604,11 +787,19 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
   const conditions = entries
     .filter((e) => e.resource.resourceType === "Condition")
     .map((e) => e.resource);
+  const medications = entries
+    .filter((e) => e.resource.resourceType === "MedicationStatement")
+    .map((e) => e.resource);
+  const allergyIntolerances = entries
+    .filter((e) => e.resource.resourceType === "AllergyIntolerance")
+    .map((e) => e.resource);
 
-  // Build a unified lookup map by id covering both observations and conditions
+  // Build a unified lookup map by id
   const resourceById = new Map<string, FHIRResource>();
   for (const obs of observations) resourceById.set(obs.id as string, obs);
   for (const cond of conditions) resourceById.set(cond.id as string, cond);
+  for (const med of medications) resourceById.set(med.id as string, med);
+  for (const al of allergyIntolerances) resourceById.set(al.id as string, al);
 
   const patientName =
     (patient?.name as Array<{ text?: string }> | undefined)?.[0]?.text ?? "Unknown";
@@ -667,10 +858,9 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
 
     if (sectionResources.length === 0) continue;
 
-    // Check if this section contains conditions (Problem List) or observations
-    const hasConditions = sectionResources.some((r) => r.resourceType === "Condition");
+    const firstType = sectionResources[0]?.resourceType;
 
-    if (hasConditions) {
+    if (firstType === "Condition") {
       // Render Problem List as a conditions table
       const tableBody: Array<Array<string | Record<string, unknown>>> = [
         [
@@ -694,6 +884,64 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
           : "—";
 
         tableBody.push([conditionName, status, onsetStr]);
+      }
+
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto"],
+          body: tableBody,
+        },
+        layout: "lightHorizontalLines",
+        margin: [0, 0, 0, 4],
+      });
+    } else if (firstType === "MedicationStatement") {
+      // Render Medications table
+      const tableBody: Array<Array<string | Record<string, unknown>>> = [
+        [
+          { text: "Medication", style: "tableHeader" },
+          { text: "Dose", style: "tableHeader" },
+          { text: "Status", style: "tableHeader" },
+        ],
+      ];
+
+      for (const med of sectionResources) {
+        const code = med.medicationCodeableConcept as { text?: string } | undefined;
+        const medName = code?.text ?? "—";
+
+        const dosage = med.dosage as Array<{ text?: string }> | undefined;
+        const dose = dosage?.[0]?.text ?? "—";
+
+        const status = (med.status as string | undefined) ?? "—";
+
+        tableBody.push([medName, dose, status]);
+      }
+
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: ["*", "auto", "auto"],
+          body: tableBody,
+        },
+        layout: "lightHorizontalLines",
+        margin: [0, 0, 0, 4],
+      });
+    } else if (firstType === "AllergyIntolerance") {
+      // Render Allergies table
+      const tableBody: Array<Array<string | Record<string, unknown>>> = [
+        [
+          { text: "Substance", style: "tableHeader" },
+          { text: "Type", style: "tableHeader" },
+          { text: "Criticality", style: "tableHeader" },
+        ],
+      ];
+
+      for (const al of sectionResources) {
+        const code = al.code as { text?: string } | undefined;
+        const substanceName = code?.text ?? "—";
+        const type = (al.type as string | undefined) ?? "—";
+        const criticality = (al.criticality as string | undefined) ?? "—";
+        tableBody.push([substanceName, type, criticality]);
       }
 
       content.push({
@@ -809,6 +1057,8 @@ export async function getIPSPreview(
   vitalSignMetrics: Array<{ metric: string; latestDate: string; latestValue: string }>;
   labResults: Array<{ fileName: string; date: string; testCount: number }>;
   conditionCount: number;
+  medicationCount: number;
+  allergyCount: number;
 }> {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - timeRangeDays);
@@ -856,8 +1106,10 @@ export async function getIPSPreview(
   }
 
   const conditionCount = await db.clinicalConditions.count();
+  const medicationCount = await db.medications.count();
+  const allergyCount = await db.allergies.count();
 
-  return { vitalSignMetrics, labResults, conditionCount };
+  return { vitalSignMetrics, labResults, conditionCount, medicationCount, allergyCount };
 }
 
 function downloadBlob(blob: Blob, fileName: string): void {
