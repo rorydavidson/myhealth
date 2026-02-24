@@ -68,7 +68,7 @@ Optional:
 | `LOG_LEVEL` | `info` | Fastify log level (`trace`, `debug`, `info`, `warn`, `error`) |
 | `WEB_PORT` | `80` | Host port for the nginx container |
 | `SERVER_PORT` | `3001` | Host port for the API server container |
-| `VITE_FHIR_TERMINOLOGY_URL` | `https://r4.ontoserver.csiro.au/fhir` | FHIR terminology server for SNOMED CT search |
+| `VITE_FHIR_TERMINOLOGY_URL` | `https://browser.ihtsdotools.org/fhir` | FHIR terminology server for SNOMED CT search |
 | `VITE_API_URL` | `http://localhost:3001` | API base URL as seen from the browser |
 
 ### 2. Build and start containers
@@ -130,7 +130,7 @@ Create a `.env` file in the monorepo root. See `.env.example` for all variables 
 | `PORT` | `3001` | — |
 | `HOST` | `0.0.0.0` | — |
 | `LOG_LEVEL` | `info` | — |
-| `VITE_FHIR_TERMINOLOGY_URL` | `https://r4.ontoserver.csiro.au/fhir` | — |
+| `VITE_FHIR_TERMINOLOGY_URL` | `https://browser.ihtsdotools.org/fhir` | — |
 | `VITE_API_URL` | `http://localhost:3001` | ✅ |
 
 ---
@@ -334,4 +334,4 @@ Health metrics are tagged with standardised clinical codes for interoperability:
 - **SNOMED CT** — Supplementary coding for richer clinical semantics.
 - Codes are stored in a static lookup table in `packages/shared/src/coding/` — not per-record in IndexedDB.
 - Lab result structured values carry per-test LOINC codes (e.g. HDL → LOINC 2085-9).
-- SNOMED CT concept search uses the FHIR ValueSet `$expand` operation against a configurable terminology server (default: Ontoserver CSIRO public endpoint).
+- SNOMED CT concept search uses the FHIR ValueSet `$expand` operation against a configurable terminology server (default: SNOMED International public endpoint).

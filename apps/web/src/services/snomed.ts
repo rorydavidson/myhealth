@@ -4,7 +4,7 @@
  * Uses the FHIR Terminology Services API (R4) to search for SNOMED CT clinical concepts.
  * The FHIR base URL is configurable via VITE_FHIR_TERMINOLOGY_URL environment variable.
  *
- * Default: https://r4.ontoserver.csiro.au/fhir (CSIRO Ontoserver — reliable public FHIR server)
+ * Default: https://browser.ihtsdotools.org/fhir (SNOMED International snowstorm — reliable public FHIR server)
  *
  * Endpoints used:
  * - ValueSet/$expand — search for concepts matching a user query
@@ -12,7 +12,7 @@
  */
 
 const FHIR_BASE_URL =
-  import.meta.env.VITE_FHIR_TERMINOLOGY_URL ?? "https://r4.ontoserver.csiro.au/fhir";
+  import.meta.env.VITE_FHIR_TERMINOLOGY_URL ?? "https://browser.ihtsdotools.orgfhir";
 
 const SNOMED_SYSTEM = "http://snomed.info/sct";
 const SNOMED_SYNONYM_CODE = "900000000000013009";
