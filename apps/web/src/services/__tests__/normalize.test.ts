@@ -240,4 +240,111 @@ describe("normalizeHealthConnectRecords", () => {
     const result = await normalizeHealthConnectRecords(records, IMPORT_ID);
     expect(result).toHaveLength(0);
   });
+
+  it("appends blood pressure component to sourceType for BloodPressureRecord", async () => {
+    const records: HCParsedRecord[] = [
+      {
+        recordType: "BloodPressureRecord",
+        value: 120,
+        unit: "mmHg",
+        startTime: "2024-03-15T09:00:00Z",
+        endTime: "2024-03-15T09:00:00Z",
+        sourceName: "Health Connect",
+        sourceDevice: "Pixel",
+        metadata: { component: "systolic" },
+      },
+    ];
+
+    const result = await normalizeHealthConnectRecords(records, IMPORT_ID);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].sourceType).toBe("BloodPressureRecord_systolic");
+  });
+
+  it("uses workoutActivityType as sourceType for ExerciseSessionRecord", async () => {
+    const records: HCParsedRecord[] = [
+      {
+        recordType: "ExerciseSessionRecord",
+        value: 45,
+        unit: "min",
+        startTime: "2024-03-15T07:00:00Z",
+        endTime: "2024-03-15T07:45:00Z",
+        sourceName: "Health Connect",
+        sourceDevice: "Pixel Watch",
+        metadata: { workoutActivityType: "EXERCISE_TYPE_RUNNING" },
+      },
+    ];
+
+    const result = await normalizeHealthConnectRecords(records, IMPORT_ID);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].sourceType).toBe("EXERCISE_TYPE_RUNNING");
+  });
+
+  it("falls back to recordType as sourceType for ExerciseSessionRecord with no workoutActivityType", async () => {
+    const records: HCParsedRecord[] = [
+      {
+        recordType: "ExerciseSessionRecord",
+        value: 30,
+        unit: "min",
+        startTime: "2024-03-15T07:00:00Z",
+        endTime: "2024-03-15T07:30:00Z",
+        sourceName: "Health Connect",
+        sourceDevice: "Pixel Watch",
+        metadata: {},
+      },
+    ];
+
+    const result = await normalizeHealthConnectRecords(records, IMPORT_ID);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].sourceType).toBe("ExerciseSessionRecord");
+  });
+
+  it("uses startTime for endTime when endTime is absent", async () => {
+    const records: HCParsedRecord[] = [
+      {
+        recordType: "StepsRecord",
+        value: 500,
+        unit: "count",
+        startTime: "2024-03-15T08:00:00Z",
+        endTime: undefined as unknown as string,
+        sourceName: "App",
+        sourceDevice: "Phone",
+        metadata: {},
+      },
+    ];
+
+    const result = await normalizeHealthConnectRecords(records, IMPORT_ID);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].startTime.toISOString()).toBe(result[0].endTime.toISOString());
+  });
+});
+
+describe("normalizeAppleHealthRecords — HKActivitySummary", () => {
+  it("maps HKActivitySummary records to active_energy metricType", async () => {
+    const records: ParsedRecord[] = [
+      {
+        type: "HKActivitySummary",
+        value: 350,
+        unit: "Cal",
+        startDate: "2024-03-15 00:00:00 +0000",
+        endDate: "2024-03-15 23:59:00 +0000",
+        sourceName: "iPhone",
+        sourceDevice: "iPhone 15",
+        metadata: {},
+      } as unknown as ParsedRecord,
+    ];
+
+    const result = await normalizeAppleHealthRecords(records, IMPORT_ID);
+
+    expect(result).toHaveLength(1);
+    const record = result[0];
+    expect(record.metricType).toBe("active_energy");
+    expect(record.sourcePlatform).toBe("apple_health");
+    expect(record.sourceType).toBe("HKActivitySummary");
+    // endTime should equal startTime for activity summaries
+    expect(record.startTime.toISOString()).toBe(record.endTime.toISOString());
+  });
 });

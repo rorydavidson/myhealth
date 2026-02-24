@@ -10,5 +10,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
       "@health-app/shared": path.resolve(__dirname, "../../packages/shared/src"),
     },
+    coverage: {
+      provider: "v8",
+      include: ["src/services/**/*.ts"],
+      exclude: ["src/services/__tests__/**"],
+    },
   },
 });
