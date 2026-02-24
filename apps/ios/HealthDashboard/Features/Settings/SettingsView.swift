@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Settings screen — account, preferences, health data, export, about.
-/// Preference sync with server in Milestone 13; storage management in Milestone 21.
+/// Storage management added in Milestone 21; export in Milestones 20–21.
 @MainActor
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
@@ -24,6 +24,18 @@ struct SettingsView: View {
             Button(String(localized: "common.cancel"), role: .cancel) {}
         } message: {
             Text(String(localized: "settings.signOut.confirm.message"))
+        }
+        // Sync each preference change to the server as soon as the picker changes.
+        // Uses best-effort (try?) — a transient network error won't interrupt the UX;
+        // the local AppState / UserDefaults cache is always updated immediately.
+        .onChange(of: appState.unitPreference) { _, newValue in
+            Task { try? await PreferencesService.shared.update(unitSystem: newValue) }
+        }
+        .onChange(of: appState.language) { _, newValue in
+            Task { try? await PreferencesService.shared.update(language: newValue) }
+        }
+        .onChange(of: appState.theme) { _, newValue in
+            Task { try? await PreferencesService.shared.update(theme: newValue) }
         }
     }
 
@@ -111,7 +123,8 @@ struct SettingsView: View {
     // MARK: - Actions
 
     private func signOut() async {
-        // AuthManager.shared.signOut() — Milestone 13
+        await AuthManager.shared.signOut()
+        appState.currentUser = nil
     }
 }
 

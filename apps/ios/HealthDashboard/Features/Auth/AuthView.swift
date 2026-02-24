@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// Auth entry point — routes between Login and Sign Up.
+/// Auth entry point — routes between Login, Sign Up, and Forgot Password.
 /// Full-screen, no tab bar, wordmark centred above the form.
 @MainActor
 struct AuthView: View {
     @State private var mode: Mode = .login
 
     enum Mode {
-        case login, signUp
+        case login, signUp, forgotPassword
     }
 
     var body: some View {
@@ -28,9 +28,14 @@ struct AuthView: View {
 
             switch mode {
             case .login:
-                LoginFormView(onSwitchToSignUp: { mode = .signUp })
+                LoginFormView(
+                    onSwitchToSignUp: { mode = .signUp },
+                    onForgotPassword: { mode = .forgotPassword }
+                )
             case .signUp:
                 SignUpFormView(onSwitchToLogin: { mode = .login })
+            case .forgotPassword:
+                ForgotPasswordView(onBack: { mode = .login })
             }
 
             Spacer()

@@ -1,600 +1,1845 @@
 {
   "sourceLanguage" : "en",
-  "version" : "1.0",
   "strings" : {
-    "tab.dashboard" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dashboard" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tableau de bord" } }
-      }
-    },
-    "tab.insights" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Insights" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Analyses" } }
-      }
-    },
-    "tab.import" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Importer" } }
-      }
-    },
-    "tab.summary" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Summary" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résumé" } }
-      }
-    },
-    "tab.settings" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réglages" } }
-      }
-    },
-    "category.activity" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Activity" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activité" } }
-      }
-    },
-    "category.heart" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Heart" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cœur" } }
-      }
-    },
-    "category.sleep" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sleep" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sommeil" } }
-      }
-    },
-    "category.body" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Body" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Corps" } }
-      }
-    },
-    "category.vitals" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vitals" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Constantes" } }
-      }
-    },
-    "category.workouts" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Workouts" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Entraînements" } }
-      }
-    },
-    "category.labResults" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lab Results" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résultats de labo" } }
-      }
-    },
-    "auth.login.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign In" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecter" } }
-      }
-    },
-    "auth.login.button" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign In" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecter" } }
-      }
-    },
-    "auth.login.noAccount" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Don't have an account? Sign up" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas encore de compte ? S'inscrire" } }
-      }
-    },
-    "auth.signUp.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create Account" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Créer un compte" } }
-      }
-    },
-    "auth.signUp.button" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create Account" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Créer un compte" } }
-      }
-    },
-    "auth.signUp.hasAccount" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Already have an account? Sign in" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déjà un compte ? Se connecter" } }
-      }
-    },
-    "auth.signUp.passwordMismatch" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Passwords do not match" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les mots de passe ne correspondent pas" } }
-      }
-    },
-    "auth.field.email" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Email" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Adresse e-mail" } }
-      }
-    },
-    "auth.field.password" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot de passe" } }
-      }
-    },
-    "auth.field.confirmPassword" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm Password" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Confirmer le mot de passe" } }
-      }
-    },
-    "auth.field.name" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom" } }
-      }
-    },
-    "common.cancel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } }
-      }
-    },
-    "dashboard.empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No data yet" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas encore de données" } }
-      }
-    },
-    "dashboard.empty.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import your Apple Health data to get started." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Importez vos données Apple Santé pour commencer." } }
-      }
-    },
-    "insights.empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ask about your health" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Posez une question sur votre santé" } }
-      }
-    },
-    "insights.empty.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import data first, then ask anything about your trends, sleep, activity, and more." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Importez d'abord vos données, puis posez vos questions sur vos tendances, sommeil, activité et plus encore." } }
-      }
-    },
-    "summary.empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "International Patient Summary" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résumé patient international" } }
-      }
-    },
-    "summary.empty.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate a portable FHIR-compliant health summary you can share with any healthcare provider." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Générez un résumé de santé portable conforme FHIR, partageable avec n'importe quel professionnel de santé." } }
-      }
-    },
-    "import.section.healthKit" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple Health" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Santé Apple" } }
-      }
-    },
-    "import.section.history" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import History" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Historique des imports" } }
-      }
-    },
-    "import.history.empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No imports yet" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun import" } }
-      }
-    },
-    "import.history.empty.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your import history will appear here." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre historique d'imports apparaîtra ici." } }
-      }
-    },
-    "import.healthKit.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple Health" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Santé Apple" } }
-      }
-    },
-    "import.healthKit.status.connected" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connected" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connecté" } }
-      }
-    },
-    "import.healthKit.status.denied" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Access denied — enable in Settings" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accès refusé — activez dans Réglages" } }
-      }
-    },
-    "import.healthKit.status.unavailable" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not available on this device" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Non disponible sur cet appareil" } }
-      }
-    },
-    "import.healthKit.status.notConnected" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not connected" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Non connecté" } }
-      }
-    },
-    "import.platform.backup" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Backup" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sauvegarde" } }
-      }
-    },
-    "import.status.processing" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Processing" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Traitement en cours" } }
-      }
-    },
-    "import.status.completed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Completed" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminé" } }
-      }
-    },
-    "import.status.failed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Échoué" } }
-      }
-    },
-    "settings.section.account" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Account" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Compte" } }
-      }
-    },
-    "settings.section.preferences" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preferences" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Préférences" } }
-      }
-    },
-    "settings.section.healthData" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Health Data" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Données de santé" } }
-      }
-    },
-    "settings.section.export" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export & Backup" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Export et sauvegarde" } }
-      }
-    },
-    "settings.section.about" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "À propos" } }
-      }
-    },
-    "settings.account.name" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom" } }
-      }
-    },
-    "settings.account.email" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Email" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "E-mail" } }
-      }
-    },
-    "settings.signOut" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign Out" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } }
-      }
-    },
-    "settings.signOut.confirm.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign Out?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter ?" } }
-      }
-    },
-    "settings.signOut.confirm.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your health data stays on this device. You'll need to sign in again to use AI insights." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos données de santé restent sur cet appareil. Vous devrez vous reconnecter pour utiliser les analyses IA." } }
-      }
-    },
-    "settings.signOut.confirm.action" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign Out" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } }
-      }
-    },
-    "settings.units.label" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Units" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Unités" } }
-      }
-    },
-    "settings.units.metric" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metric" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Métrique" } }
-      }
-    },
-    "settings.units.imperial" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Imperial" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impérial" } }
-      }
-    },
-    "settings.language.label" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Langue" } }
-      }
-    },
-    "settings.language.system" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "System Default" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Système" } }
-      }
-    },
-    "settings.theme.label" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apparence" } }
-      }
-    },
-    "settings.theme.system" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Système" } }
-      }
-    },
-    "settings.theme.light" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Clair" } }
-      }
-    },
-    "settings.theme.dark" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sombre" } }
-      }
-    },
-    "settings.healthData.storage.placeholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Storage usage — available in a future update" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Utilisation du stockage — disponible dans une prochaine mise à jour" } }
-      }
-    },
-    "settings.export.json" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export JSON Backup" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter la sauvegarde JSON" } }
-      }
-    },
-    "settings.export.ips" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export as Patient Summary (IPS)" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter en résumé patient (IPS)" } }
-      }
-    },
-    "settings.about.version" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Version" } }
-      }
-    },
-    "settings.about.privacy" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy Policy" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Politique de confidentialité" } }
-      }
-    },
-    "onboarding.page1.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "All your health data, beautifully visualised" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Toutes vos données de santé, magnifiquement visualisées" } }
-      }
-    },
-    "onboarding.page1.body" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Charts, trends, and AI insights across all your health metrics in one place." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Graphiques, tendances et analyses IA pour toutes vos métriques de santé en un seul endroit." } }
-      }
-    },
-    "onboarding.page2.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your data never leaves your device" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos données ne quittent jamais votre appareil" } }
-      }
-    },
-    "onboarding.page2.body" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "All health records are stored on-device. Only anonymised summaries are ever used for AI insights — and you see exactly what's sent before it goes." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tous les enregistrements de santé sont stockés sur l'appareil. Seuls des résumés anonymisés sont utilisés pour les analyses IA — et vous voyez exactement ce qui est envoyé." } }
-      }
-    },
-    "onboarding.page3.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connect your health data" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez vos données de santé" } }
-      }
-    },
-    "onboarding.page3.body" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Grant access to Apple Health so the app can read your steps, heart rate, sleep, and more. You can revoke access at any time in Settings." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autorisez l'accès à Santé Apple pour que l'application puisse lire vos pas, votre fréquence cardiaque, votre sommeil et plus encore." } }
-      }
-    },
-    "onboarding.next" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suivant" } }
-      }
-    },
-    "onboarding.getStarted" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get Started" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Commencer" } }
-      }
-    },
-    "healthKit.error.unavailable" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple Health is not available on this device." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apple Santé n'est pas disponible sur cet appareil." } }
-      }
-    },
-    "api.error.unauthorised" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your session has expired. Please sign in again." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre session a expiré. Veuillez vous reconnecter." } }
-      }
-    },
-    "api.error.decoding" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unexpected response from server." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réponse inattendue du serveur." } }
-      }
-    },
-    "api.error.cancelled" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Request cancelled." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Requête annulée." } }
-      }
-    },
-    "lab.category.bloodPanel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Blood Panel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bilan sanguin" } }
-      }
-    },
-    "lab.category.lipidPanel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lipid Panel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bilan lipidique" } }
-      }
-    },
-    "lab.category.thyroid" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Thyroid" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Thyroïde" } }
-      }
-    },
-    "lab.category.metabolic" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Metabolic" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Métabolique" } }
-      }
-    },
-    "lab.category.other" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Other" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autre" } }
-      }
-    },
-    "clinical.status.active" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Active" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actif" } }
-      }
-    },
-    "clinical.status.resolved" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resolved" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résolu" } }
-      }
-    },
-    "clinical.status.inactive" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Inactive" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Inactif" } }
-      }
-    },
-    "medication.status.stopped" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stopped" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Arrêté" } }
-      }
-    },
-    "medication.status.onHold" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "On Hold" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En pause" } }
-      }
-    },
-    "allergy.type.allergy" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allergy" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Allergie" } }
-      }
-    },
-    "allergy.type.intolerance" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Intolerance" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Intolérance" } }
-      }
-    },
-    "allergy.category.food" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Food" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alimentaire" } }
-      }
-    },
-    "allergy.category.medication" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medication" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Médicament" } }
+    "allergy.category.biologic" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biologic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biologique"
+          }
+        }
       }
     },
     "allergy.category.environment" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Environment" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Environnement" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Environment"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Environnement"
+          }
+        }
       }
     },
-    "allergy.category.biologic" : {
+    "allergy.category.food" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Biologic" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Biologique" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Food"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alimentaire"
+          }
+        }
+      }
+    },
+    "allergy.category.medication" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medication"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Médicament"
+          }
+        }
       }
     },
     "allergy.criticality.high" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Élevée" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élevée"
+          }
+        }
       }
     },
     "allergy.criticality.low" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Low" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Faible" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faible"
+          }
+        }
       }
     },
     "allergy.criticality.unableToAssess" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unable to Assess" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible à évaluer" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Assess"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible à évaluer"
+          }
+        }
+      }
+    },
+    "allergy.type.allergy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allergy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allergie"
+          }
+        }
+      }
+    },
+    "allergy.type.intolerance" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intolerance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intolérance"
+          }
+        }
+      }
+    },
+    "api.error.cancelled" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Request cancelled."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Requête annulée."
+          }
+        }
+      }
+    },
+    "api.error.decoding" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unexpected response from server."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réponse inattendue du serveur."
+          }
+        }
+      }
+    },
+    "api.error.unauthorised" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your session has expired. Please sign in again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre session a expiré. Veuillez vous reconnecter."
+          }
+        }
+      }
+    },
+    "auth.error.invalidCredentials" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid email or password."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail ou mot de passe incorrect."
+          }
+        }
+      }
+    },
+    "auth.error.network" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No internet connection. Please try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas de connexion internet. Veuillez réessayer."
+          }
+        }
+      }
+    },
+    "auth.error.server" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something went wrong. Please try again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quelque chose s'est mal passé. Veuillez réessayer."
+          }
+        }
+      }
+    },
+    "auth.field.confirmPassword" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm Password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmer le mot de passe"
+          }
+        }
+      }
+    },
+    "auth.field.email" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adresse e-mail"
+          }
+        }
+      }
+    },
+    "auth.field.name" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom"
+          }
+        }
+      }
+    },
+    "auth.field.password" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mot de passe"
+          }
+        }
+      }
+    },
+    "auth.forgotPassword.backToLogin" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Sign In"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retour à la connexion"
+          }
+        }
+      }
+    },
+    "auth.forgotPassword.button" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send Reset Link"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer le lien"
+          }
+        }
+      }
+    },
+    "auth.forgotPassword.sent" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your inbox. If an account exists for that email, you'll receive a reset link shortly."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez votre boîte de réception. Si un compte existe pour cet e-mail, vous recevrez bientôt un lien de réinitialisation."
+          }
+        }
+      }
+    },
+    "auth.forgotPassword.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter your email and we'll send you a reset link."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrez votre adresse e-mail et nous vous enverrons un lien de réinitialisation."
+          }
+        }
+      }
+    },
+    "auth.forgotPassword.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser le mot de passe"
+          }
+        }
+      }
+    },
+    "auth.login.button" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se connecter"
+          }
+        }
+      }
+    },
+    "auth.login.forgotPassword" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forgot password?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mot de passe oublié ?"
+          }
+        }
+      }
+    },
+    "auth.login.noAccount" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Don't have an account? Sign up"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas encore de compte ? S'inscrire"
+          }
+        }
+      }
+    },
+    "auth.login.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign In"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se connecter"
+          }
+        }
+      }
+    },
+    "auth.signUp.button" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer un compte"
+          }
+        }
+      }
+    },
+    "auth.signUp.hasAccount" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already have an account? Sign in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déjà un compte ? Se connecter"
+          }
+        }
+      }
+    },
+    "auth.signUp.passwordMismatch" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwords do not match"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les mots de passe ne correspondent pas"
+          }
+        }
+      }
+    },
+    "auth.signUp.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer un compte"
+          }
+        }
+      }
+    },
+    "category.activity" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activity"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activité"
+          }
+        }
+      }
+    },
+    "category.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Body"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corps"
+          }
+        }
+      }
+    },
+    "category.heart" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heart"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cœur"
+          }
+        }
+      }
+    },
+    "category.labResults" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lab Results"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résultats de labo"
+          }
+        }
+      }
+    },
+    "category.sleep" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sommeil"
+          }
+        }
+      }
+    },
+    "category.vitals" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vitals"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Constantes"
+          }
+        }
+      }
+    },
+    "category.workouts" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workouts"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entraînements"
+          }
+        }
+      }
+    },
+    "clinical.status.active" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actif"
+          }
+        }
+      }
+    },
+    "clinical.status.inactive" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inactive"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inactif"
+          }
+        }
+      }
+    },
+    "clinical.status.resolved" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resolved"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résolu"
+          }
+        }
+      }
+    },
+    "common.cancel" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler"
+          }
+        }
+      }
+    },
+    "dashboard.empty.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import your Apple Health data to get started."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importez vos données Apple Santé pour commencer."
+          }
+        }
+      }
+    },
+    "dashboard.empty.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data yet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas encore de données"
+          }
+        }
+      }
+    },
+    "Health Dashboard" : {
+
+    },
+    "healthKit.error.unavailable" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health is not available on this device."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Santé n'est pas disponible sur cet appareil."
+          }
+        }
+      }
+    },
+    "import.healthKit.status.connected" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecté"
+          }
+        }
+      }
+    },
+    "import.healthKit.status.denied" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access denied — enable in Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accès refusé — activez dans Réglages"
+          }
+        }
+      }
+    },
+    "import.healthKit.status.notConnected" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not connected"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non connecté"
+          }
+        }
+      }
+    },
+    "import.healthKit.status.unavailable" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not available on this device"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non disponible sur cet appareil"
+          }
+        }
+      }
+    },
+    "import.healthKit.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Santé Apple"
+          }
+        }
+      }
+    },
+    "import.history.empty.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your import history will appear here."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre historique d'imports apparaîtra ici."
+          }
+        }
+      }
+    },
+    "import.history.empty.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No imports yet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun import"
+          }
+        }
+      }
+    },
+    "import.platform.backup" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde"
+          }
+        }
+      }
+    },
+    "import.section.healthKit" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Santé Apple"
+          }
+        }
+      }
+    },
+    "import.section.history" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import History"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique des imports"
+          }
+        }
+      }
+    },
+    "import.status.completed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminé"
+          }
+        }
+      }
+    },
+    "import.status.failed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échoué"
+          }
+        }
+      }
+    },
+    "import.status.processing" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traitement en cours"
+          }
+        }
+      }
+    },
+    "insights.empty.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import data first, then ask anything about your trends, sleep, activity, and more."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importez d'abord vos données, puis posez vos questions sur vos tendances, sommeil, activité et plus encore."
+          }
+        }
+      }
+    },
+    "insights.empty.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask about your health"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posez une question sur votre santé"
+          }
+        }
+      }
+    },
+    "lab.category.bloodPanel" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blood Panel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilan sanguin"
+          }
+        }
+      }
+    },
+    "lab.category.lipidPanel" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lipid Panel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilan lipidique"
+          }
+        }
+      }
+    },
+    "lab.category.metabolic" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metabolic"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Métabolique"
+          }
+        }
+      }
+    },
+    "lab.category.other" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autre"
+          }
+        }
+      }
+    },
+    "lab.category.thyroid" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thyroid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thyroïde"
+          }
+        }
+      }
+    },
+    "medication.status.onHold" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On Hold"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En pause"
+          }
+        }
+      }
+    },
+    "medication.status.stopped" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopped"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrêté"
+          }
+        }
+      }
+    },
+    "onboarding.getStarted" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Started"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commencer"
+          }
+        }
+      }
+    },
+    "onboarding.next" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suivant"
+          }
+        }
+      }
+    },
+    "onboarding.page1.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charts, trends, and AI insights across all your health metrics in one place."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graphiques, tendances et analyses IA pour toutes vos métriques de santé en un seul endroit."
+          }
+        }
+      }
+    },
+    "onboarding.page1.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All your health data, beautifully visualised"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toutes vos données de santé, magnifiquement visualisées"
+          }
+        }
+      }
+    },
+    "onboarding.page2.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All health records are stored on-device. Only anonymised summaries are ever used for AI insights — and you see exactly what's sent before it goes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les enregistrements de santé sont stockés sur l'appareil. Seuls des résumés anonymisés sont utilisés pour les analyses IA — et vous voyez exactement ce qui est envoyé."
+          }
+        }
+      }
+    },
+    "onboarding.page2.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your data never leaves your device"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos données ne quittent jamais votre appareil"
+          }
+        }
+      }
+    },
+    "onboarding.page3.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grant access to Apple Health so the app can read your steps, heart rate, sleep, and more. You can revoke access at any time in Settings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisez l'accès à Santé Apple pour que l'application puisse lire vos pas, votre fréquence cardiaque, votre sommeil et plus encore."
+          }
+        }
+      }
+    },
+    "onboarding.page3.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect your health data"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connectez vos données de santé"
+          }
+        }
+      }
+    },
+    "settings.about.privacy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "settings.about.version" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        }
+      }
+    },
+    "settings.account.email" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
+          }
+        }
+      }
+    },
+    "settings.account.name" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom"
+          }
+        }
+      }
+    },
+    "settings.export.ips" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as Patient Summary (IPS)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter en résumé patient (IPS)"
+          }
+        }
+      }
+    },
+    "settings.export.json" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export JSON Backup"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter la sauvegarde JSON"
+          }
+        }
+      }
+    },
+    "settings.healthData.storage.placeholder" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage usage — available in a future update"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation du stockage — disponible dans une prochaine mise à jour"
+          }
+        }
+      }
+    },
+    "settings.language.label" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langue"
+          }
+        }
+      }
+    },
+    "settings.language.system" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System Default"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Système"
+          }
+        }
+      }
+    },
+    "settings.section.about" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À propos"
+          }
+        }
+      }
+    },
+    "settings.section.account" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte"
+          }
+        }
+      }
+    },
+    "settings.section.export" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export & Backup"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export et sauvegarde"
+          }
+        }
+      }
+    },
+    "settings.section.healthData" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Health Data"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données de santé"
+          }
+        }
+      }
+    },
+    "settings.section.preferences" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferences"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Préférences"
+          }
+        }
+      }
+    },
+    "settings.signOut" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déconnecter"
+          }
+        }
+      }
+    },
+    "settings.signOut.confirm.action" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déconnecter"
+          }
+        }
+      }
+    },
+    "settings.signOut.confirm.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your health data stays on this device. You'll need to sign in again to use AI insights."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos données de santé restent sur cet appareil. Vous devrez vous reconnecter pour utiliser les analyses IA."
+          }
+        }
+      }
+    },
+    "settings.signOut.confirm.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déconnecter ?"
+          }
+        }
+      }
+    },
+    "settings.theme.dark" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sombre"
+          }
+        }
+      }
+    },
+    "settings.theme.label" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparence"
+          }
+        }
+      }
+    },
+    "settings.theme.light" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clair"
+          }
+        }
+      }
+    },
+    "settings.theme.system" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Système"
+          }
+        }
+      }
+    },
+    "settings.units.imperial" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imperial"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impérial"
+          }
+        }
+      }
+    },
+    "settings.units.label" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Units"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unités"
+          }
+        }
+      }
+    },
+    "settings.units.metric" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metric"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Métrique"
+          }
+        }
+      }
+    },
+    "summary.empty.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate a portable FHIR-compliant health summary you can share with any healthcare provider."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Générez un résumé de santé portable conforme FHIR, partageable avec n'importe quel professionnel de santé."
+          }
+        }
+      }
+    },
+    "summary.empty.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "International Patient Summary"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résumé patient international"
+          }
+        }
+      }
+    },
+    "tab.dashboard" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dashboard"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tableau de bord"
+          }
+        }
+      }
+    },
+    "tab.import" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer"
+          }
+        }
+      }
+    },
+    "tab.insights" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insights"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyses"
+          }
+        }
+      }
+    },
+    "tab.settings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages"
+          }
+        }
+      }
+    },
+    "tab.summary" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résumé"
+          }
+        }
       }
     }
-  }
+  },
+  "version" : "1.0"
 }

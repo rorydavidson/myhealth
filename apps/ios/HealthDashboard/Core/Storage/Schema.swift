@@ -5,7 +5,7 @@ import SwiftData
 /// Schema v1.0.0 — initial Phase 2 release.
 /// All seven model types registered here.
 enum SchemaV1: VersionedSchema {
-    static var versionIdentifier = Schema.Version(1, 0, 0)
+    static let versionIdentifier = Schema.Version(1, 0, 0)
 
     static var models: [any PersistentModel.Type] {
         [

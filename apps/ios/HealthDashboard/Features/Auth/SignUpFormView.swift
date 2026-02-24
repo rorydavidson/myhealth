@@ -1,10 +1,13 @@
 import SwiftUI
 
 /// Name, email, password, confirm-password sign-up form.
-/// Auth logic implemented in Milestone 13 (AuthManager).
+/// On success, calls `PreferencesService` to seed default server preferences
+/// before the UI transitions to the main tab view.
 @MainActor
 struct SignUpFormView: View {
     let onSwitchToLogin: () -> Void
+
+    @Environment(AppState.self) private var appState
 
     @State private var displayName = ""
     @State private var email = ""
@@ -95,10 +98,28 @@ struct SignUpFormView: View {
         }
     }
 
+    // MARK: - Actions
+
     private func signUp() async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
-        // AuthManager.shared.signUp(...) — implemented in Milestone 13
+
+        do {
+            let session = try await AuthManager.shared.signUp(
+                name: displayName.trimmingCharacters(in: .whitespaces),
+                email: email.trimmingCharacters(in: .whitespaces),
+                password: password
+            )
+            // Seed server preferences for the new account (best-effort)
+            await PreferencesService.shared.fetchAndApply(to: appState)
+            appState.currentUser = session
+        } catch APIError.serverError(_, let message) {
+            errorMessage = message
+        } catch APIError.networkError {
+            errorMessage = String(localized: "auth.error.network")
+        } catch {
+            errorMessage = String(localized: "auth.error.server")
+        }
     }
 }

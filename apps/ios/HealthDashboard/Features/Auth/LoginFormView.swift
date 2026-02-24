@@ -1,10 +1,12 @@
 import SwiftUI
 
 /// Email + password login form.
-/// Auth logic implemented in Milestone 13 (AuthManager).
+/// On success, calls `PreferencesService` to sync server preferences before
+/// the UI transitions to the main tab view.
 @MainActor
 struct LoginFormView: View {
     let onSwitchToSignUp: () -> Void
+    let onForgotPassword: () -> Void
 
     @Environment(AppState.self) private var appState
 
@@ -38,6 +40,15 @@ struct LoginFormView: View {
                     .padding()
                     .background(.background.secondary)
                     .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.button))
+
+                HStack {
+                    Spacer()
+                    Button(String(localized: "auth.login.forgotPassword")) {
+                        onForgotPassword()
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
             }
 
             if let errorMessage {
@@ -72,10 +83,29 @@ struct LoginFormView: View {
         }
     }
 
+    // MARK: - Actions
+
     private func signIn() async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
-        // AuthManager.shared.signIn(email:password:) — implemented in Milestone 13
+
+        do {
+            let session = try await AuthManager.shared.signIn(
+                email: email.trimmingCharacters(in: .whitespaces),
+                password: password
+            )
+            // Sync server preferences before the UI transitions (best-effort)
+            await PreferencesService.shared.fetchAndApply(to: appState)
+            appState.currentUser = session
+        } catch APIError.unauthorised {
+            errorMessage = String(localized: "auth.error.invalidCredentials")
+        } catch APIError.serverError(_, let message) {
+            errorMessage = message
+        } catch APIError.networkError {
+            errorMessage = String(localized: "auth.error.network")
+        } catch {
+            errorMessage = String(localized: "auth.error.server")
+        }
     }
 }

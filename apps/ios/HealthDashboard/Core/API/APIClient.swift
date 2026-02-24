@@ -16,6 +16,9 @@ actor APIClient {
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
 
+    /// Bearer token set by `AuthManager` after a successful sign-in or session validation.
+    private var authToken: String?
+
     private init() {
         let config = URLSessionConfiguration.default
         config.httpCookieStorage = .shared
@@ -24,18 +27,9 @@ actor APIClient {
 
         self.session = URLSession(configuration: config)
 
-        guard
-            let urlString = Bundle.main.infoDictionary?["APIBaseURL"] as? String,
-            let url = URL(string: urlString)
-        else {
-            // Fallback to localhost for development — should be configured in Info.plist
-            self.baseURL = URL(string: "http://localhost:3001")!
-            self.decoder = JSONDecoder()
-            self.encoder = JSONEncoder()
-            return
-        }
+        let urlString = Bundle.main.infoDictionary?["APIBaseURL"] as? String ?? "http://localhost:3001"
+        self.baseURL = URL(string: urlString)!
 
-        self.baseURL = url
         self.decoder = {
             let d = JSONDecoder()
             d.keyDecodingStrategy = .convertFromSnakeCase
@@ -50,41 +44,60 @@ actor APIClient {
         }()
     }
 
-    // MARK: - Public Interface
+    // MARK: - Auth Token Management
 
-    /// Performs a typed request and decodes the response body.
-    func request<Response: Decodable>(
+    func setAuthToken(_ token: String) { authToken = token }
+    func clearAuthToken()              { authToken = nil   }
+
+    // MARK: - Typed Requests (with body)
+
+    func request<Response: Decodable, Body: Encodable>(
         _ endpoint: Endpoint,
-        body: (some Encodable)? = nil as EmptyBody?
+        body: Body
     ) async throws -> Response {
-        let data = try await performRequest(endpoint, body: body)
-        do {
-            return try decoder.decode(Response.self, from: data)
-        } catch {
-            throw APIError.decodingError(error)
-        }
+        let data = try await performRequest(endpoint, bodyData: try encoder.encode(body))
+        return try decode(data)
     }
 
-    /// Performs a request with no response body (e.g. logout, delete).
-    func requestVoid(_ endpoint: Endpoint, body: (some Encodable)? = nil as EmptyBody?) async throws {
-        _ = try await performRequest(endpoint, body: body)
+    // MARK: - Typed Requests (no body)
+
+    func request<Response: Decodable>(_ endpoint: Endpoint) async throws -> Response {
+        let data = try await performRequest(endpoint, bodyData: nil)
+        return try decode(data)
+    }
+
+    // MARK: - Void Requests (with body)
+
+    func requestVoid<Body: Encodable>(_ endpoint: Endpoint, body: Body) async throws {
+        _ = try await performRequest(endpoint, bodyData: try encoder.encode(body))
+    }
+
+    // MARK: - Void Requests (no body)
+
+    func requestVoid(_ endpoint: Endpoint) async throws {
+        _ = try await performRequest(endpoint, bodyData: nil)
     }
 
     // MARK: - Private
 
+    private func decode<T: Decodable>(_ data: Data) throws -> T {
+        do { return try decoder.decode(T.self, from: data) }
+        catch { throw APIError.decodingError(error) }
+    }
+
     private func performRequest(
         _ endpoint: Endpoint,
-        body: (some Encodable)?,
+        bodyData: Data?,
         attempt: Int = 1
     ) async throws -> Data {
         var request = URLRequest(url: endpoint.url(base: baseURL))
         request.httpMethod = endpoint.method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-
-        if let body {
-            request.httpBody = try encoder.encode(body)
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+        request.httpBody = bodyData
 
         let data: Data
         let response: URLResponse
@@ -94,9 +107,8 @@ actor APIClient {
         } catch let error as URLError where error.code == .cancelled {
             throw APIError.cancelled
         } catch {
-            // 1 automatic retry on network error
             if attempt < 2 {
-                return try await performRequest(endpoint, body: body, attempt: attempt + 1)
+                return try await performRequest(endpoint, bodyData: bodyData, attempt: attempt + 1)
             }
             throw APIError.networkError(error)
         }
@@ -106,12 +118,9 @@ actor APIClient {
         }
 
         switch http.statusCode {
-        case 200...299:
-            return data
-        case 401:
-            throw APIError.unauthorised
+        case 200...299: return data
+        case 401:       throw APIError.unauthorised
         default:
-            // Parse RFC 9457 Problem Details if available
             let message = (try? decoder.decode(ProblemDetails.self, from: data))?.detail
                 ?? HTTPURLResponse.localizedString(forStatusCode: http.statusCode)
             throw APIError.serverError(statusCode: http.statusCode, message: message)
@@ -119,12 +128,6 @@ actor APIClient {
     }
 }
 
-// MARK: - Supporting Types
+// MARK: - Private Types
 
-/// RFC 9457 Problem Details — subset used for error extraction.
-private struct ProblemDetails: Decodable {
-    let detail: String?
-}
-
-/// Sentinel type for requests with no body.
-private struct EmptyBody: Encodable {}
+private struct ProblemDetails: Decodable { let detail: String? }
