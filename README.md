@@ -2,13 +2,27 @@
 
 A privacy-first health data visualization and insights app. All health data stays on your device — the server only handles authentication and proxies LLM requests.
 
+**Phase 1** — Web app (React SPA, complete)
+**Phase 2** — Native iOS app (Swift / SwiftUI, in progress — Milestones 12–14 complete)
+
+---
+
 ## Prerequisites
 
+### Web app
 - **Node.js** 22+
 - **pnpm** 10+ (`corepack enable` to activate)
 - **Docker** (for PostgreSQL in local development)
 
-## Quick Start (Local Development)
+### iOS app
+- **Xcode** 15.0+ (for String Catalogs and Swift Data)
+- **Swift** 6 (bundled with Xcode 15+)
+- **iOS** 17.0+ device or simulator (Swift Data and Swift Charts require iOS 17+)
+- A running instance of the server (local or production) for auth and LLM proxy
+
+## Quick Start
+
+### Web app (local development)
 
 ```bash
 # 1. Install dependencies
@@ -30,6 +44,17 @@ pnpm dev
 
 The web app will be at **http://localhost:5173** and the API server at **http://localhost:3001**.
 Swagger UI (API docs) is at **http://localhost:3001/docs**.
+
+### iOS app
+
+1. Start the server (web quick start steps 1–5 above, or point at a deployed instance)
+2. Open `apps/ios/HealthDashboard.xcodeproj` in Xcode
+3. In Xcode, open **Signing & Capabilities** for the `HealthDashboard` target and set your development team — this is required for the HealthKit entitlement
+4. Set the server URL in `apps/ios/HealthDashboard/Core/API/APIClient.swift` if your server is not at `http://localhost:3001`
+5. Select a real iPhone as the run destination (HealthKit is **not** available in the Simulator)
+6. Build and run (`⌘R`)
+
+> **Note:** HealthKit authorization requires the app to be signed with a provisioning profile that includes the HealthKit capability. Xcode manages this automatically with a valid development team.
 
 ---
 
@@ -140,13 +165,33 @@ Create a `.env` file in the monorepo root. See `.env.example` for all variables 
 ```
 health-app/
 ├── apps/
-│   ├── server/              # Fastify API — auth, preferences, LLM proxy
-│   │   └── Dockerfile       # Multi-stage production build
-│   └── web/                 # React SPA — all health data lives here
-│       ├── Dockerfile       # Multi-stage Vite build → nginx
-│       ├── nginx.conf       # nginx config (SPA fallback, gzip, caching, security headers)
-│       └── scripts/
-│           └── check-i18n.ts  # CI script — verifies all locale files are complete
+│   ├── server/                        # Fastify API — auth, preferences, LLM proxy
+│   │   └── Dockerfile                 # Multi-stage production build
+│   ├── web/                           # React SPA — all health data lives here (Phase 1)
+│   │   ├── Dockerfile                 # Multi-stage Vite build → nginx
+│   │   ├── nginx.conf                 # nginx config (SPA fallback, gzip, caching, security headers)
+│   │   └── scripts/
+│   │       └── check-i18n.ts          # CI script — verifies all locale files are complete
+│   └── ios/                           # Native Swift iOS app (Phase 2)
+│       ├── HealthDashboard.xcodeproj  # Xcode project (generated via XcodeGen)
+│       ├── project.yml                # XcodeGen spec — source of truth for project settings
+│       ├── .swiftlint.yml             # SwiftLint configuration
+│       └── HealthDashboard/
+│           ├── App/                   # @main entry point, tab bar, root view
+│           ├── AppState.swift         # @Observable app-wide state (session, HealthKit status)
+│           ├── Core/
+│           │   ├── API/               # URLSession client, endpoints, error types
+│           │   ├── Aggregation/       # Daily summary computation (AggregationService actor)
+│           │   ├── Auth/              # Session management, Keychain storage
+│           │   ├── HealthKit/         # HKHealthStore wrappers, sync service, type mapping
+│           │   ├── Preferences/       # User preferences sync with server
+│           │   └── Storage/           # Swift Data schema (@Model classes, PersistenceController)
+│           ├── Components/            # Reusable SwiftUI views (MetricCard, SkeletonView, …)
+│           ├── Design/                # DesignTokens, MetricCategory colours
+│           ├── Features/              # Screen-level views (Dashboard, Import, Auth, …)
+│           └── Resources/
+│               ├── Localizable.xcstrings  # String Catalog — EN + FR
+│               └── Info.plist
 ├── packages/
 │   ├── shared/              # Types, schemas, clinical coding constants (LOINC, SNOMED CT)
 │   └── db/                  # Drizzle ORM schema and migrations (auth/prefs only)
@@ -201,9 +246,12 @@ pnpm --filter @health-app/web preview    # Preview production build locally
 
 ## Features
 
+Features are available on both the web app (Phase 1) and native iOS app (Phase 2) unless noted.
+
 ### Data Import
-- **Apple Health** — Upload your Apple Health XML export (ZIP). Parsed entirely in-browser via Web Workers — files up to 2 GB supported.
-- **Google Health Connect** — Upload a JSON export. Parsed client-side.
+- **Apple Health** — Upload your Apple Health XML export (ZIP). Parsed entirely in-browser via Web Workers — files up to 2 GB supported. *(Web)*
+- **Apple Health via HealthKit** — Direct, real-time read from HealthKit; no manual export needed. Initial load covers the past 5 years; observer queries keep data current as new workouts and readings are recorded. *(iOS — continuous sync with background delivery)*
+- **Google Health Connect** — Upload a JSON export. Parsed client-side. *(Web)*
 - Duplicate detection: re-importing an export skips records that already exist.
 
 ### Dashboard
@@ -285,27 +333,71 @@ Health data **never leaves your device**:
 
 ## Tech Stack
 
+### Shared / Backend
+
 | Layer | Technology |
 |-------|-----------|
-| Frontend framework | React 19, TypeScript, Vite 6 |
-| Routing | TanStack Router (file-based) |
-| Styling | Tailwind CSS v4 |
-| Charts | Recharts (lazy-loaded) |
-| Client storage | Dexie.js (IndexedDB) |
-| i18n | react-i18next (English + French) |
 | Backend | Fastify 5, TypeScript |
 | ORM | Drizzle ORM |
 | Database | PostgreSQL 17 (auth/prefs only) |
 | Auth | Better Auth |
 | LLM | Anthropic Claude API |
 | Clinical codes | LOINC (primary), SNOMED CT (supplementary) |
+| Monorepo | Turborepo + pnpm workspaces |
+| Container runtime | Docker + nginx |
+
+### Web App (Phase 1)
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19, TypeScript, Vite 6 |
+| Routing | TanStack Router (file-based) |
+| Styling | Tailwind CSS v4 |
+| Charts | Recharts (lazy-loaded) |
+| Client storage | Dexie.js (IndexedDB) |
+| i18n | react-i18next (English + French) |
 | FHIR | HL7 FHIR R4 (`@types/fhir`) |
 | PDF generation | pdfmake (client-side) |
 | PDF parsing | pdfjs-dist (client-side) |
-| Monorepo | Turborepo + pnpm workspaces |
 | Linting/formatting | Biome |
 | Testing | Vitest + happy-dom |
-| Container runtime | Docker + nginx |
+
+### iOS App (Phase 2)
+
+| Layer | Technology |
+|-------|-----------|
+| Language | Swift 6 (strict concurrency) |
+| UI framework | SwiftUI (iOS 17+) |
+| Health data | HealthKit (native — no manual export) |
+| Local storage | Swift Data |
+| Charts | Swift Charts |
+| Networking | URLSession + async/await |
+| i18n | String Catalogs (`Localizable.xcstrings`, EN + FR) |
+| PDF generation | PDFKit (client-side) |
+| PDF parsing | PDFKit (`PDFDocument`) |
+| FHIR | Custom Swift structs (Codable, mirrors Phase 1 types) |
+| Project config | XcodeGen (`project.yml`) |
+| Linting | SwiftLint |
+| Testing | XCTest |
+
+---
+
+## iOS App Status
+
+The iOS app is under active development. Completed milestones:
+
+| Milestone | Status | Description |
+|-----------|--------|-------------|
+| 12 — Foundation | ✅ Complete | Xcode project, Swift Data schema, API client, design system |
+| 13 — Authentication | ✅ Complete | Login / sign-up / forgot password, session persistence, user preferences |
+| 14 — HealthKit & Background Sync | ✅ Complete | Initial 5-year data load, live observer queries, background delivery, workout & sleep handling |
+| 15 — Dashboard | 🔜 Planned | SwiftUI dashboard with Swift Charts — mirrors Phase 1 web dashboard |
+| 16 — Trends | 🔜 Planned | Weekly comparisons, correlation explorer |
+| 17 — Lab Results | 🔜 Planned | PDF import, PDFKit extraction, timeline charts |
+| 18 — Conditions / Medications / Allergies | 🔜 Planned | Clinical data entry with SNOMED CT search |
+| 19 — LLM Insights | 🔜 Planned | On-device prompt construction, streaming SSE, privacy tiers |
+| 20 — IPS Export | 🔜 Planned | FHIR R4 IPS Bundle generation, PDF export |
+| 21–24 — Portability, Import, Settings, Polish | 🔜 Planned | Backup/restore, onboarding, App Store readiness |
 
 ---
 
@@ -322,6 +414,22 @@ Unit tests live in `apps/web/src/services/__tests__/` and cover:
 pnpm --filter @health-app/web test                    # Run all web tests
 pnpm --filter @health-app/web check:i18n              # Verify EN + FR locale completeness
 pnpm --filter @health-app/shared test                 # Shared package tests
+```
+
+Unit tests for the iOS app live in `apps/ios/HealthDashboardTests/` and mirror the web test suite:
+
+- **`NormalizeTests.swift`** — HealthKit → `HealthRecord` normalisation (unit conversions, type mapping, sleep grouping)
+- **`AggregationTests.swift`** — `AggregationService` daily summary computation (grouped averages, incremental recompute)
+- **`LLMPromptTests.swift`** — On-device prompt construction; verifies no PII in Standard mode, no sub-daily timestamps, correct Enhanced mode gating
+- **`IPSBundleTests.swift`** — FHIR Bundle structure (all 5 IPS section LOINC codes present, `type == "document"`, `urn:uuid:` fullUrls)
+
+Run iOS tests via Xcode (`⌘U`) or from the command line:
+
+```bash
+xcodebuild test \
+  -project apps/ios/HealthDashboard.xcodeproj \
+  -scheme HealthDashboard \
+  -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
 ---
