@@ -96,7 +96,7 @@ docker compose -f docker-compose.prod.yml exec server \
 Or run migrations locally against the production `DATABASE_URL` before deploying:
 
 ```bash
-DATABASE_URL=<prod-url> pnpm --filter @health-app/db migrate
+DATABASE_URL=<prod-url> pnpm --filter @health-app/db db:migrate
 ```
 
 ### Architecture overview
@@ -169,6 +169,7 @@ pnpm typecheck    # TypeScript type-checking across all packages
 
 # Quality
 pnpm test         # Run unit tests (Vitest)
+pnpm test:e2e     # Run end-to-end tests (Playwright)
 pnpm lint         # Lint all packages (Biome)
 pnpm format       # Format all packages (Biome)
 
@@ -183,8 +184,8 @@ pnpm clean        # Remove build artifacts and caches
 
 ```bash
 # Database migrations (server auth DB)
-pnpm --filter @health-app/db generate    # Generate migration from schema changes
-pnpm --filter @health-app/db migrate     # Apply pending migrations
+pnpm --filter @health-app/db db:generate    # Generate migration from schema changes
+pnpm --filter @health-app/db db:migrate     # Apply pending migrations
 
 # Tests per package
 pnpm --filter @health-app/shared test
