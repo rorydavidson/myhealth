@@ -15,7 +15,7 @@ struct SkeletonView<Content: View>: View {
 
 // MARK: - Shimmer Animation
 
-private struct ShimmeringModifier: ViewModifier {
+struct ShimmeringModifier: ViewModifier {
     let isActive: Bool
     @State private var phase: CGFloat = -1
 
@@ -52,7 +52,7 @@ private struct ShimmeringModifier: ViewModifier {
     }
 }
 
-private extension View {
+extension View {
     func shimmering(isActive: Bool) -> some View {
         modifier(ShimmeringModifier(isActive: isActive))
     }
@@ -88,14 +88,59 @@ struct MetricCardSkeleton: View {
     }
 }
 
+// MARK: - ChartCardSkeleton
+
+/// Skeleton matching a `ChartCard`'s visual shape — title stub + faux bar silhouette.
+struct ChartCardSkeleton: View {
+    var height: CGFloat = 180
+
+    private let barHeightRatios: [CGFloat] = [
+        0.40, 0.65, 0.50, 0.80, 0.60, 0.75, 0.35, 0.70, 0.55, 0.65, 0.80, 0.45, 0.60, 0.70,
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+            // Title stub
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.secondary.opacity(0.25))
+                .frame(width: 100, height: 12)
+
+            // Faux bar chart
+            HStack(alignment: .bottom, spacing: 4) {
+                ForEach(barHeightRatios.indices, id: \.self) { i in
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.secondary.opacity(0.20))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: barHeightRatios[i] * (height - DesignTokens.Spacing.md))
+                }
+            }
+            .frame(height: height - DesignTokens.Spacing.md)
+            .frame(maxWidth: .infinity)
+        }
+        .padding(DesignTokens.Spacing.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.Radius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignTokens.Radius.card)
+                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+        )
+        .shimmering(isActive: true)
+    }
+}
+
 // MARK: - Preview
 
 #Preview {
-    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-        MetricCardSkeleton()
-        MetricCardSkeleton()
-        MetricCardSkeleton()
-        MetricCardSkeleton()
+    VStack(spacing: 16) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            MetricCardSkeleton()
+            MetricCardSkeleton()
+            MetricCardSkeleton()
+            MetricCardSkeleton()
+        }
+        ChartCardSkeleton()
+        ChartCardSkeleton(height: 240)
     }
     .padding()
     .background(Color(.systemGroupedBackground))

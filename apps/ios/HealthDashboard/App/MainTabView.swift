@@ -13,7 +13,7 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .dashboard
 
     enum Tab: Hashable {
-        case dashboard, insights, `import`, summary, settings
+        case dashboard, trends, insights, `import`, summary, settings
     }
 
     var body: some View {
@@ -25,6 +25,14 @@ struct MainTabView: View {
                 Label(String(localized: "tab.dashboard"), systemImage: "chart.bar.fill")
             }
             .tag(Tab.dashboard)
+
+            NavigationStack {
+                TrendsView()
+            }
+            .tabItem {
+                Label(String(localized: "tab.trends"), systemImage: "chart.line.uptrend.xyaxis")
+            }
+            .tag(Tab.trends)
 
             NavigationStack {
                 InsightsView()
