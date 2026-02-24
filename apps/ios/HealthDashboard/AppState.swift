@@ -14,6 +14,12 @@ final class AppState {
     // MARK: - HealthKit
     var healthKitStatus: HealthKitStatus = .notDetermined
 
+    // MARK: - Sync state
+    /// Current state of the HealthKit sync pipeline.
+    var syncState: SyncState = .idle
+    /// When the last successful sync completed (persisted across launches via UserDefaults).
+    var lastSyncDate: Date? = UserDefaults.standard.object(forKey: "lastSyncDate") as? Date
+
     // MARK: - Preferences (synced from server on login)
     var unitPreference: UnitSystem = .metric
     var theme: AppTheme = .system
@@ -27,6 +33,62 @@ final class AppState {
         case denied
         /// iPad or Simulator — HealthKit unavailable; show graceful message
         case unavailable
+    }
+
+    /// Reflects the current HealthKit sync pipeline state.
+    /// Updated on `@MainActor` by `HealthKitSyncService` progress callbacks.
+    enum SyncState: Equatable {
+        case idle
+        case syncing(phase: String, recordsProcessed: Int)
+        case complete
+        case failed(String)
+
+        var isActive: Bool {
+            if case .syncing = self { return true }
+            return false
+        }
+
+        var statusMessage: String {
+            switch self {
+            case .idle:
+                return String(localized: "import.sync.idle")
+            case .syncing(let phase, _):
+                return phase
+            case .complete:
+                return String(localized: "import.sync.complete")
+            case .failed(let message):
+                return message
+            }
+        }
+    }
+
+    /// Translates a `SyncProgress` value (from the sync actor) into `SyncState`
+    /// and updates `lastSyncDate` when complete.
+    /// Must be called on `@MainActor`.
+    func apply(_ progress: SyncProgress) {
+        switch progress.phase {
+        case .querying(let metricType):
+            syncState = .syncing(
+                phase: String(localized: "import.sync.querying \(metricType)"),
+                recordsProcessed: progress.recordsProcessed
+            )
+        case .storing:
+            syncState = .syncing(
+                phase: String(localized: "import.sync.storing"),
+                recordsProcessed: progress.recordsProcessed
+            )
+        case .computingSummaries:
+            syncState = .syncing(
+                phase: String(localized: "import.sync.summaries"),
+                recordsProcessed: progress.recordsProcessed
+            )
+        case .complete:
+            syncState = .complete
+            lastSyncDate = .now
+            UserDefaults.standard.set(Date.now, forKey: "lastSyncDate")
+        case .failed(let message):
+            syncState = .failed(message)
+        }
     }
 
     enum UnitSystem: String, CaseIterable, Codable {

@@ -15,7 +15,12 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     autoSignIn: true,
   },
-  trustedOrigins: [process.env.CORS_ORIGIN ?? "http://localhost:5173"],
+  trustedOrigins: [
+    process.env.CORS_ORIGIN ?? "http://localhost:5173",
+    // Native iOS client — URLSession sends this custom scheme as the Origin header
+    // so Better Auth's CSRF check passes for mobile requests.
+    "healthdashboard://app",
+  ],
   secret: process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-in-production",
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3001",
 });

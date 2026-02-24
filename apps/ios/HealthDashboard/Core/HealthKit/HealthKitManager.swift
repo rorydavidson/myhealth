@@ -184,6 +184,58 @@ actor HealthKitManager {
         guard isAvailable else { return }
         try await store.enableBackgroundDelivery(for: type, frequency: frequency)
     }
+
+    // MARK: - Long-running Query Execution
+
+    /// Executes an `HKQuery` on the underlying store.
+    ///
+    /// Use this for long-lived queries (observer, anchored object) whose callbacks
+    /// are handled by the caller. Short-lived queries should use the typed async
+    /// helpers above instead.
+    func execute(_ query: HKQuery) {
+        store.execute(query)
+    }
+
+    // MARK: - Anchored Object Query
+
+    /// Registers an `HKAnchoredObjectQuery` as a long-running observer.
+    ///
+    /// - The `resultsHandler` fires once immediately with all samples from `anchor`
+    ///   onwards (or all available history when `anchor` is nil).
+    /// - The `updateHandler` fires subsequently whenever HealthKit delivers new
+    ///   or modified samples for this type.
+    /// - The caller is responsible for persisting `newAnchor` to `UserDefaults`
+    ///   so that progress survives app restarts.
+    ///
+    /// - Parameters:
+    ///   - type: The sample type to observe.
+    ///   - anchor: The last-seen anchor, or `nil` to start from the beginning.
+    ///   - onNewSamples: Called with `([HKSample], HKQueryAnchor?)` on a background
+    ///     queue each time HealthKit delivers results or an update.
+    func registerAnchoredObserver(
+        for type: HKSampleType,
+        anchor: HKQueryAnchor?,
+        onNewSamples: @escaping @Sendable ([HKSample], HKQueryAnchor?) -> Void
+    ) {
+        let handler: @Sendable (HKAnchoredObjectQuery, [HKSample]?, [HKDeletedObject]?, HKQueryAnchor?, Error?) -> Void = {
+            _, newSamples, _, newAnchor, error in
+            guard error == nil else { return }
+            onNewSamples(newSamples ?? [], newAnchor)
+        }
+
+        let query = HKAnchoredObjectQuery(
+            type: type,
+            predicate: nil,
+            anchor: anchor,
+            limit: HKObjectQueryNoLimit,
+            resultsHandler: handler
+        )
+        // Setting updateHandler makes this a long-running observer — HealthKit
+        // will call it whenever new data for this type becomes available.
+        query.updateHandler = handler
+
+        store.execute(query)
+    }
 }
 
 // MARK: - Errors

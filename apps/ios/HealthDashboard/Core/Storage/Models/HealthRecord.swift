@@ -47,7 +47,7 @@ final class HealthRecord {
         sourceDevice: String? = nil,
         sourceType: String? = nil,
         importId: String,
-        metadata: (some Encodable)? = nil
+        metadata: (any Encodable)? = nil
     ) {
         self.id = id
         self.metricType = metricType

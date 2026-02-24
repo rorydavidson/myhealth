@@ -94,6 +94,10 @@ actor APIClient {
         request.httpMethod = endpoint.method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        // Better Auth validates the Origin header for CSRF protection.
+        // URLSession (unlike browsers) sends no Origin by default, which causes a 403.
+        // This custom scheme is listed in the server's trustedOrigins.
+        request.setValue("healthdashboard://app", forHTTPHeaderField: "Origin")
         if let token = authToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
