@@ -29,6 +29,19 @@
     },
     "db:generate": {
       "cache": false
+    },
+    "ios:build": {
+      "cache": false,
+      "inputs": ["apps/ios/**/*.swift", "apps/ios/project.yml"],
+      "outputs": ["apps/ios/build/**"]
+    },
+    "ios:test": {
+      "dependsOn": ["ios:build"],
+      "cache": false
+    },
+    "ios:lint": {
+      "inputs": ["apps/ios/**/*.swift", "apps/ios/.swiftlint.yml"],
+      "cache": false
     }
   }
 }

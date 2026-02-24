@@ -12,3 +12,16 @@ coverage/
 *.log
 .claude/
 .vscode/
+
+# Xcode / iOS
+apps/ios/*.xcworkspace/xcuserdata/
+apps/ios/**/*.xcuserstate
+apps/ios/DerivedData/
+apps/ios/build/
+apps/ios/*.xcodeproj/xcuserdata/
+apps/ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+apps/ios/.build/
+apps/ios/Pods/
+*.ipa
+*.dSYM.zip
+*.dSYM
