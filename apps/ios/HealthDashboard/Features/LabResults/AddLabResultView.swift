@@ -99,9 +99,9 @@ struct AddLabResultView: View {
             if let pdfData, let doc = PDFDocument(data: pdfData) {
                 // PDF preview thumbnail
                 HStack(spacing: 12) {
-                    if let page = doc.page(at: 0),
-                       let cgImage = page.thumbnail(of: CGSize(width: 60, height: 80), for: .mediaBox) {
-                        Image(decorative: cgImage, scale: 1)
+                    if let page = doc.page(at: 0) {
+                        let thumb = page.thumbnail(of: CGSize(width: 60, height: 80), for: .mediaBox)
+                        Image(uiImage: thumb)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 48, height: 64)

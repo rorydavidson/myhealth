@@ -187,7 +187,7 @@ private struct LabResultRow: View {
 
 // MARK: - LabCategory icon helper
 
-private extension LabCategory {
+extension LabCategory {
     var icon: String {
         switch self {
         case .bloodPanel:  "drop.fill"

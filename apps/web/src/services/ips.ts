@@ -865,14 +865,21 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
       const tableBody: Array<Array<string | Record<string, unknown>>> = [
         [
           { text: "Condition", style: "tableHeader" },
+          { text: "Code", style: "tableHeader" },
           { text: "Status", style: "tableHeader" },
           { text: "Onset", style: "tableHeader" },
         ],
       ];
 
       for (const cond of sectionResources) {
-        const code = cond.code as { text?: string } | undefined;
-        const conditionName = code?.text ?? "—";
+        const codeField = cond.code as
+          | { text?: string; coding?: Array<{ system?: string; code?: string }> }
+          | undefined;
+        const conditionName = codeField?.text ?? "—";
+
+        const snomedCode =
+          codeField?.coding?.find((c) => c.system?.includes("snomed"))?.code;
+        const snomedLabel = snomedCode ? `${snomedCode}\n(SNOMED CT)` : "—";
 
         const clinicalStatus = cond.clinicalStatus as
           | { coding?: Array<{ code?: string }> }
@@ -883,13 +890,13 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
           ? new Date(cond.onsetDateTime as string).toLocaleDateString()
           : "—";
 
-        tableBody.push([conditionName, status, onsetStr]);
+        tableBody.push([conditionName, { text: snomedLabel, style: "code" }, status, onsetStr]);
       }
 
       content.push({
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto"],
           body: tableBody,
         },
         layout: "lightHorizontalLines",
@@ -900,27 +907,34 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
       const tableBody: Array<Array<string | Record<string, unknown>>> = [
         [
           { text: "Medication", style: "tableHeader" },
+          { text: "Code", style: "tableHeader" },
           { text: "Dose", style: "tableHeader" },
           { text: "Status", style: "tableHeader" },
         ],
       ];
 
       for (const med of sectionResources) {
-        const code = med.medicationCodeableConcept as { text?: string } | undefined;
-        const medName = code?.text ?? "—";
+        const medCode = med.medicationCodeableConcept as
+          | { text?: string; coding?: Array<{ system?: string; code?: string }> }
+          | undefined;
+        const medName = medCode?.text ?? "—";
+
+        const snomedCode =
+          medCode?.coding?.find((c) => c.system?.includes("snomed"))?.code;
+        const snomedLabel = snomedCode ? `${snomedCode}\n(SNOMED CT)` : "—";
 
         const dosage = med.dosage as Array<{ text?: string }> | undefined;
         const dose = dosage?.[0]?.text ?? "—";
 
         const status = (med.status as string | undefined) ?? "—";
 
-        tableBody.push([medName, dose, status]);
+        tableBody.push([medName, { text: snomedLabel, style: "code" }, dose, status]);
       }
 
       content.push({
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto"],
           body: tableBody,
         },
         layout: "lightHorizontalLines",
@@ -931,23 +945,32 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
       const tableBody: Array<Array<string | Record<string, unknown>>> = [
         [
           { text: "Substance", style: "tableHeader" },
+          { text: "Code", style: "tableHeader" },
           { text: "Type", style: "tableHeader" },
           { text: "Criticality", style: "tableHeader" },
         ],
       ];
 
       for (const al of sectionResources) {
-        const code = al.code as { text?: string } | undefined;
-        const substanceName = code?.text ?? "—";
+        const codeField = al.code as
+          | { text?: string; coding?: Array<{ system?: string; code?: string }> }
+          | undefined;
+        const substanceName = codeField?.text ?? "—";
+
+        const snomedCode =
+          codeField?.coding?.find((c) => c.system?.includes("snomed"))?.code;
+        const snomedLabel = snomedCode ? `${snomedCode}\n(SNOMED CT)` : "—";
+
         const type = (al.type as string | undefined) ?? "—";
         const criticality = (al.criticality as string | undefined) ?? "—";
-        tableBody.push([substanceName, type, criticality]);
+
+        tableBody.push([substanceName, { text: snomedLabel, style: "code" }, type, criticality]);
       }
 
       content.push({
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto"],
           body: tableBody,
         },
         layout: "lightHorizontalLines",
@@ -958,14 +981,29 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
       const tableBody: Array<Array<string | Record<string, unknown>>> = [
         [
           { text: "Test", style: "tableHeader" },
+          { text: "Code", style: "tableHeader" },
           { text: "Value", style: "tableHeader" },
           { text: "Date", style: "tableHeader" },
         ],
       ];
 
       for (const obs of sectionResources) {
-        const code = obs.code as { text?: string } | undefined;
-        const testName = code?.text ?? "—";
+        const codeField = obs.code as
+          | { text?: string; coding?: Array<{ system?: string; code?: string; display?: string }> }
+          | undefined;
+        const testName = codeField?.text ?? "—";
+
+        // Prefer SNOMED CT code for display; fall back to LOINC
+        const snomedEntry = codeField?.coding?.find((c) =>
+          c.system?.includes("snomed"),
+        );
+        const loincEntry = codeField?.coding?.find((c) =>
+          c.system?.includes("loinc"),
+        );
+        const preferredEntry = snomedEntry ?? loincEntry;
+        const codeLabel = preferredEntry
+          ? `${preferredEntry.code}\n(${snomedEntry ? "SNOMED CT" : "LOINC"})`
+          : "—";
 
         let value = "—";
         const vq = obs.valueQuantity as { value?: number; unit?: string } | undefined;
@@ -995,13 +1033,13 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
         const effectiveDate = obs.effectiveDateTime as string | undefined;
         const dateStr = effectiveDate ? new Date(effectiveDate).toLocaleDateString() : "—";
 
-        tableBody.push([testName, value, dateStr]);
+        tableBody.push([testName, { text: codeLabel, style: "code" }, value, dateStr]);
       }
 
       content.push({
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto"],
+          widths: ["*", "auto", "auto", "auto"],
           body: tableBody,
         },
         layout: "lightHorizontalLines",
@@ -1026,6 +1064,7 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
       sectionHeader: { fontSize: 14, bold: true, color: "#3b82f6" },
       muted: { fontSize: 10, italics: true, color: "#a3a3a3" },
       tableHeader: { bold: true, fontSize: 10, color: "#171717" },
+      code: { fontSize: 8, color: "#737373" },
       disclaimer: { fontSize: 8, italics: true, color: "#a3a3a3" },
     },
     defaultStyle: {
