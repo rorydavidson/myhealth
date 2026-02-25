@@ -33,6 +33,7 @@
 		47D2E53A2E496B71B4E43F58 /* AddLabResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1136ED2BBEA2D638201581 /* AddLabResultView.swift */; };
 		4D225DCD1D0AB6BE67998A47 /* BodySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00EBB317C64BCED21E8DE27D /* BodySection.swift */; };
 		52F0DCFF8B31CC8A7B5CD5BB /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BE4E0FA9044AA2ADA35B92 /* AppState.swift */; };
+		56A87EC93AED03E377AC5FB7 /* ConceptSummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E70A27A6C9A67596AC7BDF /* ConceptSummaryService.swift */; };
 		5BEF81F7FB538C8C1021069F /* HeartSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 082A6F39680E370FF6BC1021 /* HeartSection.swift */; };
 		5E6A4D48AEB024034418DF5E /* TrendModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199C5B01C8EEDBD5F956B614 /* TrendModels.swift */; };
 		6036EC756DC3D89ACF067A7F /* VitalsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D6111DF61E1459AAF4C03AC /* VitalsSection.swift */; };
@@ -76,6 +77,7 @@
 		C37A840154AF91D25D3E005C /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEECAB1BF1CD53D2E1FE522F /* MetricCard.swift */; };
 		C6049DBCE892E66540A35AD9 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4A19282D634311AE46A59E /* PersistenceController.swift */; };
 		CBEE8265BB072AC492ADD894 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 06A851EA1B984DC6F0B1D5AB /* Localizable.xcstrings */; };
+		CC43F72923A6B2547C22E957 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D21DEDF3DFBEDDCB5A16097 /* MoreView.swift */; };
 		CD77D2FBED9EA79A1CE31331 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49351657E0FDFC5415A1D444 /* AuthView.swift */; };
 		D420D018CBDCA55570B4C26A /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C29EF3EA29BF3B22990444C6 /* KeychainService.swift */; };
 		DD9A725C21BFFB25CCC2A321 /* ChartCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FAEB2D22C57CB11A9DD1EA /* ChartCard.swift */; };
@@ -154,7 +156,9 @@
 		99C2FD3639F9B7CF6861EC02 /* LabResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabResult.swift; sourceTree = "<group>"; };
 		9B444EA9281657E244DBB94A /* CorrelationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorrelationViewModel.swift; sourceTree = "<group>"; };
 		9C4A19282D634311AE46A59E /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		9D21DEDF3DFBEDDCB5A16097 /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
 		9D5B8B1C9DA64E3B535CAA1D /* WorkoutSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSection.swift; sourceTree = "<group>"; };
+		A3E70A27A6C9A67596AC7BDF /* ConceptSummaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConceptSummaryService.swift; sourceTree = "<group>"; };
 		A6C65E3DAF0644F80DC700DC /* AuthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModels.swift; sourceTree = "<group>"; };
 		AED60B7E20F924AC67CF1912 /* SignUpFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpFormView.swift; sourceTree = "<group>"; };
 		AF2DDC0ADF6FDCADF6D95087 /* MetricTypeMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricTypeMapping.swift; sourceTree = "<group>"; };
@@ -264,6 +268,14 @@
 				9570DD5388EA5DD595F205D9 /* ImportView.swift */,
 			);
 			path = Import;
+			sourceTree = "<group>";
+		};
+		43AFDED31B294FB5657202B6 /* More */ = {
+			isa = PBXGroup;
+			children = (
+				9D21DEDF3DFBEDDCB5A16097 /* MoreView.swift */,
+			);
+			path = More;
 			sourceTree = "<group>";
 		};
 		45F57033EB76ED4ED19EA056 /* Cards */ = {
@@ -409,6 +421,7 @@
 				4214E6807FD2DDD7E8A30099 /* Import */,
 				C665B484F4E6CDCCC2E6CD34 /* Insights */,
 				BFFAFEE5BF736BFAD95E6867 /* LabResults */,
+				43AFDED31B294FB5657202B6 /* More */,
 				24FF1BCECF422433733187F9 /* Onboarding */,
 				A90ED3EA7EBCB87980547E16 /* PatientSummary */,
 				56461FABE3B39D7A38BBA93B /* Settings */,
@@ -480,6 +493,7 @@
 		C56756EA7B35B74D2980B57F /* Clinical */ = {
 			isa = PBXGroup;
 			children = (
+				A3E70A27A6C9A67596AC7BDF /* ConceptSummaryService.swift */,
 				148D41D1EB473C2567522206 /* SnomedSearchField.swift */,
 				39E5FFFE07DA3E5534DFF84D /* SnomedService.swift */,
 			);
@@ -662,6 +676,7 @@
 				4D225DCD1D0AB6BE67998A47 /* BodySection.swift in Sources */,
 				DD9A725C21BFFB25CCC2A321 /* ChartCard.swift in Sources */,
 				1DC5B7FBCD144EB52A7DA56A /* ClinicalCondition.swift in Sources */,
+				56A87EC93AED03E377AC5FB7 /* ConceptSummaryService.swift in Sources */,
 				83BBD52BB58459525C013BD3 /* ConditionsView.swift in Sources */,
 				F3EEA65627B857CD2D51FEA2 /* CorrelationView.swift in Sources */,
 				A673F3BF7D7A45EC23147289 /* CorrelationViewModel.swift in Sources */,
@@ -697,6 +712,7 @@
 				1B35EA9E3DD403DAE67E9A63 /* MetricDetailView.swift in Sources */,
 				4665C101118B8CD66AFED982 /* MetricPickerSheet.swift in Sources */,
 				2BBA128465895A551B2FB50D /* MetricTypeMapping.swift in Sources */,
+				CC43F72923A6B2547C22E957 /* MoreView.swift in Sources */,
 				B10F6B806BE60041DE35AB03 /* OnboardingView.swift in Sources */,
 				8E8DFC20FF7B6A987912B03D /* PDFTextExtractor.swift in Sources */,
 				9399D92F3C9B4BBD4666FEEC /* PatientSummaryView.swift in Sources */,
