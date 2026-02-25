@@ -12,7 +12,7 @@
  */
 
 const FHIR_BASE_URL =
-  import.meta.env.VITE_FHIR_TERMINOLOGY_URL ?? "https://browser.ihtsdotools.orgfhir";
+  import.meta.env.VITE_FHIR_TERMINOLOGY_URL ?? "https://browser.ihtsdotools.org/fhir";
 
 const SNOMED_SYSTEM = "http://snomed.info/sct";
 const SNOMED_SYNONYM_CODE = "900000000000013009";
