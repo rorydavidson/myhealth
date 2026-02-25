@@ -36,6 +36,7 @@ targets:
         NSHealthShareUsageDescription: "Health Dashboard reads your health and fitness data to display trends and personalised insights."
         NSHealthUpdateUsageDescription: "Health Dashboard does not write to your Health data."
         CFBundleDisplayName: Health Dashboard
+        FhirTerminologyURL: "https://browser.ihtsdotools.org/fhir"
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UILaunchScreen:

@@ -28,6 +28,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>FhirTerminologyURL</key>
+	<string>https://browser.ihtsdotools.org/fhir</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Health Dashboard reads your health and fitness data to display trends and personalised insights.</string>
 	<key>NSHealthUpdateUsageDescription</key>
