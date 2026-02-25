@@ -4,6 +4,9 @@
     "·" : {
 
     },
+    "\"%@\"" : {
+
+    },
     "%@" : {
 
     },
@@ -12,6 +15,312 @@
     },
     "%@h" : {
 
+    },
+    "allergies.add.category" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catégorie"
+          }
+        }
+      }
+    },
+    "allergies.add.criticality" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criticality"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criticité"
+          }
+        }
+      }
+    },
+    "allergies.add.hasOnset" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Known onset date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date d'apparition connue"
+          }
+        }
+      }
+    },
+    "allergies.add.notesPlaceholder" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional notes…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes optionnelles…"
+          }
+        }
+      }
+    },
+    "allergies.add.onsetDate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onset Date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date d'apparition"
+          }
+        }
+      }
+    },
+    "allergies.add.reaction" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reaction"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réaction"
+          }
+        }
+      }
+    },
+    "allergies.add.searchPlaceholder" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search substances or allergic conditions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher une substance ou allergie…"
+          }
+        }
+      }
+    },
+    "allergies.add.section.allergen" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allergen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allergène"
+          }
+        }
+      }
+    },
+    "allergies.add.section.allergenFooter" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search the SNOMED CT terminology for substances and allergic conditions."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherchez dans la terminologie SNOMED CT les substances et conditions allergiques."
+          }
+        }
+      }
+    },
+    "allergies.add.section.details" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails"
+          }
+        }
+      }
+    },
+    "allergies.add.section.notes" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        }
+      }
+    },
+    "allergies.add.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Allergy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une allergie"
+          }
+        }
+      }
+    },
+    "allergies.add.type" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type"
+          }
+        }
+      }
+    },
+    "allergies.delete.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This allergy record will be permanently removed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet enregistrement d'allergie sera définitivement supprimé."
+          }
+        }
+      }
+    },
+    "allergies.empty.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add your allergies and adverse reactions to include them in your patient summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoutez vos allergies et réactions indésirables pour les inclure dans votre résumé patient."
+          }
+        }
+      }
+    },
+    "allergies.empty.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Allergies"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune allergie"
+          }
+        }
+      }
+    },
+    "allergies.reaction %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reaction: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réaction : %@"
+          }
+        }
+      }
+    },
+    "allergies.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allergies"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allergies"
+          }
+        }
+      }
     },
     "allergy.category.biologic" : {
       "extractionState" : "stale",
@@ -812,6 +1121,40 @@
         }
       }
     },
+    "common.delete" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer"
+          }
+        }
+      }
+    },
+    "common.delete.confirm.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer ?"
+          }
+        }
+      }
+    },
     "common.done" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -846,370 +1189,259 @@
         }
       }
     },
-    "allergies.add.category" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Category" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Catégorie" } }
-      }
-    },
-    "allergies.add.criticality" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Criticality" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Criticité" } }
-      }
-    },
-    "allergies.add.hasOnset" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Known onset date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date d'apparition connue" } }
-      }
-    },
-    "allergies.add.notesPlaceholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Optional notes…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notes optionnelles…" } }
-      }
-    },
-    "allergies.add.onsetDate" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Onset Date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date d'apparition" } }
-      }
-    },
-    "allergies.add.reaction" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reaction" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réaction" } }
-      }
-    },
-    "allergies.add.searchPlaceholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search substances or allergic conditions…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher une substance ou allergie…" } }
-      }
-    },
-    "allergies.add.section.allergen" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allergen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Allergène" } }
-      }
-    },
-    "allergies.add.section.allergenFooter" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search the SNOMED CT terminology for substances and allergic conditions." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherchez dans la terminologie SNOMED CT les substances et conditions allergiques." } }
-      }
-    },
-    "allergies.add.section.details" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Details" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Détails" } }
-      }
-    },
-    "allergies.add.section.notes" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notes" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notes" } }
-      }
-    },
-    "allergies.add.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Allergy" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter une allergie" } }
-      }
-    },
-    "allergies.add.type" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Type" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Type" } }
-      }
-    },
-    "allergies.delete.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This allergy record will be permanently removed." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cet enregistrement d'allergie sera définitivement supprimé." } }
-      }
-    },
-    "allergies.empty.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add your allergies and adverse reactions to include them in your patient summary." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajoutez vos allergies et réactions indésirables pour les inclure dans votre résumé patient." } }
-      }
-    },
-    "allergies.empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Allergies" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune allergie" } }
-      }
-    },
-    "allergies.reaction %@" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reaction: %@" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réaction : %@" } }
-      }
-    },
-    "allergies.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allergies" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Allergies" } }
-      }
-    },
-    "common.delete" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer" } }
-      }
-    },
-    "common.delete.confirm.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer ?" } }
-      }
-    },
     "conditions.add.hasOnset" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Known onset date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date d'apparition connue" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Known onset date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date d'apparition connue"
+          }
+        }
       }
     },
     "conditions.add.notesPlaceholder" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Optional notes…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notes optionnelles…" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional notes…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes optionnelles…"
+          }
+        }
       }
     },
     "conditions.add.onsetDate" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Onset Date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date d'apparition" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onset Date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date d'apparition"
+          }
+        }
       }
     },
     "conditions.add.searchPlaceholder" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search clinical conditions…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher une pathologie…" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search clinical conditions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher une pathologie…"
+          }
+        }
       }
     },
     "conditions.add.section.condition" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Condition" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pathologie" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condition"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pathologie"
+          }
+        }
       }
     },
     "conditions.add.section.conditionFooter" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search the SNOMED CT terminology for clinical conditions, disorders, and findings." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherchez dans la terminologie SNOMED CT les pathologies, troubles et constatations cliniques." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search the SNOMED CT terminology for clinical conditions, disorders, and findings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherchez dans la terminologie SNOMED CT les pathologies, troubles et constatations cliniques."
+          }
+        }
       }
     },
     "conditions.add.section.details" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Details" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Détails" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails"
+          }
+        }
       }
     },
     "conditions.add.section.notes" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notes" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notes" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        }
       }
     },
     "conditions.add.status" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Statut" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statut"
+          }
+        }
       }
     },
     "conditions.add.title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Condition" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter une pathologie" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Condition"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une pathologie"
+          }
+        }
       }
     },
     "conditions.delete.message" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This condition will be permanently removed." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cette pathologie sera définitivement supprimée." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This condition will be permanently removed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette pathologie sera définitivement supprimée."
+          }
+        }
       }
     },
     "conditions.empty.message" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add your medical conditions to include them in your patient summary." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajoutez vos pathologies pour les inclure dans votre résumé patient." } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add your medical conditions to include them in your patient summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoutez vos pathologies pour les inclure dans votre résumé patient."
+          }
+        }
       }
     },
     "conditions.empty.title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Conditions" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune pathologie" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Conditions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune pathologie"
+          }
+        }
       }
     },
     "conditions.onset %@" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Since %@" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Depuis %@" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Since %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depuis %@"
+          }
+        }
       }
     },
     "conditions.title" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Conditions" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pathologies" } }
-      }
-    },
-    "medications.add.dose" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dose (e.g. 10 mg daily)" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dosage (ex. 10 mg par jour)" } }
-      }
-    },
-    "medications.add.endDate" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "End Date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date de fin" } }
-      }
-    },
-    "medications.add.hasStart" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Known start date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date de début connue" } }
-      }
-    },
-    "medications.add.notesPlaceholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Optional notes…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notes optionnelles…" } }
-      }
-    },
-    "medications.add.ongoing" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ongoing" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En cours" } }
-      }
-    },
-    "medications.add.reason" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reason / Indication" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Raison / Indication" } }
-      }
-    },
-    "medications.add.searchPlaceholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search medications…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher un médicament…" } }
-      }
-    },
-    "medications.add.section.details" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Details" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Détails" } }
-      }
-    },
-    "medications.add.section.medication" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medication" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Médicament" } }
-      }
-    },
-    "medications.add.section.medicationFooter" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search the SNOMED CT terminology for pharmaceutical and biologic products." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherchez dans la terminologie SNOMED CT les produits pharmaceutiques et biologiques." } }
-      }
-    },
-    "medications.add.section.notes" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notes" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notes" } }
-      }
-    },
-    "medications.add.startDate" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start Date" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date de début" } }
-      }
-    },
-    "medications.add.status" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Status" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Statut" } }
-      }
-    },
-    "medications.add.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Medication" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter un médicament" } }
-      }
-    },
-    "medications.delete.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This medication will be permanently removed." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ce médicament sera définitivement supprimé." } }
-      }
-    },
-    "medications.empty.message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add your medications to include them in your patient summary." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajoutez vos médicaments pour les inclure dans votre résumé patient." } }
-      }
-    },
-    "medications.empty.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Medications" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun médicament" } }
-      }
-    },
-    "medications.period %@ %@" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ – %@" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "%@ – %@" } }
-      }
-    },
-    "medications.since %@" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Since %@" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Depuis %@" } }
-      }
-    },
-    "medications.title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medications" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Médicaments" } }
-      }
-    },
-    "snomed.noResults" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No results found." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun résultat trouvé." } }
-      }
-    },
-    "summary.export.comingSoon" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Coming soon" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bientôt disponible" } }
-      }
-    },
-    "summary.export.ips" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "International Patient Summary" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résumé patient international" } }
-      }
-    },
-    "summary.export.ipsSubtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export as FHIR JSON or PDF" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter en FHIR JSON ou PDF" } }
-      }
-    },
-    "summary.section.clinical" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clinical Data" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Données cliniques" } }
-      }
-    },
-    "summary.section.export" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Export" } }
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conditions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pathologies"
+          }
+        }
       }
     },
     "dashboard.chart.noData" : {
@@ -3088,6 +3320,346 @@
         }
       }
     },
+    "medications.add.dose" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dose (e.g. 10 mg daily)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dosage (ex. 10 mg par jour)"
+          }
+        }
+      }
+    },
+    "medications.add.endDate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date de fin"
+          }
+        }
+      }
+    },
+    "medications.add.hasStart" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Known start date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date de début connue"
+          }
+        }
+      }
+    },
+    "medications.add.notesPlaceholder" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional notes…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes optionnelles…"
+          }
+        }
+      }
+    },
+    "medications.add.ongoing" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ongoing"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En cours"
+          }
+        }
+      }
+    },
+    "medications.add.reason" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reason / Indication"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raison / Indication"
+          }
+        }
+      }
+    },
+    "medications.add.searchPlaceholder" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search medications…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher un médicament…"
+          }
+        }
+      }
+    },
+    "medications.add.section.details" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails"
+          }
+        }
+      }
+    },
+    "medications.add.section.medication" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medication"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Médicament"
+          }
+        }
+      }
+    },
+    "medications.add.section.medicationFooter" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search the SNOMED CT terminology for pharmaceutical and biologic products."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherchez dans la terminologie SNOMED CT les produits pharmaceutiques et biologiques."
+          }
+        }
+      }
+    },
+    "medications.add.section.notes" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes"
+          }
+        }
+      }
+    },
+    "medications.add.startDate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date de début"
+          }
+        }
+      }
+    },
+    "medications.add.status" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statut"
+          }
+        }
+      }
+    },
+    "medications.add.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Medication"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un médicament"
+          }
+        }
+      }
+    },
+    "medications.delete.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This medication will be permanently removed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce médicament sera définitivement supprimé."
+          }
+        }
+      }
+    },
+    "medications.empty.message" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add your medications to include them in your patient summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoutez vos médicaments pour les inclure dans votre résumé patient."
+          }
+        }
+      }
+    },
+    "medications.empty.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Medications"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun médicament"
+          }
+        }
+      }
+    },
+    "medications.period %@ %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ – %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ – %@"
+          }
+        }
+      }
+    },
+    "medications.since %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Since %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depuis %@"
+          }
+        }
+      }
+    },
+    "medications.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medications"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Médicaments"
+          }
+        }
+      }
+    },
     "onboarding.getStarted" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3652,6 +4224,23 @@
         }
       }
     },
+    "snomed.noResults" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No results found."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun résultat trouvé."
+          }
+        }
+      }
+    },
     "summary.empty.message" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3682,6 +4271,91 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Résumé patient international"
+          }
+        }
+      }
+    },
+    "summary.export.comingSoon" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coming soon"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bientôt disponible"
+          }
+        }
+      }
+    },
+    "summary.export.ips" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "International Patient Summary"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résumé patient international"
+          }
+        }
+      }
+    },
+    "summary.export.ipsSubtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as FHIR JSON or PDF"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter en FHIR JSON ou PDF"
+          }
+        }
+      }
+    },
+    "summary.section.clinical" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clinical Data"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données cliniques"
+          }
+        }
+      }
+    },
+    "summary.section.export" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export"
           }
         }
       }

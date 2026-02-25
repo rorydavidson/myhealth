@@ -100,7 +100,7 @@ struct SnomedSearchField: View {
                                         .foregroundStyle(.primary)
                                         .multilineTextAlignment(.leading)
                                     if let synonym = concept.matchedSynonym {
-                                        Text(""\(synonym)"")
+                                        Text("\"\(synonym)\"")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
