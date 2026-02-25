@@ -13,7 +13,7 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .dashboard
 
     enum Tab: Hashable {
-        case dashboard, trends, insights, `import`, summary, settings
+        case dashboard, trends, insights, summary, more
     }
 
     var body: some View {
@@ -43,15 +43,6 @@ struct MainTabView: View {
             .tag(Tab.insights)
 
             NavigationStack {
-                ImportView()
-            }
-            .tabItem {
-                Label(String(localized: "tab.import"), systemImage: "square.and.arrow.down")
-            }
-            .badge(appState.syncState.isActive ? "·" : nil)
-            .tag(Tab.import)
-
-            NavigationStack {
                 PatientSummaryView()
             }
             .tabItem {
@@ -60,12 +51,13 @@ struct MainTabView: View {
             .tag(Tab.summary)
 
             NavigationStack {
-                SettingsView()
+                MoreView()
             }
             .tabItem {
-                Label(String(localized: "tab.settings"), systemImage: "gearshape.fill")
+                Label(String(localized: "tab.more"), systemImage: "ellipsis.circle.fill")
             }
-            .tag(Tab.settings)
+            .badge(appState.syncState.isActive ? "·" : nil)
+            .tag(Tab.more)
         }
         .tint(DesignTokens.Colors.activity)
         // MARK: - Sync pipeline startup
