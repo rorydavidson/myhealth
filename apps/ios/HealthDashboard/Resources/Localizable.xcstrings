@@ -4971,6 +4971,330 @@
           }
         }
       }
+    },
+    "common.disable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Disable" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Désactiver" } }
+      }
+    },
+    "common.ok" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "OK" } }
+      }
+    },
+    "insights.chip.heartTrend" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "How's my heart rate trend?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Comment évolue ma fréquence cardiaque ?" } }
+      }
+    },
+    "insights.chip.sleepQuality" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Summarise my sleep quality" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résume la qualité de mon sommeil" } }
+      }
+    },
+    "insights.chip.activitySummary" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Activity overview this month" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aperçu de mon activité ce mois-ci" } }
+      }
+    },
+    "insights.chip.weightProgress" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weight progress last 30 days" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Évolution du poids sur 30 jours" } }
+      }
+    },
+    "insights.clearHistory" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear conversation history" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Effacer l'historique" } }
+      }
+    },
+    "insights.dataSent.label" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Data sent with this message" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Données envoyées avec ce message" } }
+      }
+    },
+    "insights.dataSent.noData" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No health data available" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune donnée de santé disponible" } }
+      }
+    },
+    "insights.disclaimer" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Health insights are for educational purposes only and do not constitute medical advice. Always consult a qualified healthcare professional for health concerns." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les informations de santé sont fournies à titre éducatif uniquement et ne constituent pas un avis médical. Consultez toujours un professionnel de santé qualifié." } }
+      }
+    },
+    "insights.disclaimer.short" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not medical advice" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas un avis médical" } }
+      }
+    },
+    "insights.enhanced.activeSubtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Additional health data will be included. Resets after each message." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Des données supplémentaires seront incluses. Se réinitialise après chaque message." } }
+      }
+    },
+    "insights.enhanced.activeTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enhanced mode active" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mode avancé actif" } }
+      }
+    },
+    "insights.enhanced.disable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Disable enhanced mode" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Désactiver le mode avancé" } }
+      }
+    },
+    "insights.enhanced.enable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Enhanced Mode" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer le mode avancé" } }
+      }
+    },
+    "insights.enhanced.label" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enhanced" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Avancé" } }
+      }
+    },
+    "insights.enhanced.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Enhanced Mode?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer le mode avancé ?" } }
+      }
+    },
+    "insights.enhanced.warning" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enhanced mode sends more detailed health metrics to the AI service. This data will leave your device and be processed by a third-party AI. Enhanced mode resets automatically after each message." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Le mode avancé envoie des métriques de santé plus détaillées au service IA. Ces données quitteront votre appareil. Le mode avancé se réinitialise automatiquement après chaque message." } }
+      }
+    },
+    "insights.input.placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ask about your health data…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Posez une question sur vos données de santé…" } }
+      }
+    },
+    "insights.thinking" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Thinking…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réflexion en cours…" } }
+      }
+    },
+    "ips.disclaimer" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This International Patient Summary is generated from your locally stored health data and is intended for informational purposes only. It does not replace a professional medical record." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ce résumé patient international est généré à partir de vos données de santé stockées localement et est fourni à titre informatif uniquement." } }
+      }
+    },
+    "ips.document.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "International Patient Summary" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résumé Patient International" } }
+      }
+    },
+    "ips.document.titleNamed %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "International Patient Summary — %@" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résumé Patient International — %@" } }
+      }
+    },
+    "ips.empty.noAllergies" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No known allergies recorded" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune allergie connue enregistrée" } }
+      }
+    },
+    "ips.empty.noMedications" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No medications recorded" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun médicament enregistré" } }
+      }
+    },
+    "ips.empty.noProblems" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No problems or conditions recorded" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune condition médicale enregistrée" } }
+      }
+    },
+    "ips.export.button" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter" } }
+      }
+    },
+    "ips.export.error.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Failed" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Échec de l'export" } }
+      }
+    },
+    "ips.export.json" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export as FHIR JSON" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Exporter en JSON FHIR" } }
+      }
+    },
+    "ips.export.success.message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your IPS has been saved to the temporary directory. Use the Files app or share sheet to save it to your preferred location." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre résumé IPS a été enregistré. Utilisez l'application Fichiers ou le menu de partage." } }
+      }
+    },
+    "ips.export.success.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Successful" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Export réussi" } }
+      }
+    },
+    "ips.generating" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generating your patient summary…" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Génération de votre résumé patient…" } }
+      }
+    },
+    "ips.preview.generatedAt %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generated %@" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Généré le %@" } }
+      }
+    },
+    "ips.preview.header.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "International Patient Summary" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résumé Patient International" } }
+      }
+    },
+    "ips.preview.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "IPS Preview" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aperçu IPS" } }
+      }
+    },
+    "ips.reset" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regenerate Summary" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Régénérer le résumé" } }
+      }
+    },
+    "ips.section.allergies" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allergies and Intolerances" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Allergies et intolérances" } }
+      }
+    },
+    "ips.section.labResults" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lab Results" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Résultats de laboratoire" } }
+      }
+    },
+    "ips.section.medications" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medications" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Médicaments" } }
+      }
+    },
+    "ips.section.problems" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Problems and Conditions" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Problèmes et conditions" } }
+      }
+    },
+    "ips.section.vitalSigns" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vital Signs" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Signes vitaux" } }
+      }
+    },
+    "ips.setup.generate" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Générer" } }
+      }
+    },
+    "ips.setup.nameFooter" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your name is included in the IPS document for identification. It is not stored in the app." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre nom est inclus dans le document IPS pour identification. Il n'est pas stocké dans l'application." } }
+      }
+    },
+    "ips.setup.nameHeader" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Patient name (optional)" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom du patient (optionnel)" } }
+      }
+    },
+    "ips.setup.namePlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full name" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom complet" } }
+      }
+    },
+    "ips.setup.privacyNote" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your IPS is generated entirely on-device. No data is sent to any server." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre résumé IPS est généré entièrement sur l'appareil. Aucune donnée n'est envoyée à un serveur." } }
+      }
+    },
+    "ips.setup.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate Patient Summary" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Générer le résumé patient" } }
+      }
+    },
+    "ips.stat.allergies" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allergies" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Allergies" } }
+      }
+    },
+    "ips.stat.labs" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Labs" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Labos" } }
+      }
+    },
+    "ips.stat.meds" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Meds" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Médicaments" } }
+      }
+    },
+    "ips.stat.problems" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Problems" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Problèmes" } }
+      }
+    },
+    "ips.stat.vitals" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vitals" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vitaux" } }
+      }
+    },
+    "summary.export.footer" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your summary is generated entirely on-device using data stored locally. It is never sent to a server." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre résumé est généré entièrement sur l'appareil à partir de données locales. Il n'est jamais envoyé à un serveur." } }
+      }
+    },
+    "summary.export.viewPreview" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap to view or export" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Appuyer pour visualiser ou exporter" } }
+      }
     }
   },
   "version" : "1.0"
