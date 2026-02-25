@@ -33,6 +33,27 @@ struct ImportView: View {
                 }
             }
 
+            // MARK: Lab results
+            Section {
+                NavigationLink(destination: LabResultsView()) {
+                    HStack(spacing: DesignTokens.Spacing.sm) {
+                        Image(systemName: "flask.fill")
+                            .foregroundStyle(DesignTokens.Colors.labResults)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(String(localized: "lab.title"))
+                                .font(.body)
+                            Text(String(localized: "lab.import.subtitle"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            } header: {
+                Text(String(localized: "import.section.labResults"))
+            }
+
             // MARK: Import history
             Section {
                 if imports.isEmpty {
