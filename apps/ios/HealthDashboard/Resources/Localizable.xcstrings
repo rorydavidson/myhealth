@@ -237,6 +237,40 @@
         }
       }
     },
+    "allergies.edit.conceptLocked" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To change the allergen, delete this entry and add a new one."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour changer l'allergène, supprimez cette entrée et ajoutez-en une nouvelle."
+          }
+        }
+      }
+    },
+    "allergies.edit.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Allergy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier l'allergie"
+          }
+        }
+      }
+    },
     "allergies.delete.message" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1121,6 +1155,23 @@
         }
       }
     },
+    "common.edit" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier"
+          }
+        }
+      }
+    },
     "common.cancel" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1372,6 +1423,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ajouter une pathologie"
+          }
+        }
+      }
+    },
+    "conditions.edit.conceptLocked" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To change the condition, delete this entry and add a new one."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour changer l'affection, supprimez cette entrée et ajoutez-en une nouvelle."
+          }
+        }
+      }
+    },
+    "conditions.edit.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Condition"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier l'affection"
           }
         }
       }

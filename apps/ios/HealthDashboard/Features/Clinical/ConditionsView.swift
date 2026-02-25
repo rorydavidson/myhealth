@@ -9,8 +9,9 @@ struct ConditionsView: View {
     @Query(sort: \ClinicalCondition.createdAt, order: .reverse)
     private var conditions: [ClinicalCondition]
 
-    @State private var showingAdd     = false
-    @State private var deleteTarget:  ClinicalCondition? = nil
+    @State private var showingAdd      = false
+    @State private var editTarget:     ClinicalCondition? = nil
+    @State private var deleteTarget:   ClinicalCondition? = nil
     @State private var showDeleteAlert = false
 
     var body: some View {
@@ -27,6 +28,14 @@ struct ConditionsView: View {
             } else {
                 ForEach(conditions) { condition in
                     ConditionRow(condition: condition)
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button {
+                                editTarget = condition
+                            } label: {
+                                Label(String(localized: "common.edit"), systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
                                 deleteTarget   = condition
@@ -51,6 +60,9 @@ struct ConditionsView: View {
         }
         .sheet(isPresented: $showingAdd) {
             AddConditionView()
+        }
+        .sheet(item: $editTarget) { condition in
+            EditConditionView(condition: condition)
         }
         .alert(String(localized: "common.delete.confirm.title"), isPresented: $showDeleteAlert) {
             Button(String(localized: "common.delete"), role: .destructive) {
@@ -209,7 +221,7 @@ struct AddConditionView: View {
                     Text(String(localized: "conditions.add.section.conditionFooter"))
                 }
 
-                // Status
+                // Details
                 Section(String(localized: "conditions.add.section.details")) {
                     Picker(String(localized: "conditions.add.status"), selection: $status) {
                         ForEach(ConditionStatus.allCases, id: \.self) { s in
@@ -278,10 +290,6 @@ struct AddConditionView: View {
         modelContext.insert(condition)
         dismiss()
 
-        // Generate AI summary in background — aiSummary starts nil (shows spinner).
-        // On completion write back the result; on failure write "" (hides the section).
-        // Capture the persistent ID (Sendable) rather than the model object itself,
-        // to satisfy Swift 6 strict concurrency across the actor boundary.
         let code    = concept.code
         let display = concept.display
         let modelID = condition.persistentModelID
@@ -295,5 +303,117 @@ struct AddConditionView: View {
                 saved.aiSummary = summary ?? ""
             }
         }
+    }
+}
+
+// MARK: - Edit View
+
+@MainActor
+struct EditConditionView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    /// Direct reference to the SwiftData object — mutations are reflected immediately.
+    @Bindable var condition: ClinicalCondition
+
+    // Local editing state initialised from the model
+    @State private var status:    ConditionStatus
+    @State private var hasOnset:  Bool
+    @State private var onsetDate: Date
+    @State private var notes:     String
+
+    init(condition: ClinicalCondition) {
+        self.condition = condition
+        _status   = State(initialValue: condition.conditionStatus)
+        _hasOnset = State(initialValue: condition.onsetDate != nil)
+        _notes    = State(initialValue: condition.notes ?? "")
+
+        // Parse stored ISO date string back to Date for the picker
+        if let iso = condition.onsetDate {
+            let fmt = ISO8601DateFormatter()
+            fmt.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+            _onsetDate = State(initialValue: fmt.date(from: iso) ?? .now)
+        } else {
+            _onsetDate = State(initialValue: .now)
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                // Read-only concept pill — concept identity cannot be changed on edit
+                Section {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(DesignTokens.Colors.vitals)
+                            .font(.caption)
+                        Text(condition.snomedDisplay)
+                            .font(.subheadline.weight(.medium))
+                        Spacer()
+                        Text(condition.snomedCode)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                } header: {
+                    Text(String(localized: "conditions.add.section.condition"))
+                } footer: {
+                    Text(String(localized: "conditions.edit.conceptLocked"))
+                }
+
+                // Mutable details
+                Section(String(localized: "conditions.add.section.details")) {
+                    Picker(String(localized: "conditions.add.status"), selection: $status) {
+                        ForEach(ConditionStatus.allCases, id: \.self) { s in
+                            Text(s.displayName).tag(s)
+                        }
+                    }
+
+                    Toggle(String(localized: "conditions.add.hasOnset"), isOn: $hasOnset)
+
+                    if hasOnset {
+                        DatePicker(
+                            String(localized: "conditions.add.onsetDate"),
+                            selection: $onsetDate,
+                            in: ...Date.now,
+                            displayedComponents: .date
+                        )
+                    }
+                }
+
+                // Notes
+                Section(String(localized: "conditions.add.section.notes")) {
+                    TextField(
+                        String(localized: "conditions.add.notesPlaceholder"),
+                        text: $notes,
+                        axis: .vertical
+                    )
+                    .lineLimit(3...6)
+                }
+            }
+            .navigationTitle(String(localized: "conditions.edit.title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "common.cancel")) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "common.save")) { save() }
+                }
+            }
+        }
+    }
+
+    private func save() {
+        condition.status = status.rawValue
+
+        if hasOnset {
+            let fmt = ISO8601DateFormatter()
+            fmt.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+            condition.onsetDate = fmt.string(from: onsetDate)
+        } else {
+            condition.onsetDate = nil
+        }
+
+        condition.notes = notes.isEmpty ? nil : notes
+        dismiss()
     }
 }

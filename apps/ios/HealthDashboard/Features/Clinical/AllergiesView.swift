@@ -10,6 +10,7 @@ struct AllergiesView: View {
     private var allergies: [Allergy]
 
     @State private var showingAdd      = false
+    @State private var editTarget:     Allergy? = nil
     @State private var deleteTarget:   Allergy? = nil
     @State private var showDeleteAlert = false
 
@@ -27,6 +28,14 @@ struct AllergiesView: View {
             } else {
                 ForEach(allergies) { allergy in
                     AllergyRow(allergy: allergy)
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button {
+                                editTarget = allergy
+                            } label: {
+                                Label(String(localized: "common.edit"), systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                        }
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
                                 deleteTarget   = allergy
@@ -47,6 +56,9 @@ struct AllergiesView: View {
         }
         .sheet(isPresented: $showingAdd) {
             AddAllergyView()
+        }
+        .sheet(item: $editTarget) { allergy in
+            EditAllergyView(allergy: allergy)
         }
         .alert(String(localized: "common.delete.confirm.title"), isPresented: $showDeleteAlert) {
             Button(String(localized: "common.delete"), role: .destructive) {
@@ -292,10 +304,6 @@ struct AddAllergyView: View {
         modelContext.insert(allergy)
         dismiss()
 
-        // Generate AI summary in background — aiSummary starts nil (shows spinner).
-        // On completion write back the result; on failure write "" (hides the section).
-        // Capture the persistent ID (Sendable) rather than the model object itself,
-        // to satisfy Swift 6 strict concurrency across the actor boundary.
         let code    = concept.code
         let display = concept.display
         let modelID = allergy.persistentModelID
@@ -309,5 +317,138 @@ struct AddAllergyView: View {
                 saved.aiSummary = summary ?? ""
             }
         }
+    }
+}
+
+// MARK: - Edit View
+
+@MainActor
+struct EditAllergyView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    /// Direct reference to the SwiftData object — mutations are reflected immediately.
+    @Bindable var allergy: Allergy
+
+    // Local editing state initialised from the model
+    @State private var type:        AllergyType
+    @State private var category:    AllergyCategory
+    @State private var criticality: AllergyCriticality
+    @State private var reaction:    String
+    @State private var hasOnset:    Bool
+    @State private var onsetDate:   Date
+    @State private var notes:       String
+
+    init(allergy: Allergy) {
+        self.allergy = allergy
+        _type        = State(initialValue: allergy.allergyType)
+        _category    = State(initialValue: allergy.allergyCategory)
+        _criticality = State(initialValue: allergy.allergyCriticality)
+        _reaction    = State(initialValue: allergy.reaction ?? "")
+        _notes       = State(initialValue: allergy.notes ?? "")
+        _hasOnset    = State(initialValue: allergy.onsetDate != nil)
+
+        if let iso = allergy.onsetDate {
+            let fmt = ISO8601DateFormatter()
+            fmt.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+            _onsetDate = State(initialValue: fmt.date(from: iso) ?? .now)
+        } else {
+            _onsetDate = State(initialValue: .now)
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                // Read-only concept pill
+                Section {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundStyle(DesignTokens.Colors.heart)
+                            .font(.caption)
+                        Text(allergy.snomedDisplay)
+                            .font(.subheadline.weight(.medium))
+                        Spacer()
+                        Text(allergy.snomedCode)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                } header: {
+                    Text(String(localized: "allergies.add.section.allergen"))
+                } footer: {
+                    Text(String(localized: "allergies.edit.conceptLocked"))
+                }
+
+                // Mutable details
+                Section(String(localized: "allergies.add.section.details")) {
+                    Picker(String(localized: "allergies.add.type"), selection: $type) {
+                        ForEach(AllergyType.allCases, id: \.self) { t in
+                            Text(t.displayName).tag(t)
+                        }
+                    }
+
+                    Picker(String(localized: "allergies.add.category"), selection: $category) {
+                        ForEach(AllergyCategory.allCases, id: \.self) { c in
+                            Text(c.displayName).tag(c)
+                        }
+                    }
+
+                    Picker(String(localized: "allergies.add.criticality"), selection: $criticality) {
+                        ForEach(AllergyCriticality.allCases, id: \.self) { c in
+                            Text(c.displayName).tag(c)
+                        }
+                    }
+
+                    TextField(String(localized: "allergies.add.reaction"), text: $reaction)
+
+                    Toggle(String(localized: "allergies.add.hasOnset"), isOn: $hasOnset)
+                    if hasOnset {
+                        DatePicker(
+                            String(localized: "allergies.add.onsetDate"),
+                            selection: $onsetDate,
+                            in: ...Date.now,
+                            displayedComponents: .date
+                        )
+                    }
+                }
+
+                // Notes
+                Section(String(localized: "allergies.add.section.notes")) {
+                    TextField(
+                        String(localized: "allergies.add.notesPlaceholder"),
+                        text: $notes,
+                        axis: .vertical
+                    )
+                    .lineLimit(3...6)
+                }
+            }
+            .navigationTitle(String(localized: "allergies.edit.title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "common.cancel")) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "common.save")) { save() }
+                }
+            }
+        }
+    }
+
+    private func save() {
+        allergy.type        = type.rawValue
+        allergy.category    = category.rawValue
+        allergy.criticality = criticality.rawValue
+        allergy.reaction    = reaction.isEmpty ? nil : reaction
+        allergy.notes       = notes.isEmpty ? nil : notes
+
+        if hasOnset {
+            let fmt = ISO8601DateFormatter()
+            fmt.formatOptions = [.withFullDate, .withDashSeparatorInDate]
+            allergy.onsetDate = fmt.string(from: onsetDate)
+        } else {
+            allergy.onsetDate = nil
+        }
+
+        dismiss()
     }
 }
