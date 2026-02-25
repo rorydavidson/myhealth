@@ -103,7 +103,7 @@ actor LLMService {
         // Last 30 days
         let cal = Calendar(identifier: .gregorian)
         let cutoff = cal.date(byAdding: .day, value: -30, to: .now)!
-        let cutoffStr = isoDate(cutoff)
+        let cutoffStr = LLMService.isoDate(cutoff)
         let recent = summaries.filter { $0.date >= cutoffStr }
 
         // Group by metricType
@@ -122,7 +122,7 @@ actor LLMService {
         ]
         for metric in metricOrder {
             guard let days = byMetric[metric], !days.isEmpty else { continue }
-            if let line = summarise(metric: metric, days: days) {
+            if let line = LLMService.summarise(metric: metric, days: days) {
                 lines.append(line)
                 previewLines.append(line)
             }
@@ -135,9 +135,9 @@ actor LLMService {
         return (summary, preview)
     }
 
-    nonisolated private func summarise(metric: String, days: [DailySummary]) -> String? {
-        let label = metricLabel(metric)
-        let unit  = metricUnit(metric)
+    private static func summarise(metric: String, days: [DailySummary]) -> String? {
+        let label = LLMService.metricLabel(metric)
+        let unit  = LLMService.metricUnit(metric)
         let additives = ["step_count", "active_energy", "distance", "flights_climbed"]
         let isAdditive = additives.contains(metric)
         let values = days.compactMap { isAdditive ? $0.sum : $0.avg }
@@ -154,7 +154,7 @@ actor LLMService {
         return "\(label): \(n)-day avg \(avgStr) \(unit), range \(mnStr)–\(mxStr)"
     }
 
-    nonisolated private func metricLabel(_ m: String) -> String {
+    private static func metricLabel(_ m: String) -> String {
         switch m {
         case "step_count":        return "Steps"
         case "active_energy":     return "Active energy"
@@ -173,7 +173,7 @@ actor LLMService {
         }
     }
 
-    nonisolated private func metricUnit(_ m: String) -> String {
+    private static func metricUnit(_ m: String) -> String {
         switch m {
         case "step_count", "flights_climbed": return "steps"
         case "active_energy":     return "kcal"
@@ -190,7 +190,7 @@ actor LLMService {
         }
     }
 
-    nonisolated private func isoDate(_ date: Date) -> String {
+    private static func isoDate(_ date: Date) -> String {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withFullDate, .withDashSeparatorInDate]
         return fmt.string(from: date)
