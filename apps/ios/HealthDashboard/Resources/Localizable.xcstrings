@@ -1036,6 +1036,23 @@
         }
       }
     },
+    "clinical.ai.generating" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generating AI summary…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Génération du résumé IA…"
+          }
+        }
+      }
+    },
     "clinical.status.active" : {
       "extractionState" : "stale",
       "localizations" : {

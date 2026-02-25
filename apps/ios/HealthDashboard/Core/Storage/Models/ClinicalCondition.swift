@@ -19,6 +19,9 @@ final class ClinicalCondition {
     var notes: String?
     var createdAt: Date
 
+    /// AI-generated plain-language summary (nil while pending, empty string if generation failed).
+    var aiSummary: String?
+
     init(
         id: String = UUID().uuidString,
         snomedCode: String,
@@ -35,6 +38,7 @@ final class ClinicalCondition {
         self.onsetDate = onsetDate
         self.notes = notes
         self.createdAt = createdAt
+        self.aiSummary = nil
     }
 
     var conditionStatus: ConditionStatus {

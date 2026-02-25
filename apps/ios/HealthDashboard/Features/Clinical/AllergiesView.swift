@@ -64,6 +64,17 @@ struct AllergiesView: View {
 private struct AllergyRow: View {
     let allergy: Allergy
 
+    /// nil  → summary is still being generated (show spinner)
+    /// ""   → generation failed or skipped (show nothing)
+    /// text → show the summary
+    private var summaryState: SummaryState {
+        switch allergy.aiSummary {
+        case nil:    return .generating
+        case "":     return .unavailable
+        case let s?: return .ready(s)
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -87,8 +98,50 @@ private struct AllergyRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            // AI summary
+            switch summaryState {
+            case .generating:
+                HStack(spacing: 4) {
+                    Image(systemName: "sparkles")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "clinical.ai.generating"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.6)
+                }
+                .padding(.top, 2)
+
+            case .ready(let summary):
+                HStack(alignment: .top, spacing: 4) {
+                    Image(systemName: "sparkles")
+                        .font(.caption2)
+                        .foregroundStyle(DesignTokens.Colors.heart)
+                        .padding(.top, 1)
+                    Text(summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.top, 2)
+
+            case .unavailable:
+                EmptyView()
+            }
+
             if let reaction = allergy.reaction, !reaction.isEmpty {
                 Text(String(localized: "allergies.reaction \(reaction)"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .padding(.top, summaryState == .unavailable ? 0 : 2)
+            }
+
+            if let notes = allergy.notes, !notes.isEmpty {
+                Text(notes)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -96,6 +149,12 @@ private struct AllergyRow: View {
         }
         .padding(.vertical, 2)
     }
+}
+
+private enum SummaryState: Equatable {
+    case generating
+    case ready(String)
+    case unavailable
 }
 
 // MARK: - Criticality Badge
@@ -232,5 +291,23 @@ struct AddAllergyView: View {
         )
         modelContext.insert(allergy)
         dismiss()
+
+        // Generate AI summary in background — aiSummary starts nil (shows spinner).
+        // On completion write back the result; on failure write "" (hides the section).
+        // Capture the persistent ID (Sendable) rather than the model object itself,
+        // to satisfy Swift 6 strict concurrency across the actor boundary.
+        let code    = concept.code
+        let display = concept.display
+        let modelID = allergy.persistentModelID
+        Task {
+            let summary = await ConceptSummaryService.shared.summarise(
+                code:    code,
+                display: display,
+                type:    .allergen
+            )
+            if let saved = modelContext.registeredModel(for: modelID) as Allergy? {
+                saved.aiSummary = summary ?? ""
+            }
+        }
     }
 }
