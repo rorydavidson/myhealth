@@ -13,7 +13,9 @@ final class PersistenceController {
     let container: ModelContainer
 
     private init(inMemory: Bool = false) {
-        let schema = Schema(SchemaV1.models)
+        // Always use the *latest* schema version here.
+        // The migrationPlan handles upgrading on-disk stores from older versions.
+        let schema = Schema(SchemaV2.models)
 
         let configuration = ModelConfiguration(
             schema: schema,
