@@ -1,11 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import postgres from "postgres";
 import * as schema from "./schema/index.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function createDb(connectionString: string) {
   const client = postgres(connectionString);
@@ -20,14 +16,16 @@ export function createDb(connectionString: string) {
  * startup before registering routes or accepting traffic.
  *
  * In the Docker image the SQL files live at packages/db/migrations/ (copied
- * there by the Dockerfile from src/migrations/). In compiled local builds they
- * resolve to the same sibling path relative to dist/.
+ * there by the Dockerfile from src/migrations/). At runtime this file compiles
+ * to packages/db/dist/index.js, so "../migrations" resolves correctly via
+ * import.meta.url — no node:path or @types/node required.
  */
 export async function runMigrations(connectionString: string): Promise<void> {
   const client = postgres(connectionString, { max: 1 });
   const db = drizzle(client);
-  // __dirname is packages/db/dist/ at runtime; migrations/ is the sibling dir.
-  const migrationsFolder = resolve(__dirname, "../migrations");
+  // new URL("../migrations", import.meta.url).pathname resolves to an absolute
+  // path one level above this compiled file — packages/db/migrations/ in prod.
+  const migrationsFolder = new URL("../migrations", import.meta.url).pathname;
   await migrate(db, { migrationsFolder });
   await client.end();
 }
