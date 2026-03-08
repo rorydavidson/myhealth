@@ -1,13 +1,17 @@
 name: Docker
 
-# Builds server and web images and pushes them to Docker Hub on every push
-# to main and on semver tags (v1.2.3).
+# Builds multi-platform server and web images and pushes them to Docker Hub
+# on every push to main and on semver tags (v1.2.3).
+#
+# Platforms built:
+#   linux/amd64  — standard x86-64 servers (most cloud VMs, Intel/AMD hardware)
+#   linux/arm64  — Apple Silicon Macs (M1/M2/M3), AWS Graviton, Raspberry Pi 4+
 #
 # Required repository secrets:
 #   DOCKERHUB_USERNAME   Your Docker Hub username
 #   DOCKERHUB_TOKEN      Docker Hub access token (Settings → Security → Access Tokens)
 #
-# Images produced:
+# Images produced (each a multi-arch manifest):
 #   <username>/health-server:latest  and  :<sha>  and  :<tag>
 #   <username>/health-web:latest     and  :<sha>  and  :<tag>
 
@@ -41,6 +45,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # QEMU lets the amd64 runner emulate arm64 so we can build both
+      # platforms in a single job without needing a native arm64 runner.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       # Buildx enables multi-platform builds and layer caching.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -70,10 +79,13 @@ jobs:
         with:
           context: .
           file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Re-use cached layers from previous runs to keep build times short.
+          # GHA cache stores layers by digest (which includes the platform),
+          # so both amd64 and arm64 layers are stored under the same scope key
+          # and buildx retrieves only what it needs for each platform.
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
           # Web build args: both have safe defaults in the Dockerfile so no
