@@ -100,7 +100,7 @@ export interface ImportRow {
   dateRange: { earliest: Date; latest: Date } | null;
 }
 
-const db = new Dexie("HealthDashboard") as Dexie & {
+type HealthDb = Dexie & {
   healthRecords: EntityTable<HealthRecordRow, "id">;
   dailySummaries: EntityTable<DailySummaryRow, "id">;
   labResults: EntityTable<LabResultRow, "id">;
@@ -110,55 +110,88 @@ const db = new Dexie("HealthDashboard") as Dexie & {
   imports: EntityTable<ImportRow, "id">;
 };
 
-db.version(1).stores({
-  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
-  dailySummaries: "id, [metricType+date]",
-  labResults: "id, date, category",
-  imports: "id",
-});
+/** FNV-1a 64-bit hash — synchronous, one-way, collision-resistant for this scale. */
+function hashUserId(userId: string): string {
+  const FNV_PRIME = 0x00000100000001b3n;
+  const FNV_OFFSET = 0xcbf29ce484222325n;
+  const MASK = 0xffffffffffffffffn;
+  let hash = FNV_OFFSET;
+  for (let i = 0; i < userId.length; i++) {
+    hash ^= BigInt(userId.charCodeAt(i));
+    hash = (hash * FNV_PRIME) & MASK;
+  }
+  return hash.toString(16).padStart(16, "0");
+}
 
-db.version(2).stores({
-  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
-  dailySummaries: "id, [metricType+date]",
-  labResults: "id, date, category",
-  imports: "id, startedAt",
-});
+function createDb(userId: string): HealthDb {
+  const instance = new Dexie(`hd-${hashUserId(userId)}`) as HealthDb;
 
-db.version(3).stores({
-  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
-  dailySummaries: "id, [metricType+date]",
-  labResults: "id, date, category",
-  clinicalConditions: "id, snomedCode, status",
-  imports: "id, startedAt",
-});
+  instance.version(1).stores({
+    healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+    dailySummaries: "id, [metricType+date]",
+    labResults: "id, date, category",
+    imports: "id",
+  });
 
-db.version(4).stores({
-  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
-  dailySummaries: "id, [metricType+date]",
-  labResults: "id, date, category",
-  clinicalConditions: "id, snomedCode, status, createdAt",
-  imports: "id, startedAt",
-});
+  instance.version(2).stores({
+    healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+    dailySummaries: "id, [metricType+date]",
+    labResults: "id, date, category",
+    imports: "id, startedAt",
+  });
 
-db.version(5).stores({
-  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
-  dailySummaries: "id, [metricType+date]",
-  labResults: "id, date, category",
-  clinicalConditions: "id, snomedCode, status, createdAt",
-  medications: "id, snomedCode, status, createdAt",
-  allergies: "id, snomedCode, category, createdAt",
-  imports: "id, startedAt",
-});
+  instance.version(3).stores({
+    healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+    dailySummaries: "id, [metricType+date]",
+    labResults: "id, date, category",
+    clinicalConditions: "id, snomedCode, status",
+    imports: "id, startedAt",
+  });
 
-// Version 6: add aiSummary field to clinicalConditions and allergies (optional field, no index change needed)
-db.version(6).stores({
-  healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
-  dailySummaries: "id, [metricType+date]",
-  labResults: "id, date, category",
-  clinicalConditions: "id, snomedCode, status, createdAt",
-  medications: "id, snomedCode, status, createdAt",
-  allergies: "id, snomedCode, category, createdAt",
-  imports: "id, startedAt",
-});
+  instance.version(4).stores({
+    healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+    dailySummaries: "id, [metricType+date]",
+    labResults: "id, date, category",
+    clinicalConditions: "id, snomedCode, status, createdAt",
+    imports: "id, startedAt",
+  });
 
-export { db };
+  instance.version(5).stores({
+    healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+    dailySummaries: "id, [metricType+date]",
+    labResults: "id, date, category",
+    clinicalConditions: "id, snomedCode, status, createdAt",
+    medications: "id, snomedCode, status, createdAt",
+    allergies: "id, snomedCode, category, createdAt",
+    imports: "id, startedAt",
+  });
+
+  // Version 6: add aiSummary field to clinicalConditions and allergies (optional field, no index change needed)
+  instance.version(6).stores({
+    healthRecords: "id, [metricType+startTime], sourcePlatform, importId",
+    dailySummaries: "id, [metricType+date]",
+    labResults: "id, date, category",
+    clinicalConditions: "id, snomedCode, status, createdAt",
+    medications: "id, snomedCode, status, createdAt",
+    allergies: "id, snomedCode, category, createdAt",
+    imports: "id, startedAt",
+  });
+
+  return instance;
+}
+
+// The current active database — set by initDb() in _app.tsx before any health
+// data is accessed. The exported `db` binding is live (ES module semantics),
+// so all 19 importing files automatically see the updated reference after initDb.
+// biome-ignore lint/suspicious/noExplicitAny: intentional uninitialized live binding
+export let db: HealthDb = undefined as any;
+
+/**
+ * Initialise (or switch to) the IndexedDB database for the given user.
+ * Must be called in AuthenticatedLayout before rendering health data components.
+ * Each user gets their own isolated database: `HealthDashboard-{userId}`.
+ */
+export function initDb(userId: string): void {
+  if (db && db.name === `hd-${hashUserId(userId)}`) return; // already correct
+  db = createDb(userId);
+}

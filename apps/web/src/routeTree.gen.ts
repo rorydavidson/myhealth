@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthNewUserRouteImport } from './routes/auth.new-user'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
@@ -27,6 +29,16 @@ import { Route as AppImportRouteImport } from './routes/_app/import'
 import { Route as AppConditionsRouteImport } from './routes/_app/conditions'
 import { Route as AppAllergiesRouteImport } from './routes/_app/allergies'
 
+const AuthNewUserRoute = AuthNewUserRouteImport.update({
+  id: '/auth/new-user',
+  path: '/auth/new-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -114,6 +126,8 @@ const AppAllergiesRoute = AppAllergiesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -131,6 +145,8 @@ export interface FileRoutesByFullPath {
   '/workouts': typeof AppWorkoutsRoute
 }
 export interface FileRoutesByTo {
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -151,6 +167,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -172,6 +190,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth/callback'
+    | '/auth/new-user'
     | '/forgot-password'
     | '/help'
     | '/login'
@@ -189,6 +209,8 @@ export interface FileRouteTypes {
     | '/workouts'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth/callback'
+    | '/auth/new-user'
     | '/forgot-password'
     | '/help'
     | '/login'
@@ -208,6 +230,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/auth/callback'
+    | '/auth/new-user'
     | '/forgot-password'
     | '/help'
     | '/login'
@@ -227,6 +251,8 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthNewUserRoute: typeof AuthNewUserRoute
   AppRoute: typeof AppRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
@@ -237,6 +263,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/new-user': {
+      id: '/auth/new-user'
+      path: '/auth/new-user'
+      fullPath: '/auth/new-user'
+      preLoaderRoute: typeof AuthNewUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -390,6 +430,8 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthNewUserRoute: AuthNewUserRoute,
   AppRoute: AppRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,

@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
+import { initDb } from "@/db";
 import { useSession } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_app")({
@@ -28,6 +29,10 @@ function AuthenticatedLayout() {
   if (!session) {
     return null;
   }
+
+  // Initialise the user-scoped IndexedDB before rendering any health data.
+  // Each user gets their own isolated database (HealthDashboard-{userId}).
+  initDb(session.user.id);
 
   return (
     <AppLayout>
