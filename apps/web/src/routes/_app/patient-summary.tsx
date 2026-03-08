@@ -24,6 +24,10 @@ function PatientSummaryPage() {
   const { data: session } = useSession();
 
   const [patientName, setPatientName] = useState(session?.user?.name ?? "");
+  const [patientBirthDate, setPatientBirthDate] = useState("");
+  const [patientGender, setPatientGender] = useState<"male" | "female" | "other" | "unknown" | "">(
+    "",
+  );
   const [timeRangeDays, setTimeRangeDays] = useState(90);
 
   // Pre-fill name from session once it loads (only if user hasn't typed anything)
@@ -62,13 +66,15 @@ function PatientSummaryPage() {
     try {
       await exportIPSAsJson({
         patientName: patientName.trim(),
+        patientBirthDate: patientBirthDate || undefined,
+        patientGender: patientGender || undefined,
         timeRangeDays,
         includeLabResultIds: selectedLabIds,
       });
     } finally {
       setExporting(false);
     }
-  }, [patientName, timeRangeDays, selectedLabIds]);
+  }, [patientName, patientBirthDate, patientGender, timeRangeDays, selectedLabIds]);
 
   const handleExportPdf = useCallback(async () => {
     if (!patientName.trim()) return;
@@ -76,13 +82,15 @@ function PatientSummaryPage() {
     try {
       await exportIPSAsPdf({
         patientName: patientName.trim(),
+        patientBirthDate: patientBirthDate || undefined,
+        patientGender: patientGender || undefined,
         timeRangeDays,
         includeLabResultIds: selectedLabIds,
       });
     } finally {
       setExporting(false);
     }
-  }, [patientName, timeRangeDays, selectedLabIds]);
+  }, [patientName, patientBirthDate, patientGender, timeRangeDays, selectedLabIds]);
 
   const metricDisplayNames: Record<string, string> = {
     heart_rate: "Heart Rate",
@@ -128,12 +136,51 @@ function PatientSummaryPage() {
             placeholder={t("form.namePlaceholder")}
             className={inputClassName}
           />
-          <div className="mt-1.5 flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-            <span className="text-xs text-neutral-500 dark:text-neutral-400">
-              {t("form.namePrivacy")}
-            </span>
+        </div>
+
+        {/* Date of birth + gender — two-column row on sm+ */}
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="patient-dob" className="mb-1 block text-sm font-medium">
+              {t("form.dobLabel")}
+            </label>
+            <input
+              id="patient-dob"
+              type="date"
+              value={patientBirthDate}
+              onChange={(e) => setPatientBirthDate(e.target.value)}
+              className={inputClassName}
+            />
           </div>
+          <div>
+            <label htmlFor="patient-gender" className="mb-1 block text-sm font-medium">
+              {t("form.genderLabel")}
+            </label>
+            <select
+              id="patient-gender"
+              value={patientGender}
+              onChange={(e) =>
+                setPatientGender(
+                  e.target.value as "male" | "female" | "other" | "unknown" | "",
+                )
+              }
+              className={`${selectClassName} w-full`}
+            >
+              <option value="">{t("form.genderOptions.unspecified")}</option>
+              <option value="male">{t("form.genderOptions.male")}</option>
+              <option value="female">{t("form.genderOptions.female")}</option>
+              <option value="other">{t("form.genderOptions.other")}</option>
+              <option value="unknown">{t("form.genderOptions.unknown")}</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Demographics privacy note */}
+        <div className="mb-4 flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            {t("form.demographicsPrivacy")}
+          </span>
         </div>
 
         {/* Time range */}

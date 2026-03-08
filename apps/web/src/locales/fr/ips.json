@@ -7,6 +7,16 @@
     "nameLabel": "Votre nom",
     "namePlaceholder": "Tel qu'il doit apparaître sur le résumé",
     "namePrivacy": "Votre nom est uniquement inclus dans le fichier exporté — il n'est ni stocké ni envoyé à nos serveurs.",
+    "dobLabel": "Date de naissance",
+    "genderLabel": "Sexe biologique",
+    "genderOptions": {
+      "unspecified": "Préfère ne pas préciser",
+      "male": "Homme",
+      "female": "Femme",
+      "other": "Autre",
+      "unknown": "Inconnu"
+    },
+    "demographicsPrivacy": "Les informations démographiques sont uniquement incluses dans le fichier exporté — elles ne sont pas stockées sur nos serveurs.",
     "timeRange": "Période pour les signes vitaux",
     "timeRanges": {
       "30": "30 derniers jours",

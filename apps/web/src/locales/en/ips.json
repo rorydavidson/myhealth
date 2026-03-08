@@ -7,6 +7,16 @@
     "nameLabel": "Your name",
     "namePlaceholder": "As it should appear on the summary",
     "namePrivacy": "Your name is only included in the exported file — it is not stored or sent to our servers.",
+    "dobLabel": "Date of birth",
+    "genderLabel": "Biological sex",
+    "genderOptions": {
+      "unspecified": "Prefer not to say",
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "unknown": "Unknown"
+    },
+    "demographicsPrivacy": "Demographics are only included in the exported file — not stored on our servers.",
     "timeRange": "Time range for vital signs",
     "timeRanges": {
       "30": "Last 30 days",

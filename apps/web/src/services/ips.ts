@@ -35,6 +35,10 @@ const VITAL_SIGN_METRICS = [
 
 export interface IPSExportOptions {
   patientName: string;
+  /** Date of birth in YYYY-MM-DD format, entered at export time — never stored on the server. */
+  patientBirthDate?: string;
+  /** Administrative gender per FHIR R4 value set. */
+  patientGender?: "male" | "female" | "other" | "unknown";
   timeRangeDays: number; // e.g., 30, 90, 180, 365
   includeLabResultIds: string[];
 }
@@ -49,7 +53,8 @@ interface FHIRResource {
  * Generate a FHIR IPS Bundle from local health data.
  */
 export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIRResource> {
-  const { patientName, timeRangeDays, includeLabResultIds } = options;
+  const { patientName, patientBirthDate, patientGender, timeRangeDays, includeLabResultIds } =
+    options;
 
   // Load METRIC_CODING dynamically to avoid circular imports
   const { METRIC_CODING: metricCoding } = await import("@health-app/shared/coding");
@@ -60,7 +65,7 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   const now = new Date().toISOString();
 
   // Build Patient resource
-  const patientResource = buildPatientResource(patientId, patientName);
+  const patientResource = buildPatientResource(patientId, patientName, patientBirthDate, patientGender);
 
   // Build Vital Signs observations
   const vitalSignObservations = await buildVitalSignObservations(
@@ -116,12 +121,17 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   };
 }
 
-function buildPatientResource(patientId: string, name: string): FHIRResource {
+function buildPatientResource(
+  patientId: string,
+  name: string,
+  birthDate?: string,
+  gender?: "male" | "female" | "other" | "unknown",
+): FHIRResource {
   const nameParts = name.trim().split(/\s+/);
   const family = nameParts.length > 1 ? nameParts.slice(-1)[0] : name;
   const given = nameParts.length > 1 ? nameParts.slice(0, -1) : [];
 
-  return {
+  const patient: FHIRResource = {
     resourceType: "Patient",
     id: patientId,
     name: [
@@ -133,6 +143,18 @@ function buildPatientResource(patientId: string, name: string): FHIRResource {
       },
     ],
   };
+
+  // Include date of birth if provided (entered at export time, never stored)
+  if (birthDate) {
+    (patient as Record<string, unknown>).birthDate = birthDate;
+  }
+
+  // Include administrative gender if provided (FHIR R4 value set)
+  if (gender) {
+    (patient as Record<string, unknown>).gender = gender;
+  }
+
+  return patient;
 }
 
 async function buildVitalSignObservations(

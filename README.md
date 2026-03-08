@@ -275,7 +275,11 @@ Features are available on both the web app (Phase 1) and native iOS app (Phase 2
 
 ### Lab Results
 - Upload PDF lab reports — stored locally as binary blobs (never uploaded)
-- Client-side text extraction with LOINC code auto-assignment
+- **Client-side PDF text extraction** using pdfjs-dist via a Vite-bundled Web Worker — no data sent to a server
+- **Automatic test-date detection** from the extracted text: supports ISO dates (YYYY-MM-DD), European dates (DD/MM/YYYY), and written month names in French and English; keyword-aware pass first (looks near words like "prélevé", "collected") then a fallback scan over the first 80 lines
+- Detected dates are shown with a "Detected from PDF" badge and can be edited at any time from the detail view
+- Results listed **most-recent-first** by test date
+- Structured value extraction with per-test LOINC code auto-assignment
 - Track lab values over time, filter by category
 
 ### Conditions (Problem List)
@@ -304,7 +308,8 @@ Features are available on both the web app (Phase 1) and native iOS app (Phase 2
 - Includes all five required IPS sections: Vital Signs, Lab Results, Medication Summary, Allergies & Intolerances, Problem List
 - Export as **FHIR JSON** (machine-readable, for EHR import) or **PDF** (human-readable, for sharing with providers)
 - All generation happens entirely client-side — the FHIR bundle never touches the server
-- Patient name is entered at export time and is not stored
+- **Patient profile**: name (required), date of birth, and biological sex (both optional) — all entered at export time and never stored on the server
+- **Accurate observation dates**: each FHIR `Observation` in the Vital Signs section is timestamped with the actual measurement date (not the export date); each lab result `Observation` is timestamped with the test date (user-entered or PDF-extracted)
 
 ### Data Portability
 - Export all data as a full-fidelity JSON backup (includes lab PDF blobs as base64)
@@ -443,3 +448,9 @@ Health metrics are tagged with standardised clinical codes for interoperability:
 - Codes are stored in a static lookup table in `packages/shared/src/coding/` — not per-record in IndexedDB.
 - Lab result structured values carry per-test LOINC codes (e.g. HDL → LOINC 2085-9).
 - SNOMED CT concept search uses the FHIR ValueSet `$expand` operation against a configurable terminology server (default: SNOMED International public endpoint).
+
+---
+
+## License
+
+[MIT](LICENSE)
