@@ -9,6 +9,14 @@
 #   - PostgreSQL is isolated to the internal network and is unreachable from
 #     outside Docker.
 #
+# Usage:
+#   Option A — pre-built images from Docker Hub (recommended):
+#     1. Set DOCKERHUB_USERNAME in .env
+#     2. docker compose -f docker-compose.npm.yml up -d
+#
+#   Option B — build images locally on the server:
+#     docker compose -f docker-compose.npm.yml up -d --build
+#
 # Prerequisites:
 #   1. Create the shared proxy network once on the host (skip if it already exists):
 #        docker network create proxy   (or set PROXY_NETWORK_NAME to an existing one)
@@ -18,9 +26,7 @@
 #        Forward Port:  80
 #        Enable SSL:    yes (Let's Encrypt)
 #        Websockets:    off (not required)
-#        Advanced tab → add custom nginx config if needed (see notes below)
-#   3. Copy .env.example to .env and fill in all values (see table below), then:
-#        docker compose -f docker-compose.npm.yml up -d --build
+#   3. Copy .env.example to .env and fill in all values, then run the command above.
 #
 # Required .env values for this setup:
 #   POSTGRES_PASSWORD   Strong random password for PostgreSQL
@@ -30,6 +36,8 @@
 #   ANTHROPIC_API_KEY   API key for LLM insights
 #
 # Optional .env values:
+#   DOCKERHUB_USERNAME          Your Docker Hub username (required for Option A)
+#   IMAGE_TAG                   Image tag to pull, e.g. latest or sha-abc1234 (default: latest)
 #   POSTGRES_USER               (default: health)
 #   POSTGRES_DB                 (default: health)
 #   LOG_LEVEL                   (default: info)
@@ -59,6 +67,7 @@ services:
       retries: 5
 
   server:
+    image: rorydavidson/health-server:latest
     build:
       context: .
       dockerfile: apps/server/Dockerfile
@@ -87,6 +96,7 @@ services:
       - internal
 
   web:
+    image: rorydavidson/health-web:latest
     build:
       context: .
       dockerfile: apps/web/Dockerfile

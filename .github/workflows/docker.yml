@@ -1,0 +1,82 @@
+name: Docker
+
+# Builds server and web images and pushes them to Docker Hub on every push
+# to main and on semver tags (v1.2.3).
+#
+# Required repository secrets:
+#   DOCKERHUB_USERNAME   Your Docker Hub username
+#   DOCKERHUB_TOKEN      Docker Hub access token (Settings → Security → Access Tokens)
+#
+# Images produced:
+#   <username>/health-server:latest  and  :<sha>  and  :<tag>
+#   <username>/health-web:latest     and  :<sha>  and  :<tag>
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+
+# Do not cancel in-progress runs — a partially-pushed image set is worse
+# than two builds running briefly in parallel.
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  docker:
+    name: Build & push (${{ matrix.service }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Build both images even if one fails so the other still ships.
+      fail-fast: false
+      matrix:
+        include:
+          - service: server
+            dockerfile: apps/server/Dockerfile
+
+          - service: web
+            dockerfile: apps/web/Dockerfile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Buildx enables multi-platform builds and layer caching.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Generates tags:
+      #   latest      — on every push to main
+      #   v1.2.3      — on semver tags
+      #   sha-<short> — always (for pinning specific builds)
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/health-${{ matrix.service }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=tag
+            type=sha,prefix=sha-,format=short
+
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Re-use cached layers from previous runs to keep build times short.
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          # Web build args: both have safe defaults in the Dockerfile so no
+          # values need to be set here. VITE_API_URL is intentionally left
+          # empty — the auth client falls back to window.location.origin at
+          # runtime, making the image domain-agnostic.
