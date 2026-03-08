@@ -23,6 +23,12 @@ RUN pnpm --filter @health-app/shared build
 ARG VITE_FHIR_TERMINOLOGY_URL=https://browser.ihtsdotools.org/fhir
 ENV VITE_FHIR_TERMINOLOGY_URL=$VITE_FHIR_TERMINOLOGY_URL
 
+# Public-facing URL of the app (e.g. https://health.example.com).
+# Used by the Better Auth client and the LLM service to know where to send API requests.
+# Defaults to empty string — the auth client falls back to window.location.origin at runtime.
+ARG VITE_API_URL=""
+ENV VITE_API_URL=$VITE_API_URL
+
 # Build the web app (outputs to apps/web/dist)
 RUN pnpm --filter @health-app/web build
 

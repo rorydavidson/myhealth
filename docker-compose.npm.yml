@@ -93,6 +93,10 @@ services:
       args:
         # Baked into the static bundle at build time
         VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-https://browser.ihtsdotools.org/fhir}
+        # API base URL seen from the browser — always the same as the public domain.
+        # The Better Auth client and LLM service use this to route API calls correctly.
+        # We reuse CORS_ORIGIN here since they are always identical in this setup.
+        VITE_API_URL: ${CORS_ORIGIN}
     restart: unless-stopped
     depends_on:
       - server
