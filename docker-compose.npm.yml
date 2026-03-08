@@ -11,7 +11,7 @@
 #
 # Prerequisites:
 #   1. Create the shared proxy network once on the host (skip if it already exists):
-#        docker network create proxy
+#        docker network create proxy   (or set PROXY_NETWORK_NAME to an existing one)
 #   2. In NPM, add a Proxy Host:
 #        Domain:        your-domain.com (+ www.your-domain.com if needed)
 #        Forward Host:  web
@@ -36,6 +36,7 @@
 #   VITE_FHIR_TERMINOLOGY_URL   (default: https://browser.ihtsdotools.org/fhir)
 #   RESEND_API_KEY              For magic-link email delivery
 #   RESEND_FROM                 Sender address (must match verified Resend domain)
+#   PROXY_NETWORK_NAME          Name of the external Docker network NPM is on (default: proxy)
 
 services:
 
@@ -103,8 +104,9 @@ networks:
 
   proxy:
     # Pre-existing external network that nginx-proxy-manager is attached to.
-    # Create it once with: docker network create proxy
+    # Override the network name by setting PROXY_NETWORK_NAME in .env (default: proxy).
     external: true
+    name: ${PROXY_NETWORK_NAME:-proxy}
 
   internal:
     # Private bridge for postgres ↔ server ↔ web communication.
