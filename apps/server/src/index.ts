@@ -9,6 +9,7 @@ import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
+import { runMigrations } from "@health-app/db";
 import { authRoutes } from "./routes/auth.js";
 import { healthRoutes } from "./routes/health.js";
 import { llmRoutes } from "./routes/llm.js";
@@ -18,6 +19,18 @@ const PORT = Number(process.env.PORT ?? 3001);
 const HOST = process.env.HOST ?? "0.0.0.0";
 
 async function main() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error("DATABASE_URL environment variable is required");
+  }
+
+  // Run migrations before starting the server so the schema is always up to
+  // date regardless of how the container was deployed. Drizzle's migrate()
+  // is idempotent — already-applied migrations are skipped.
+  console.log("Running database migrations…");
+  await runMigrations(dbUrl);
+  console.log("Migrations complete.");
+
   const app = Fastify({
     logger: {
       level: process.env.LOG_LEVEL ?? "info",

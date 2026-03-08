@@ -44,6 +44,12 @@ COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/db/dist ./packages/db/dist
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 
+# Copy raw SQL migration files so runMigrations() can apply them at startup.
+# These are plain SQL — they don't go through the TypeScript build — so they
+# must be copied explicitly. They land at packages/db/migrations/ which is
+# where resolve(__dirname, "../migrations") resolves to from packages/db/dist/.
+COPY packages/db/src/migrations ./packages/db/migrations
+
 EXPOSE 3001
 
 ENV NODE_ENV=production
