@@ -1,2 +1,2 @@
-export { userPreferences } from "./preferences";
-export { account, session, user, verification } from "./users";
+export { userPreferences } from "./preferences.js";
+export { account, session, user, verification } from "./users.js";

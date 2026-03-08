@@ -1,3 +1,14 @@
+# Local development — runs the full stack.
+# Docker Compose automatically reads .env from the project root for variable substitution.
+#
+# Usage:
+#   docker compose up --build
+#
+# Services:
+#   postgres — auth database (port 5432)
+#   server   — Fastify API + LLM proxy (port 3001)
+#   web      — React SPA via nginx, proxies /api to server (port 5173)
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -9,6 +20,49 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://health:health@postgres:5432/health
+      PORT: 3001
+      HOST: 0.0.0.0
+      # Web is served at localhost:5173 — CORS must match
+      CORS_ORIGIN: http://localhost:5173
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Pulled from .env — required for LLM proxy
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Pulled from .env — required for Resend email delivery (optional: omit to log magic links to console)
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      # Sender address — must use a domain verified in your Resend account
+      RESEND_FROM: ${RESEND_FROM:-}
+      # Defaults are fine for local dev
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-in-production}
+      # Must match the public-facing web URL so magic link emails point to the right origin
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:5173}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-https://browser.ihtsdotools.org/fhir}
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
 
 volumes:
   pgdata:

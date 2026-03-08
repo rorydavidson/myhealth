@@ -19,6 +19,10 @@ COPY apps/web ./apps/web
 # Build shared package first
 RUN pnpm --filter @health-app/shared build
 
+# VITE_ vars are baked into the static bundle at build time
+ARG VITE_FHIR_TERMINOLOGY_URL=https://browser.ihtsdotools.org/fhir
+ENV VITE_FHIR_TERMINOLOGY_URL=$VITE_FHIR_TERMINOLOGY_URL
+
 # Build the web app (outputs to apps/web/dist)
 RUN pnpm --filter @health-app/web build
 
