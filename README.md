@@ -67,21 +67,30 @@ The app ships as two Docker images:
 | `apps/server` | Multi-stage Node.js build — Fastify API (auth, preferences, LLM proxy) |
 | `apps/web` | Multi-stage Vite build served by nginx — the React SPA |
 
-### 1. Configure environment variables
+Two compose files are provided — pick the one that matches your infrastructure:
+
+| File | Use when… |
+|------|-----------|
+| `docker-compose.prod.yml` | You manage your own reverse proxy / TLS termination separately and want full control over which host ports are published |
+| `docker-compose.npm.yml` | You are running **nginx-proxy-manager** on the same Docker host and want it to front the app with zero published ports |
+
+### Option A — Standard production (`docker-compose.prod.yml`)
+
+#### 1. Configure environment variables
 
 ```bash
 cp .env.example .env
-# Edit .env — fill in all required values (marked with :? in docker-compose.prod.yml)
+# Edit .env — fill in all required values
 ```
 
-Required production values:
+Required:
 
 | Variable | Description |
 |----------|-------------|
 | `POSTGRES_PASSWORD` | PostgreSQL password (choose a strong random value) |
-| `BETTER_AUTH_SECRET` | Auth session secret — generate with `openssl rand -base64 32` |
-| `BETTER_AUTH_URL` | Public URL of the server (e.g. `https://api.yourdomain.com`) |
-| `CORS_ORIGIN` | Public URL of the web app (e.g. `https://yourdomain.com`) |
+| `BETTER_AUTH_SECRET` | Session secret — generate with `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | Public URL of the app (e.g. `https://health.example.com`) |
+| `CORS_ORIGIN` | Same as `BETTER_AUTH_URL` |
 | `ANTHROPIC_API_KEY` | Anthropic API key for LLM insights |
 
 Optional:
@@ -90,50 +99,110 @@ Optional:
 |----------|---------|-------------|
 | `POSTGRES_USER` | `health` | PostgreSQL user |
 | `POSTGRES_DB` | `health` | PostgreSQL database name |
-| `LOG_LEVEL` | `info` | Fastify log level (`trace`, `debug`, `info`, `warn`, `error`) |
+| `LOG_LEVEL` | `info` | Fastify log level |
 | `WEB_PORT` | `80` | Host port for the nginx container |
 | `SERVER_PORT` | `3001` | Host port for the API server container |
-| `VITE_FHIR_TERMINOLOGY_URL` | `https://browser.ihtsdotools.org/fhir` | FHIR terminology server for SNOMED CT search |
-| `VITE_API_URL` | `http://localhost:3001` | API base URL as seen from the browser |
+| `VITE_FHIR_TERMINOLOGY_URL` | `https://browser.ihtsdotools.org/fhir` | SNOMED CT terminology server |
 
-### 2. Build and start containers
+#### 2. Build and start
 
 ```bash
-# Build images and start all services (postgres + server + web)
 docker compose -f docker-compose.prod.yml up -d --build
-
-# View logs
 docker compose -f docker-compose.prod.yml logs -f
-
-# Stop
-docker compose -f docker-compose.prod.yml down
 ```
 
-### 3. Run database migrations in production
+---
 
-Migrations must be run once after the first deploy and after any schema changes:
+### Option B — nginx-proxy-manager (`docker-compose.npm.yml`)
+
+This is the recommended setup when nginx-proxy-manager (NPM) is already running on the same host. No ports are published — NPM routes traffic to the `web` container through a shared Docker network. The API server is never directly exposed; the nginx inside `web` proxies `/api/` to `server:3001` on an internal network.
+
+#### Architecture
+
+```
+Internet
+  └── nginx-proxy-manager (proxy network, TLS termination)
+        └── web:80  (nginx — serves SPA, proxies /api/ internally)
+              └── server:3001  (Fastify — internal network only)
+                    └── postgres:5432  (internal network only, no published ports)
+```
+
+#### 1. Create the shared proxy network (once per host)
 
 ```bash
+docker network create proxy
+```
+
+> Skip this if the network already exists (NPM usually creates it on first run).
+
+#### 2. Configure environment variables
+
+```bash
+cp .env.example .env
+# Edit .env
+```
+
+Required:
+
+| Variable | Description |
+|----------|-------------|
+| `POSTGRES_PASSWORD` | Strong random password |
+| `BETTER_AUTH_SECRET` | Session secret — `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | Public URL, e.g. `https://health.example.com` |
+| `CORS_ORIGIN` | Same as `BETTER_AUTH_URL` |
+| `ANTHROPIC_API_KEY` | Anthropic API key |
+
+Optional:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `POSTGRES_USER` | `health` | PostgreSQL user |
+| `POSTGRES_DB` | `health` | PostgreSQL database name |
+| `LOG_LEVEL` | `info` | Fastify log level |
+| `VITE_FHIR_TERMINOLOGY_URL` | `https://browser.ihtsdotools.org/fhir` | SNOMED CT terminology server |
+| `RESEND_API_KEY` | — | For magic-link email delivery |
+| `RESEND_FROM` | — | Sender address (must match verified Resend domain) |
+
+#### 3. Build and start
+
+```bash
+docker compose -f docker-compose.npm.yml up -d --build
+```
+
+#### 4. Add a Proxy Host in NPM
+
+In the NPM web UI, create a new **Proxy Host**:
+
+| Field | Value |
+|-------|-------|
+| Domain Names | `health.example.com` (your domain) |
+| Forward Hostname / IP | `web` |
+| Forward Port | `80` |
+| SSL | Enable — Let's Encrypt, force HTTPS |
+| Websockets | Off |
+
+NPM resolves `web` via the shared `proxy` Docker network.
+
+---
+
+### Running database migrations (both options)
+
+Migrations must be applied once after the first deploy and after any schema changes:
+
+```bash
+# Standard
 docker compose -f docker-compose.prod.yml exec server \
+  node -e "import('@health-app/db').then(m => m.runMigrations())"
+
+# NPM
+docker compose -f docker-compose.npm.yml exec server \
   node -e "import('@health-app/db').then(m => m.runMigrations())"
 ```
 
-Or run migrations locally against the production `DATABASE_URL` before deploying:
+Or run migrations locally against the production database URL:
 
 ```bash
 DATABASE_URL=<prod-url> pnpm --filter @health-app/db db:migrate
-```
-
-### Architecture overview
-
-```
-Browser (user's device)
-  └── Static SPA (nginx)  ──HTTP──▶  API Server (Fastify)  ──▶  PostgreSQL
-                                          │                        (auth only)
-                                          └──▶  Anthropic API
-                                               (LLM proxy — no health data stored)
-
-All health data lives in the browser's IndexedDB. The server never sees it.
 ```
 
 ---

@@ -1,0 +1,115 @@
+# Production Docker Compose — nginx-proxy-manager (NPM) edition
+#
+# How this differs from docker-compose.prod.yml:
+#   - No host ports are published on any service.
+#   - The "web" container joins an external "proxy" network so NPM can reach it.
+#   - The "server" container stays on the internal network only — it is reached
+#     by the nginx inside the "web" container via Docker DNS (/api/ proxy), so
+#     NPM never communicates with it directly.
+#   - PostgreSQL is isolated to the internal network and is unreachable from
+#     outside Docker.
+#
+# Prerequisites:
+#   1. Create the shared proxy network once on the host (skip if it already exists):
+#        docker network create proxy
+#   2. In NPM, add a Proxy Host:
+#        Domain:        your-domain.com (+ www.your-domain.com if needed)
+#        Forward Host:  web
+#        Forward Port:  80
+#        Enable SSL:    yes (Let's Encrypt)
+#        Websockets:    off (not required)
+#        Advanced tab → add custom nginx config if needed (see notes below)
+#   3. Copy .env.example to .env and fill in all values (see table below), then:
+#        docker compose -f docker-compose.npm.yml up -d --build
+#
+# Required .env values for this setup:
+#   POSTGRES_PASSWORD   Strong random password for PostgreSQL
+#   BETTER_AUTH_SECRET  Session secret — generate with: openssl rand -base64 32
+#   BETTER_AUTH_URL     Public URL of the app, e.g. https://health.example.com
+#   CORS_ORIGIN         Same as BETTER_AUTH_URL (single origin or comma-separated)
+#   ANTHROPIC_API_KEY   API key for LLM insights
+#
+# Optional .env values:
+#   POSTGRES_USER               (default: health)
+#   POSTGRES_DB                 (default: health)
+#   LOG_LEVEL                   (default: info)
+#   VITE_FHIR_TERMINOLOGY_URL   (default: https://browser.ihtsdotools.org/fhir)
+#   RESEND_API_KEY              For magic-link email delivery
+#   RESEND_FROM                 Sender address (must match verified Resend domain)
+
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-health}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-health}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # No published ports — Postgres is reachable only within the internal network
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-health}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-health}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-health}
+      PORT: 3001
+      HOST: 0.0.0.0
+      # Must match the public-facing domain so auth callbacks and magic links work
+      CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required (e.g. https://health.example.com)}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required (e.g. https://health.example.com)}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      # NPM terminates TLS and forwards X-Forwarded-Proto: https — the server
+      # must trust the upstream proxy for this header to be respected correctly
+      TRUST_PROXY: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # No published ports — reached only through the web nginx proxy on the
+    # internal network (nginx resolves "server" via Docker Compose DNS)
+    networks:
+      - internal
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Baked into the static bundle at build time
+        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-https://browser.ihtsdotools.org/fhir}
+    restart: unless-stopped
+    depends_on:
+      - server
+    networks:
+      - proxy     # NPM reaches the web container through this shared network
+      - internal  # Web nginx proxies /api/ to the server on this network
+
+networks:
+
+  proxy:
+    # Pre-existing external network that nginx-proxy-manager is attached to.
+    # Create it once with: docker network create proxy
+    external: true
+
+  internal:
+    # Private bridge for postgres ↔ server ↔ web communication.
+    # Not marked internal:true so the server can reach external APIs (Anthropic).
+    driver: bridge
+
+volumes:
+  pgdata:

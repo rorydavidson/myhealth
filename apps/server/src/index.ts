@@ -22,6 +22,9 @@ async function main() {
     logger: {
       level: process.env.LOG_LEVEL ?? "info",
     },
+    // Trust X-Forwarded-* headers from the upstream reverse proxy (e.g. nginx-proxy-manager).
+    // Enabled via TRUST_PROXY=true in docker-compose.npm.yml; keep false in local dev.
+    trustProxy: process.env.TRUST_PROXY === "true",
   });
 
   // Plugins
