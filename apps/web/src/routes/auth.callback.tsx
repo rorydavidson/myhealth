@@ -25,7 +25,14 @@ function AuthCallback() {
       return;
     }
 
-    if (expected && session.user.email.toLowerCase() !== expected.toLowerCase()) {
+    // Normalise expected before comparing: Better Auth encodes "+" as a literal "+"
+    // in its redirect URLs, which URL query-string parsing then decodes as a space.
+    // Email addresses never contain spaces, so replacing " " → "+" is safe.
+    const normalisedExpected = expected?.replace(/ /g, "+");
+    if (
+      normalisedExpected &&
+      session.user.email.toLowerCase() !== normalisedExpected.toLowerCase()
+    ) {
       // The session is for the wrong account — this is the stale-cookie bug.
       // Force sign-out and send back to login so the user can try again cleanly.
       signOut().then(() => navigate({ to: "/login" }));

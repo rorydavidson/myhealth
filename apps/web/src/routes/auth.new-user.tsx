@@ -34,12 +34,16 @@ function NewUserSetup() {
       return;
     }
 
-    // If the session is for a different account (stale cookie), send back to login
-    if (
-      expected &&
-      session.user.email.toLowerCase() !== expected.toLowerCase()
-    ) {
-      navigate({ to: "/login" });
+    // If the session is for a different account (stale cookie), send back to login.
+    // Normalise expected before comparing: Better Auth's redirect encodes "+" as a
+    // literal "+" in the redirect URL, which URL query-string parsing then decodes
+    // as a space — so email addresses containing "+" arrive here with a space.
+    // Email addresses never contain spaces, so replacing " " → "+" is safe.
+    if (expected) {
+      const normalised = expected.replace(/ /g, "+");
+      if (normalised.toLowerCase() !== session.user.email.toLowerCase()) {
+        navigate({ to: "/login" });
+      }
     }
   }, [isPending, session, expected, navigate]);
 

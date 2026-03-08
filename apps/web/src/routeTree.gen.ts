@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthNewUserRouteImport } from './routes/auth.new-user'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as SignUpRouteImport } from './routes/sign-up'
@@ -29,6 +30,11 @@ import { Route as AppImportRouteImport } from './routes/_app/import'
 import { Route as AppConditionsRouteImport } from './routes/_app/conditions'
 import { Route as AppAllergiesRouteImport } from './routes/_app/allergies'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthNewUserRoute = AuthNewUserRouteImport.update({
   id: '/auth/new-user',
   path: '/auth/new-user',
@@ -126,6 +132,7 @@ const AppAllergiesRoute = AppAllergiesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/admin': typeof AdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/workouts': typeof AppWorkoutsRoute
 }
 export interface FileRoutesByTo {
+  '/admin': typeof AdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -167,6 +175,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/admin': typeof AdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth/callback'
     | '/auth/new-user'
     | '/forgot-password'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/workouts'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/admin'
     | '/auth/callback'
     | '/auth/new-user'
     | '/forgot-password'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_app'
+    | '/admin'
     | '/auth/callback'
     | '/auth/new-user'
     | '/forgot-password'
@@ -251,6 +263,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AdminRoute: typeof AdminRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthNewUserRoute: typeof AuthNewUserRoute
   AppRoute: typeof AppRouteWithChildren
@@ -263,6 +276,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -430,6 +450,7 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  AdminRoute: AdminRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthNewUserRoute: AuthNewUserRoute,
   AppRoute: AppRouteWithChildren,

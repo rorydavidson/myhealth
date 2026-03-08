@@ -44,6 +44,7 @@
 #   VITE_FHIR_TERMINOLOGY_URL   (default: https://browser.ihtsdotools.org/fhir)
 #   RESEND_API_KEY              For magic-link email delivery
 #   RESEND_FROM                 Sender address (must match verified Resend domain)
+#   ADMIN_EMAIL                 Email address that can access /admin (magic-link auth)
 #   PROXY_NETWORK_NAME          Name of the external Docker network NPM is on (default: proxy)
 
 services:
@@ -84,6 +85,7 @@ services:
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required (e.g. https://health.example.com)}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       # NPM terminates TLS and forwards X-Forwarded-Proto: https — the server
       # must trust the upstream proxy for this header to be respected correctly
       TRUST_PROXY: "true"

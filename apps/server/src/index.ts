@@ -9,7 +9,8 @@ import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
-import { runMigrations } from "@health-app/db";
+import { createDb, runMigrations, user } from "@health-app/db";
+import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
 import { healthRoutes } from "./routes/health.js";
 import { llmRoutes } from "./routes/llm.js";
@@ -17,6 +18,39 @@ import { preferencesRoutes } from "./routes/preferences.js";
 
 const PORT = Number(process.env.PORT ?? 3001);
 const HOST = process.env.HOST ?? "0.0.0.0";
+
+/**
+ * Idempotently ensures the admin user exists in the database.
+ *
+ * Better Auth treats emails it has never seen before as new users and
+ * redirects them to the new-user onboarding flow after magic-link
+ * verification. By pre-inserting the admin row with emailVerified=true
+ * the admin always lands on their intended callbackURL (/admin) instead.
+ *
+ * The insert uses ON CONFLICT DO NOTHING so re-running on every startup is
+ * safe — an existing account (with its real name, preferences, etc.) is
+ * never overwritten.
+ */
+async function seedAdminUser(connectionString: string, email: string): Promise<void> {
+  const db = createDb(connectionString);
+  const rows = await db
+    .insert(user)
+    .values({
+      id: crypto.randomUUID(),
+      name: "Admin",
+      email,
+      emailVerified: true,
+    })
+    .onConflictDoNothing()
+    .returning({ id: user.id });
+
+  const inserted = rows.length > 0;
+  console.log(
+    inserted
+      ? `Admin user created for ${email}.`
+      : `Admin user already exists for ${email} — no changes made.`,
+  );
+}
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
@@ -30,6 +64,15 @@ async function main() {
   console.log("Running database migrations…");
   await runMigrations(dbUrl);
   console.log("Migrations complete.");
+
+  // Pre-seed the admin user so the ADMIN_EMAIL address is always a known
+  // existing user. This prevents Better Auth from treating the admin as a
+  // brand-new user and sending them through the new-user onboarding flow
+  // instead of straight back to /admin after magic-link verification.
+  // The insert is idempotent — if the row already exists it is left unchanged.
+  if (process.env.ADMIN_EMAIL) {
+    await seedAdminUser(dbUrl, process.env.ADMIN_EMAIL.trim().toLowerCase());
+  }
 
   const app = Fastify({
     logger: {
@@ -65,6 +108,7 @@ async function main() {
   await app.register(authRoutes);
   await app.register(preferencesRoutes, { prefix: "/api" });
   await app.register(llmRoutes, { prefix: "/api" });
+  await app.register(adminRoutes, { prefix: "/api" });
 
   // Error handler — RFC 9457 Problem Details
   app.setErrorHandler((error: { statusCode?: number; message: string }, request, reply) => {
