@@ -78,10 +78,12 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
         type: "object",
         properties: {
           units: { type: "string", enum: ["metric", "imperial"] },
-          timezone: { type: "string" },
+          // IANA timezone identifier — e.g. "America/New_York", "Europe/London", "UTC"
+          timezone: { type: "string", pattern: "^[A-Za-z][A-Za-z0-9/_+-]{0,63}$" },
           language: { type: "string", enum: ["en", "fr"] },
           theme: { type: "string", enum: ["light", "dark", "system"] },
-          dateOfBirth: { type: "string" },
+          // ISO 8601 date — YYYY-MM-DD
+          dateOfBirth: { type: "string", pattern: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])$" },
           biologicalSex: { type: "string", enum: ["male", "female", "intersex", "prefer_not_to_say"] },
         },
       },

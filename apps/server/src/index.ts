@@ -54,13 +54,21 @@ async function main() {
   await app.register(llmRoutes, { prefix: "/api" });
 
   // Error handler — RFC 9457 Problem Details
-  app.setErrorHandler((error: { statusCode?: number; message: string }, _request, reply) => {
+  app.setErrorHandler((error: { statusCode?: number; message: string }, request, reply) => {
     const statusCode = error.statusCode ?? 500;
+    const isServerError = statusCode >= 500;
+
+    // Never expose internal error details to the client for 5xx responses —
+    // the full error is logged server-side by Fastify automatically.
+    if (isServerError) {
+      request.log.error(error);
+    }
+
     reply.status(statusCode).send({
       type: `https://httpstatuses.com/${statusCode}`,
-      title: error.message,
+      title: isServerError ? "Internal Server Error" : error.message,
       status: statusCode,
-      detail: error.message,
+      detail: isServerError ? "An unexpected error occurred." : error.message,
     });
   });
 

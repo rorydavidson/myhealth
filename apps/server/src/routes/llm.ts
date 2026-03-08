@@ -30,13 +30,18 @@ IMPORTANT CONSTRAINTS:
 DISCLAIMER: Always end your response with a brief reminder that this is educational information, not medical advice.`;
 
 const querySchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(["user", "assistant"]),
-      content: z.string(),
-    }),
-  ),
-  healthContext: z.string().optional(),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        // ~8 k tokens per message — prevents runaway Anthropic costs
+        content: z.string().max(32_000),
+      }),
+    )
+    // Keep conversation history bounded
+    .max(50),
+  // Client-computed health summary — cap at ~2 k tokens
+  healthContext: z.string().max(8_000).optional(),
   enhanced: z.boolean().optional(),
 });
 
@@ -137,8 +142,10 @@ export async function llmRoutes(app: FastifyInstance) {
 
         reply.raw.write("data: [DONE]\n\n");
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error";
-        reply.raw.write(`data: ${JSON.stringify({ error: message })}\n\n`);
+        // Log the full error server-side; send a generic message to the client
+        // so internal Anthropic SDK details (model name, request IDs, etc.) are not exposed.
+        request.log.error(error, "LLM stream error");
+        reply.raw.write(`data: ${JSON.stringify({ error: "An error occurred processing your request." })}\n\n`);
       }
 
       reply.raw.end();
