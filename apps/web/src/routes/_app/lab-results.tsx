@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, Check, FlaskConical, Pencil, Plus, Shield, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, Calendar, Check, FlaskConical, Pencil, Plus, RefreshCw, Shield, Trash2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,15 @@ import { useLocaleFormat } from "@/hooks/use-locale-format";
 import {
   createPdfUrl,
   deleteLabResult,
+  extractDateFromText,
   extractStructuredValues,
   extractTextFromPdf,
   type LabCategory,
   type StructuredValue,
   saveLabResult,
+  updateLabDate,
   updateLabNotes,
+  updateLabStructuredValues,
 } from "@/services/lab-results";
 
 export const Route = createFileRoute("/_app/lab-results")({
@@ -228,6 +231,8 @@ interface UploadState {
   extractedText: string;
   structuredValues: Record<string, StructuredValue>;
   date: string;
+  /** Whether `date` was detected from the PDF ("extracted") or is the default today ("manual") */
+  dateSource: "extracted" | "manual";
   category: LabCategory;
   notes: string;
   error: string | null;
@@ -242,6 +247,7 @@ function UploadView({ onBack, onSaved }: { onBack: () => void; onSaved: () => vo
     extractedText: "",
     structuredValues: {},
     date: new Date().toISOString().slice(0, 10),
+    dateSource: "manual",
     category: "other",
     notes: "",
     error: null,
@@ -260,11 +266,15 @@ function UploadView({ onBack, onSaved }: { onBack: () => void; onSaved: () => vo
     try {
       const text = await extractTextFromPdf(file);
       const values = extractStructuredValues(text);
+      const detectedDate = extractDateFromText(text);
 
       setState((s) => ({
         ...s,
         extractedText: text,
         structuredValues: values,
+        // Auto-fill date from the PDF if detected; otherwise keep today's date
+        date: detectedDate ?? s.date,
+        dateSource: detectedDate ? "extracted" : "manual",
         phase: "review",
       }));
     } catch {
@@ -411,17 +421,26 @@ function ReviewForm({
       <Card>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label
-              htmlFor="lab-date"
-              className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              {t("form.dateLabel")}
-            </label>
+            <div className="mb-1 flex items-center gap-2">
+              <label
+                htmlFor="lab-date"
+                className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              >
+                {t("form.dateLabel")}
+              </label>
+              {state.dateSource === "extracted" && (
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                  {t("form.dateDetected")}
+                </span>
+              )}
+            </div>
             <input
               id="lab-date"
               type="date"
               value={state.date}
-              onChange={(e) => setState((s) => ({ ...s, date: e.target.value }))}
+              onChange={(e) =>
+                setState((s) => ({ ...s, date: e.target.value, dateSource: "manual" }))
+              }
               className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
             />
           </div>
@@ -713,6 +732,18 @@ function DetailView({ result, onBack }: { result: LabResultRow; onBack: () => vo
     result.structuredValues,
   );
 
+  // Re-extraction state
+  const [reExtracting, setReExtracting] = useState(false);
+  const [reExtractError, setReExtractError] = useState<string | null>(null);
+  // Use the stored extractedText as initial value (may be "" for old records)
+  const [rawTextDebug, setRawTextDebug] = useState<string>(result.extractedText ?? "");
+  const [showRawText, setShowRawText] = useState(false);
+
+  // Editable date
+  const [editingDate, setEditingDate] = useState(false);
+  const [dateDraft, setDateDraft] = useState(result.date);
+  const [dateSaving, setDateSaving] = useState(false);
+
   // Editable notes
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesDraft, setNotesDraft] = useState(result.notes ?? "");
@@ -731,6 +762,38 @@ function DetailView({ result, onBack }: { result: LabResultRow; onBack: () => vo
     },
     [result.id],
   );
+
+  /** Re-run PDF text extraction and value parsing on the stored blob. */
+  const handleReExtract = useCallback(async () => {
+    setReExtracting(true);
+    setReExtractError(null);
+    try {
+      const file = new File([result.pdfBlob], result.fileName, { type: "application/pdf" });
+      const text = await extractTextFromPdf(file);
+      // Log raw pdfjs output so it can be inspected in the browser console
+      console.log("[lab-results] raw pdfjs text (first 3000 chars):\n", text.slice(0, 3000));
+      console.log("[lab-results] total chars:", text.length, "total lines:", text.split("\n").length);
+      setRawTextDebug(text);
+      const values = extractStructuredValues(text);
+      console.log("[lab-results] extracted values:", values);
+      await updateLabStructuredValues(result.id, values, text);
+      setLocalValues(values);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setReExtractError(msg);
+      console.error("[lab-results] re-extract failed:", err);
+    } finally {
+      setReExtracting(false);
+    }
+  }, [result.id, result.pdfBlob, result.fileName]);
+
+  const handleSaveDate = async () => {
+    if (!dateDraft) return;
+    setDateSaving(true);
+    await updateLabDate(result.id, dateDraft);
+    setDateSaving(false);
+    setEditingDate(false);
+  };
 
   const handleSaveNotes = async () => {
     setNotesSaving(true);
@@ -751,12 +814,56 @@ function DetailView({ result, onBack }: { result: LabResultRow; onBack: () => vo
         </button>
         <div>
           <h1 className="text-2xl font-bold">{result.fileName}</h1>
-          <p className="text-sm text-neutral-500">
-            {fmt.date(result.date)} ·{" "}
+          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-neutral-500">
+            {/* Editable date */}
+            {editingDate ? (
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <input
+                  type="date"
+                  value={dateDraft}
+                  onChange={(e) => setDateDraft(e.target.value)}
+                  className="rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-xs text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveDate}
+                  disabled={dateSaving || !dateDraft}
+                  className="text-emerald-600 hover:text-emerald-700 disabled:opacity-50"
+                  aria-label={t("detail.saveDate")}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDateDraft(result.date);
+                    setEditingDate(false);
+                  }}
+                  className="text-neutral-400 hover:text-neutral-600"
+                  aria-label={t("detail.cancel")}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditingDate(true)}
+                className="group flex items-center gap-1 rounded px-1 py-0.5 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                aria-label={t("detail.editDate")}
+              >
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <span>{fmt.date(result.date)}</span>
+                <Pencil className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-60" />
+              </button>
+            )}
+            <span className="text-neutral-300 dark:text-neutral-600">·</span>
             <span className="rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-400">
               {t(`form.categories.${result.category}`)}
             </span>
-          </p>
+          </div>
         </div>
       </div>
 
@@ -774,25 +881,63 @@ function DetailView({ result, onBack }: { result: LabResultRow; onBack: () => vo
           <Card>
             <div className="mb-3 flex items-center justify-between">
               <CardTitle>{t("detail.extractedValues")}</CardTitle>
-              <button
-                type="button"
-                onClick={() => {
-                  const key = `__new_${Date.now()}`;
-                  handleValuesChange({
-                    ...localValues,
-                    [key]: { value: 0, unit: "", flag: undefined, referenceRange: undefined },
-                  });
-                }}
-                className="flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {t("extraction.addValue")}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleReExtract}
+                  disabled={reExtracting}
+                  className="flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${reExtracting ? "animate-spin" : ""}`} />
+                  {reExtracting ? t("detail.reExtracting") : t("detail.reExtract")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const key = `__new_${Date.now()}`;
+                    handleValuesChange({
+                      ...localValues,
+                      [key]: { value: 0, unit: "", flag: undefined, referenceRange: undefined },
+                    });
+                  }}
+                  className="flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("extraction.addValue")}
+                </button>
+              </div>
             </div>
             {Object.keys(localValues).length === 0 ? (
               <p className="text-sm text-neutral-500">{t("extraction.noValuesExtracted")}</p>
             ) : (
               <EditableValuesTable values={localValues} onChange={handleValuesChange} />
+            )}
+          </Card>
+
+          {/* Raw text debug panel — always visible, helps diagnose pdfjs extraction issues */}
+          <Card>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-neutral-500">
+                {reExtractError
+                  ? `❌ Extraction error: ${reExtractError}`
+                  : rawTextDebug
+                    ? `Raw pdfjs text (${rawTextDebug.length} chars, ${rawTextDebug.split("\n").length} lines)`
+                    : "No extracted text yet — click Re-extract values"}
+              </p>
+              {rawTextDebug ? (
+                <button
+                  type="button"
+                  onClick={() => setShowRawText((v) => !v)}
+                  className="text-xs text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300"
+                >
+                  {showRawText ? "Hide" : "Show"}
+                </button>
+              ) : null}
+            </div>
+            {showRawText && rawTextDebug && (
+              <pre className="mt-2 max-h-64 overflow-auto rounded bg-neutral-50 p-2 text-xs text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+                {rawTextDebug}
+              </pre>
             )}
           </Card>
 

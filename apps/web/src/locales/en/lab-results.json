@@ -9,6 +9,7 @@
   },
   "form": {
     "dateLabel": "Date of test",
+    "dateDetected": "Detected from PDF",
     "categoryLabel": "Category",
     "notesLabel": "Notes",
     "notesPlaceholder": "Add any notes about this lab result...",
@@ -45,11 +46,15 @@
   "detail": {
     "viewPdf": "View PDF",
     "extractedValues": "Extracted Values",
+    "reExtract": "Re-extract values",
+    "reExtracting": "Re-extracting…",
     "notes": "Notes",
     "noNotes": "No notes added",
     "back": "Back to list",
     "cancel": "Cancel",
-    "saveNotes": "Save notes"
+    "saveNotes": "Save notes",
+    "editDate": "Edit date",
+    "saveDate": "Save date"
   },
   "save": {
     "saving": "Saving...",

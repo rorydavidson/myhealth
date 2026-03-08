@@ -12,6 +12,15 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  // pdfjs-dist must be excluded from Vite's dependency pre-bundling.
+  // When Vite pre-bundles it, the worker file gets a content-hashed URL
+  // (e.g. assets/pdf.worker.min-XXXX.mjs) that pdfjs cannot dynamically
+  // import at runtime — causing "Setting up fake worker failed".
+  // Excluding it lets Vite serve the file directly from node_modules at a
+  // stable, importable URL.
+  optimizeDeps: {
+    exclude: ["pdfjs-dist"],
+  },
   server: {
     port: 5173,
     proxy: {

@@ -9,6 +9,7 @@
   },
   "form": {
     "dateLabel": "Date du test",
+    "dateDetected": "Détectée depuis le PDF",
     "categoryLabel": "Catégorie",
     "notesLabel": "Notes",
     "notesPlaceholder": "Ajoutez des notes sur ce résultat...",
@@ -45,11 +46,15 @@
   "detail": {
     "viewPdf": "Voir le PDF",
     "extractedValues": "Valeurs extraites",
+    "reExtract": "Ré-extraire les valeurs",
+    "reExtracting": "Extraction en cours…",
     "notes": "Notes",
     "noNotes": "Aucune note ajoutée",
     "back": "Retour à la liste",
     "cancel": "Annuler",
-    "saveNotes": "Enregistrer les notes"
+    "saveNotes": "Enregistrer les notes",
+    "editDate": "Modifier la date",
+    "saveDate": "Enregistrer la date"
   },
   "save": {
     "saving": "Enregistrement...",
