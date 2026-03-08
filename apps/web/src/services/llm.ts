@@ -11,6 +11,13 @@ import { db } from "@/db";
 
 // --- Types ---
 
+export interface LLMProfile {
+  /** Age in whole years, derived from date of birth. Not the raw DOB. */
+  age?: number;
+  /** Biological sex label as the user selected it. */
+  biologicalSex?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -29,12 +36,30 @@ export interface LLMQueryOptions {
 
 // --- Health context builders ---
 
+/** Sex labels sent to the LLM (maps internal values to human-readable strings). */
+const SEX_LABELS: Record<string, string> = {
+  male: "Male",
+  female: "Female",
+  intersex: "Intersex",
+};
+
 /**
  * Build a standard-mode health context string from local data.
  * Only includes aggregated summaries — no raw records, no PII.
  */
-export async function buildStandardContext(): Promise<string> {
+export async function buildStandardContext(profile?: LLMProfile): Promise<string> {
   const lines: string[] = [];
+
+  // Prepend profile header if any profile data is available
+  const profileParts: string[] = [];
+  if (profile?.age !== undefined) profileParts.push(`Age: ${profile.age}`);
+  if (profile?.biologicalSex && profile.biologicalSex !== "prefer_not_to_say") {
+    profileParts.push(`Sex: ${SEX_LABELS[profile.biologicalSex] ?? profile.biologicalSex}`);
+  }
+  if (profileParts.length > 0) {
+    lines.push(`User profile: ${profileParts.join(", ")}`);
+    lines.push("---");
+  }
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
   const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
@@ -126,10 +151,10 @@ export async function buildStandardContext(): Promise<string> {
  * Includes lab values, daily breakdowns, etc.
  * Only used when user explicitly opts in.
  */
-export async function buildEnhancedContext(): Promise<string> {
+export async function buildEnhancedContext(profile?: LLMProfile): Promise<string> {
   // Start with standard context
   const standardLines: string[] = [];
-  const standard = await buildStandardContext();
+  const standard = await buildStandardContext(profile);
   standardLines.push(standard);
 
   const today = new Date().toISOString().slice(0, 10);

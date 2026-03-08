@@ -7,7 +7,20 @@
     "email": "Email",
     "saveName": "Save",
     "savingName": "Saving…",
-    "nameSaved": "Name updated"
+    "nameSaved": "Name updated",
+    "dateOfBirth": "Date of Birth",
+    "biologicalSex": "Biological Sex",
+    "sexOptions": {
+      "placeholder": "Prefer not to say",
+      "male": "Male",
+      "female": "Female",
+      "intersex": "Intersex",
+      "prefer_not_to_say": "Prefer not to say"
+    },
+    "saveProfile": "Save",
+    "savingProfile": "Saving…",
+    "profileSaved": "Profile updated",
+    "profileHint": "Used only to provide more relevant AI insights. Never shared or sent to anyone."
   },
   "preferences": {
     "title": "Preferences",

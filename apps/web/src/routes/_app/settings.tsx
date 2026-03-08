@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/db";
 import { usePreferences, useUpdatePreferences } from "@/hooks/use-preferences";
 import { authClient, useSession } from "@/lib/auth-client";
+import type { BiologicalSex } from "@/lib/api";
 import {
   clearAllData,
   exportDataAsCsv,
@@ -88,12 +89,23 @@ function SettingsPage() {
   const [nameSaving, setNameSaving] = useState(false);
   const [nameSaved, setNameSaved] = useState(false);
 
+  const [dobInput, setDobInput] = useState(prefs?.dateOfBirth ?? "");
+  const [sexInput, setSexInput] = useState(prefs?.biologicalSex ?? "");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+
   // Sync nameInput when session loads
   useEffect(() => {
     if (session?.user?.name && !nameInput) {
       setNameInput(session.user.name);
     }
   }, [session?.user?.name]);
+
+  // Sync DOB and sex when prefs load
+  useEffect(() => {
+    if (prefs?.dateOfBirth && !dobInput) setDobInput(prefs.dateOfBirth);
+    if (prefs?.biologicalSex && !sexInput) setSexInput(prefs.biologicalSex);
+  }, [prefs?.dateOfBirth, prefs?.biologicalSex]);
 
   const handleSaveName = useCallback(async () => {
     const trimmed = nameInput.trim();
@@ -108,6 +120,30 @@ function SettingsPage() {
       setNameSaving(false);
     }
   }, [nameInput, session?.user?.name]);
+
+  const profileDirty =
+    dobInput !== (prefs?.dateOfBirth ?? "") || sexInput !== (prefs?.biologicalSex ?? "");
+
+  const handleSaveProfile = useCallback(async () => {
+    if (!profileDirty) return;
+    setProfileSaving(true);
+    setProfileSaved(false);
+    try {
+      await new Promise<void>((resolve, reject) => {
+        update(
+          {
+            dateOfBirth: dobInput || undefined,
+            biologicalSex: (sexInput as BiologicalSex) || undefined,
+          },
+          { onSuccess: () => resolve(), onError: reject },
+        );
+      });
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 3000);
+    } finally {
+      setProfileSaving(false);
+    }
+  }, [dobInput, sexInput, profileDirty, update]);
 
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -204,16 +240,9 @@ function SettingsPage() {
 
       {/* Profile */}
       <Card className="mb-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t("profile.title")}</h2>
-          {nameSaved && (
-            <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-              <Check className="h-3 w-3" />
-              {t("profile.nameSaved")}
-            </span>
-          )}
-        </div>
+        <h2 className="mb-4 text-lg font-semibold">{t("profile.title")}</h2>
         <div className="space-y-4">
+          {/* Name */}
           <div>
             <label
               htmlFor="profile-name"
@@ -242,7 +271,15 @@ function SettingsPage() {
                 {nameSaving ? t("profile.savingName") : t("profile.saveName")}
               </Button>
             </div>
+            {nameSaved && (
+              <span className="mt-1 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                <Check className="h-3 w-3" />
+                {t("profile.nameSaved")}
+              </span>
+            )}
           </div>
+
+          {/* Email */}
           <div>
             <span className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
               {t("profile.email")}
@@ -250,6 +287,70 @@ function SettingsPage() {
             <span className="text-sm text-neutral-900 dark:text-neutral-50">
               {session?.user?.email ?? "—"}
             </span>
+          </div>
+
+          {/* Date of birth + biological sex */}
+          <div className="border-t border-neutral-100 pt-4 dark:border-neutral-800">
+            <p className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
+              {t("profile.profileHint")}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="profile-dob"
+                  className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                >
+                  {t("profile.dateOfBirth")}
+                </label>
+                <input
+                  id="profile-dob"
+                  type="date"
+                  value={dobInput}
+                  onChange={(e) => setDobInput(e.target.value)}
+                  disabled={profileSaving}
+                  max={new Date().toISOString().slice(0, 10)}
+                  className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="profile-sex"
+                  className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                >
+                  {t("profile.biologicalSex")}
+                </label>
+                <select
+                  id="profile-sex"
+                  value={sexInput}
+                  onChange={(e) => setSexInput(e.target.value)}
+                  disabled={profileSaving}
+                  className={selectClassName}
+                >
+                  <option value="">{t("profile.sexOptions.placeholder")}</option>
+                  <option value="male">{t("profile.sexOptions.male")}</option>
+                  <option value="female">{t("profile.sexOptions.female")}</option>
+                  <option value="intersex">{t("profile.sexOptions.intersex")}</option>
+                  <option value="prefer_not_to_say">{t("profile.sexOptions.prefer_not_to_say")}</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleSaveProfile}
+                disabled={profileSaving || !profileDirty}
+              >
+                {profileSaving ? t("profile.savingProfile") : t("profile.saveProfile")}
+              </Button>
+              {profileSaved && (
+                <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                  <Check className="h-3 w-3" />
+                  {t("profile.profileSaved")}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </Card>

@@ -7,7 +7,20 @@
     "email": "E-mail",
     "saveName": "Enregistrer",
     "savingName": "Enregistrement…",
-    "nameSaved": "Nom mis à jour"
+    "nameSaved": "Nom mis à jour",
+    "dateOfBirth": "Date de naissance",
+    "biologicalSex": "Sexe biologique",
+    "sexOptions": {
+      "placeholder": "Préfère ne pas répondre",
+      "male": "Masculin",
+      "female": "Féminin",
+      "intersex": "Intersexe",
+      "prefer_not_to_say": "Préfère ne pas répondre"
+    },
+    "saveProfile": "Enregistrer",
+    "savingProfile": "Enregistrement…",
+    "profileSaved": "Profil mis à jour",
+    "profileHint": "Utilisé uniquement pour fournir des insights IA plus pertinents. Jamais partagé ni transmis à quiconque."
   },
   "preferences": {
     "title": "Préférences",

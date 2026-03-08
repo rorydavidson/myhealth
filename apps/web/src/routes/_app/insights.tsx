@@ -11,15 +11,17 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/ui/markdown";
+import { usePreferences } from "@/hooks/use-preferences";
 import {
   buildEnhancedContext,
   buildStandardContext,
   type ChatMessage,
   createMessageId,
+  type LLMProfile,
   streamLLMQuery,
 } from "@/services/llm";
 
@@ -27,8 +29,18 @@ export const Route = createFileRoute("/_app/insights")({
   component: InsightsPage,
 });
 
+function computeAge(dateOfBirth: string): number {
+  const dob = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return age;
+}
+
 function InsightsPage() {
   const { t } = useTranslation("insights");
+  const { data: prefs } = usePreferences();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -39,16 +51,24 @@ function InsightsPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  const profile = useMemo<LLMProfile | undefined>(() => {
+    if (!prefs) return undefined;
+    const p: LLMProfile = {};
+    if (prefs.dateOfBirth) p.age = computeAge(prefs.dateOfBirth);
+    if (prefs.biologicalSex) p.biologicalSex = prefs.biologicalSex;
+    return Object.keys(p).length > 0 ? p : undefined;
+  }, [prefs?.dateOfBirth, prefs?.biologicalSex]);
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Refresh health context when enhanced mode changes
+  // Refresh health context when enhanced mode or profile changes
   useEffect(() => {
     let cancelled = false;
     setContextLoading(true);
     const builder = enhanced ? buildEnhancedContext : buildStandardContext;
-    builder().then((ctx) => {
+    builder(profile).then((ctx) => {
       if (!cancelled) {
         setHealthContext(ctx);
         setContextLoading(false);
@@ -57,7 +77,7 @@ function InsightsPage() {
     return () => {
       cancelled = true;
     };
-  }, [enhanced]);
+  }, [enhanced, profile]);
 
   const handleSend = useCallback(
     async (text?: string) => {

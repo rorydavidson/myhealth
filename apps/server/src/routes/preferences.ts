@@ -11,6 +11,13 @@ interface PreferencesBody {
   timezone?: string;
   language?: string;
   theme?: string;
+  dateOfBirth?: string;
+  biologicalSex?: string;
+}
+
+interface PreferencesExtra {
+  dateOfBirth?: string;
+  biologicalSex?: string;
 }
 
 export const preferencesRoutes: FastifyPluginAsync = async (app) => {
@@ -26,6 +33,8 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
             timezone: { type: "string" },
             language: { type: "string" },
             theme: { type: "string" },
+            dateOfBirth: { type: "string" },
+            biologicalSex: { type: "string" },
           },
         },
       },
@@ -49,11 +58,14 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
         };
       }
 
+      const extra = (prefs.extra ?? {}) as PreferencesExtra;
       return {
         units: prefs.units,
         timezone: prefs.timezone,
         language: prefs.language,
         theme: prefs.theme,
+        ...(extra.dateOfBirth ? { dateOfBirth: extra.dateOfBirth } : {}),
+        ...(extra.biologicalSex ? { biologicalSex: extra.biologicalSex } : {}),
       };
     },
   });
@@ -69,6 +81,8 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
           timezone: { type: "string" },
           language: { type: "string", enum: ["en", "fr"] },
           theme: { type: "string", enum: ["light", "dark", "system"] },
+          dateOfBirth: { type: "string" },
+          biologicalSex: { type: "string", enum: ["male", "female", "intersex", "prefer_not_to_say"] },
         },
       },
       response: {
@@ -79,6 +93,8 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
             timezone: { type: "string" },
             language: { type: "string" },
             theme: { type: "string" },
+            dateOfBirth: { type: "string" },
+            biologicalSex: { type: "string" },
           },
         },
       },
@@ -94,7 +110,24 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
         .where(eq(userPreferences.userId, userId))
         .limit(1);
 
+      // Merge profile fields into the extra JSONB column
+      const buildExtra = (currentExtra: PreferencesExtra): PreferencesExtra => ({
+        ...currentExtra,
+        ...(body.dateOfBirth !== undefined ? { dateOfBirth: body.dateOfBirth || undefined } : {}),
+        ...(body.biologicalSex !== undefined ? { biologicalSex: body.biologicalSex || undefined } : {}),
+      });
+
+      const toResponse = (row: typeof existing, extra: PreferencesExtra) => ({
+        units: row!.units,
+        timezone: row!.timezone,
+        language: row!.language,
+        theme: row!.theme,
+        ...(extra.dateOfBirth ? { dateOfBirth: extra.dateOfBirth } : {}),
+        ...(extra.biologicalSex ? { biologicalSex: extra.biologicalSex } : {}),
+      });
+
       if (existing) {
+        const newExtra = buildExtra((existing.extra ?? {}) as PreferencesExtra);
         const [updated] = await db
           .update(userPreferences)
           .set({
@@ -102,19 +135,16 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
             ...(body.timezone && { timezone: body.timezone }),
             ...(body.language && { language: body.language }),
             ...(body.theme && { theme: body.theme }),
+            extra: newExtra,
             updatedAt: new Date(),
           })
           .where(eq(userPreferences.userId, userId))
           .returning();
 
-        return {
-          units: updated.units,
-          timezone: updated.timezone,
-          language: updated.language,
-          theme: updated.theme,
-        };
+        return toResponse(updated, newExtra);
       }
 
+      const newExtra = buildExtra({});
       const id = crypto.randomUUID();
       const [created] = await db
         .insert(userPreferences)
@@ -125,15 +155,11 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
           timezone: body.timezone ?? "UTC",
           language: body.language ?? "en",
           theme: body.theme ?? "system",
+          extra: newExtra,
         })
         .returning();
 
-      return {
-        units: created.units,
-        timezone: created.timezone,
-        language: created.language,
-        theme: created.theme,
-      };
+      return toResponse(created, newExtra);
     },
   });
 };

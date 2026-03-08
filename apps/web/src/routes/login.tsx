@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldX } from "lucide-react";
+import { Lock, ShieldX, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AuthLayout } from "@/components/layout/auth-layout";
@@ -138,6 +138,30 @@ function LoginPage() {
           </div>
         )}
       </Card>
+
+      {/* Privacy & disclaimer */}
+      <div className="mt-6 space-y-3 rounded-xl border border-neutral-200 bg-white p-4 text-xs dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="flex items-start gap-2.5">
+          <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div>
+            <p className="font-medium text-neutral-800 dark:text-neutral-200">
+              {t("privacy.heading")}
+            </p>
+            <p className="mt-0.5 text-neutral-500 dark:text-neutral-400">
+              {t("privacy.dataLocal")}
+            </p>
+            <p className="mt-1.5 text-neutral-500 dark:text-neutral-400">
+              {t("privacy.llmNote")}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2.5 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+          <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+          <p className="text-neutral-500 dark:text-neutral-400">
+            {t("privacy.disclaimer")}
+          </p>
+        </div>
+      </div>
 
       {/* Clear local data — security wipe for shared/borrowed devices */}
       <div className="mt-4 text-center">

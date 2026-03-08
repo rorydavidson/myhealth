@@ -2,11 +2,17 @@
 const API_BASE =
   import.meta.env.DEV ? "" : (import.meta.env.VITE_API_URL ?? "");
 
+export type BiologicalSex = "male" | "female" | "intersex" | "prefer_not_to_say";
+
 export interface UserPreferences {
   units: "metric" | "imperial";
   timezone: string;
   language: "en" | "fr";
   theme: "light" | "dark" | "system";
+  /** ISO date string (YYYY-MM-DD). Stored in the `extra` JSONB column server-side. */
+  dateOfBirth?: string;
+  /** Stored in the `extra` JSONB column server-side. Never sent raw to the LLM. */
+  biologicalSex?: BiologicalSex;
 }
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
