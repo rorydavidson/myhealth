@@ -12,11 +12,17 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import {
+  Activity,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Clock,
+  Cpu,
+  Database,
+  HardDrive,
   LogOut,
   RefreshCw,
+  Shield,
   ShieldAlert,
   ShieldCheck,
   Trash2,
@@ -43,6 +49,17 @@ interface Stats {
   usersWithPreferences: number;
 }
 
+interface SystemStats {
+  dbSizeBytes: number;
+  memoryRss: number;
+  memoryHeapUsed: number;
+  memoryHeapTotal: number;
+  processUptimeSeconds: number;
+  cpuPercent: number;
+  loadAvg: [number, number, number];
+  cpuCount: number;
+}
+
 interface AdminUser {
   id: string;
   shortId: string;
@@ -52,6 +69,7 @@ interface AdminUser {
   createdAt: string;
   lastSeen: string;
   activeSessions: number;
+  isAdmin: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -62,6 +80,12 @@ async function fetchStats(): Promise<Stats> {
   const res = await fetch("/api/admin/stats", { credentials: "include" });
   if (!res.ok) throw new Error(String(res.status));
   return res.json() as Promise<Stats>;
+}
+
+async function fetchSystem(): Promise<SystemStats> {
+  const res = await fetch("/api/admin/system", { credentials: "include" });
+  if (!res.ok) throw new Error(String(res.status));
+  return res.json() as Promise<SystemStats>;
 }
 
 async function fetchUsers(): Promise<AdminUser[]> {
@@ -98,6 +122,22 @@ function formatDateTime(iso: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+function formatUptime(seconds: number): string {
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor((seconds % 86400) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h ${m}m`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
 }
 
 // ---------------------------------------------------------------------------
@@ -141,10 +181,46 @@ function StatCard({
   );
 }
 
+function SystemStatCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  accent = "neutral",
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  icon: React.ElementType;
+  accent?: "neutral" | "blue" | "emerald" | "amber";
+}) {
+  const colors = {
+    neutral: "text-neutral-500 bg-neutral-100 dark:bg-neutral-800",
+    blue: "text-blue-500 bg-blue-50 dark:bg-blue-950/40",
+    emerald: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40",
+    amber: "text-amber-500 bg-amber-50 dark:bg-amber-950/40",
+  } as const;
+
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <div className={`rounded-md p-1.5 ${colors[accent]}`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+        <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
+          {value}
+        </p>
+        {sub && <p className="text-xs text-neutral-400 dark:text-neutral-500">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
 function SkeletonRow() {
   return (
     <tr className="animate-pulse">
-      {Array.from({ length: 7 }).map((_, i) => (
+      {Array.from({ length: 8 }).map((_, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: skeleton UI only
         <td key={i} className="px-4 py-3">
           <div className="h-4 w-3/4 rounded bg-neutral-100 dark:bg-neutral-800" />
@@ -299,6 +375,7 @@ type SortDir = "asc" | "desc";
 
 function AdminDashboard({ adminEmail }: { adminEmail: string }) {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [system, setSystem] = useState<SystemStats | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -311,8 +388,9 @@ function AdminDashboard({ adminEmail }: { adminEmail: string }) {
     setLoading(true);
     setError("");
     try {
-      const [s, u] = await Promise.all([fetchStats(), fetchUsers()]);
+      const [s, sys, u] = await Promise.all([fetchStats(), fetchSystem(), fetchUsers()]);
       setStats(s);
+      setSystem(sys);
       setUsers(u);
     } catch {
       setError("Failed to load admin data.");
@@ -496,6 +574,53 @@ function AdminDashboard({ adminEmail }: { adminEmail: string }) {
           )}
         </section>
 
+        {/* System stats */}
+        <section>
+          <h2 className="mb-4 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            System
+          </h2>
+          {system ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <SystemStatCard
+                label="Database size"
+                value={formatBytes(system.dbSizeBytes)}
+                icon={Database}
+                accent="blue"
+              />
+              <SystemStatCard
+                label="Heap memory"
+                value={formatBytes(system.memoryHeapUsed)}
+                sub={`of ${formatBytes(system.memoryHeapTotal)} total · RSS ${formatBytes(system.memoryRss)}`}
+                icon={HardDrive}
+                accent="neutral"
+              />
+              <SystemStatCard
+                label="CPU usage"
+                value={`${system.cpuPercent}%`}
+                sub={`Load avg ${system.loadAvg[0].toFixed(2)} / ${system.loadAvg[1].toFixed(2)} / ${system.loadAvg[2].toFixed(2)} · ${system.cpuCount} core${system.cpuCount !== 1 ? "s" : ""}`}
+                icon={Cpu}
+                accent={system.cpuPercent > 80 ? "amber" : "neutral"}
+              />
+              <SystemStatCard
+                label="Process uptime"
+                value={formatUptime(system.processUptimeSeconds)}
+                icon={Clock}
+                accent="emerald"
+              />
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: skeleton UI only
+                <div
+                  key={i}
+                  className="h-16 animate-pulse rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Users table */}
         <section>
           <div className="mb-4 flex items-center justify-between">
@@ -553,7 +678,11 @@ function AdminDashboard({ adminEmail }: { adminEmail: string }) {
                     sortedUsers.map((u) => (
                       <tr
                         key={u.id}
-                        className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                        className={
+                          u.isAdmin
+                            ? "bg-blue-50/40 dark:bg-blue-950/10"
+                            : "hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                        }
                       >
                         <td className="px-4 py-3 font-mono text-xs text-neutral-400 dark:text-neutral-500">
                           {u.shortId}
@@ -561,8 +690,18 @@ function AdminDashboard({ adminEmail }: { adminEmail: string }) {
                         <td className="px-4 py-3 text-neutral-700 dark:text-neutral-300">
                           {u.name}
                         </td>
-                        <td className="px-4 py-3 font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                          {u.email}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                              {u.email}
+                            </span>
+                            {u.isAdmin && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                                <Shield className="h-3 w-3" />
+                                Admin
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           {u.emailVerified ? (
@@ -587,7 +726,15 @@ function AdminDashboard({ adminEmail }: { adminEmail: string }) {
                           {u.activeSessions}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          {deletingId === u.id ? (
+                          {u.isAdmin ? (
+                            /* Admin row — protected, cannot be deleted */
+                            <span
+                              className="inline-flex items-center gap-1 rounded p-1 text-xs text-neutral-300 dark:text-neutral-600"
+                              title="Admin account cannot be deleted"
+                            >
+                              <Activity className="h-4 w-4" />
+                            </span>
+                          ) : deletingId === u.id ? (
                             <div className="flex items-center justify-end gap-2">
                               <span className="text-xs text-neutral-500">Delete?</span>
                               <button

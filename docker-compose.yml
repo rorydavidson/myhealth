@@ -47,6 +47,10 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-in-production}
       # Must match the public-facing web URL so magic link emails point to the right origin
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:5173}
+      # Admin dashboard access — set to the email address of the admin user
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      # Cloudflare Turnstile — server-side secret key (leave empty to disable)
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
     ports:
       - "3001:3001"
     depends_on:

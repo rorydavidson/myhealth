@@ -1,4 +1,5 @@
-import { count, desc, eq, gt } from "drizzle-orm";
+import os from "node:os";
+import { count, desc, eq, gt, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createDb, session as sessionTable, user, userPreferences } from "@health-app/db";
 import { auth } from "../auth.js";
@@ -106,10 +107,51 @@ export async function adminRoutes(app: FastifyInstance) {
   });
 
   /**
+   * GET /api/admin/system
+   * Process and database resource usage.
+   */
+  app.get("/admin/system", { preHandler: requireAdmin }, async () => {
+    // Sample CPU usage over a short interval so we get a meaningful percentage
+    const cpuBefore = process.cpuUsage();
+    const hrBefore = process.hrtime.bigint();
+    await new Promise<void>((resolve) => setTimeout(resolve, 150));
+    const cpuDelta = process.cpuUsage(cpuBefore);
+    const elapsedNs = Number(process.hrtime.bigint() - hrBefore);
+    const elapsedUs = elapsedNs / 1_000;
+    // Total CPU microseconds (user + sys) / elapsed / cores → fraction → %
+    const cpuPercent = Math.min(
+      100,
+      Math.round(((cpuDelta.user + cpuDelta.system) / elapsedUs / os.cpus().length) * 100),
+    );
+
+    // PostgreSQL database size
+    const dbSizeResult = await db.execute<{ size: string }>(
+      sql`SELECT pg_database_size(current_database()) AS size`,
+    );
+    const dbSizeBytes = Number(dbSizeResult[0]?.size ?? 0);
+
+    const mem = process.memoryUsage();
+
+    return {
+      dbSizeBytes,
+      memoryRss: mem.rss,
+      memoryHeapUsed: mem.heapUsed,
+      memoryHeapTotal: mem.heapTotal,
+      processUptimeSeconds: Math.floor(process.uptime()),
+      cpuPercent,
+      loadAvg: os.loadavg() as [number, number, number],
+      cpuCount: os.cpus().length,
+    };
+  });
+
+  /**
    * GET /api/admin/users
    * All users with masked PII, newest first.
+   * The admin account is flagged with isAdmin: true.
    */
   app.get("/admin/users", { preHandler: requireAdmin }, async () => {
+    const adminEmail = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
+
     const users = await db
       .select({
         id: user.id,
@@ -142,6 +184,8 @@ export async function adminRoutes(app: FastifyInstance) {
       createdAt: u.createdAt,
       lastSeen: u.updatedAt,
       activeSessions: sessionMap.get(u.id) ?? 0,
+      // Flag the admin account so the UI can protect it from accidental deletion
+      isAdmin: u.email.toLowerCase() === adminEmail,
     }));
   });
 
@@ -149,9 +193,24 @@ export async function adminRoutes(app: FastifyInstance) {
    * DELETE /api/admin/users/:id
    * Hard-deletes the user. Cascades to sessions, accounts, preferences,
    * and verification records via FK constraints.
+   * Refuses to delete the admin account.
    */
   app.delete("/admin/users/:id", { preHandler: requireAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string };
+
+    // Guard: look up the target user's email before deleting
+    const adminEmail = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
+    const [target] = await db.select({ email: user.email }).from(user).where(eq(user.id, id));
+
+    if (target && target.email.toLowerCase() === adminEmail) {
+      return reply.status(403).send({
+        type: "https://httpstatuses.com/403",
+        title: "Forbidden",
+        status: 403,
+        detail: "The admin account cannot be deleted.",
+      });
+    }
+
     await db.delete(user).where(eq(user.id, id));
     return reply.status(204).send();
   });
