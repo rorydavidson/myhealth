@@ -73,12 +73,9 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   // Build Patient resource
   const patientResource = buildPatientResource(patientId, patientName, patientBirthDate, biologicalSex);
 
-  // Build Vital Signs observations
-  const vitalSignObservations = await buildVitalSignObservations(
-    patientId,
-    timeRangeDays,
-    metricCoding,
-  );
+  // Build Vital Signs observations (also returns FHIR Device resources for provenance)
+  const { observations: vitalSignObservations, deviceResources: vitalSignDeviceResources } =
+    await buildVitalSignObservations(patientId, timeRangeDays, metricCoding);
 
   // Build Lab Result observations
   const labResultObservations = await buildLabResultObservations(patientId, includeLabResultIds);
@@ -104,11 +101,12 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
     allergyResources,
   );
 
-  // Assemble Bundle
+  // Assemble Bundle — Device resources follow the observations they are referenced from
   const entries: FHIRResource[] = [
     composition,
     patientResource,
     ...vitalSignObservations,
+    ...vitalSignDeviceResources,
     ...labResultObservations,
     ...conditionResources,
     ...medicationResources,
@@ -203,11 +201,34 @@ async function buildVitalSignObservations(
   patientId: string,
   timeRangeDays: number,
   metricCoding: typeof METRIC_CODING,
-): Promise<FHIRResource[]> {
+): Promise<{ observations: FHIRResource[]; deviceResources: FHIRResource[] }> {
   const observations: FHIRResource[] = [];
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - timeRangeDays);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  // Collect unique recording devices: key = "deviceName|sourcePlatform"
+  const deviceMap = new Map<
+    string,
+    { deviceId: string; deviceName?: string; sourcePlatform: string }
+  >();
+
+  /** Return the UUID for an existing device entry or create a new one. */
+  const getOrCreateDeviceId = (
+    sourceDevice?: string | null,
+    sourcePlatform?: string | null,
+  ): string | undefined => {
+    if (!sourcePlatform) return undefined;
+    const key = `${sourceDevice ?? ""}|${sourcePlatform}`;
+    if (!deviceMap.has(key)) {
+      deviceMap.set(key, {
+        deviceId: crypto.randomUUID(),
+        deviceName: sourceDevice ?? undefined,
+        sourcePlatform,
+      });
+    }
+    return deviceMap.get(key)!.deviceId;
+  };
 
   for (const metricType of VITAL_SIGN_METRICS) {
     const coding = metricCoding[metricType];
@@ -223,7 +244,7 @@ async function buildVitalSignObservations(
 
     // For blood pressure, we need special handling (systolic/diastolic components)
     if (metricType === "blood_pressure") {
-      // Get raw records for BP since we need metadata
+      // Get raw records for BP — needed for metadata and device provenance
       const records = await db.healthRecords
         .where("[metricType+startTime]")
         .between([metricType, cutoff], [metricType, new Date("9999-12-31")])
@@ -232,12 +253,13 @@ async function buildVitalSignObservations(
       if (records.length > 0) {
         // Use the most recent BP record
         const latest = records.sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
-
         const metadata = latest.metadata as { systolic?: number; diastolic?: number } | undefined;
 
         if (metadata?.systolic != null && metadata?.diastolic != null) {
           const obsId = crypto.randomUUID();
-          observations.push({
+          const deviceId = getOrCreateDeviceId(latest.sourceDevice, latest.sourcePlatform);
+
+          const obs: FHIRResource = {
             resourceType: "Observation",
             id: obsId,
             status: "final",
@@ -248,6 +270,7 @@ async function buildVitalSignObservations(
             },
             subject: { reference: `urn:uuid:${patientId}` },
             effectiveDateTime: latest.startTime.toISOString(),
+            note: [{ text: `Source: ${buildSourceDisplay(latest.sourceDevice, latest.sourcePlatform)}` }],
             component: [
               {
                 code: {
@@ -284,13 +307,31 @@ async function buildVitalSignObservations(
                 },
               },
             ],
-          });
+          };
+          if (deviceId) {
+            (obs as Record<string, unknown>).device = { reference: `urn:uuid:${deviceId}` };
+          }
+          observations.push(obs);
         }
       }
       continue;
     }
 
-    // For other vital signs, use the most recent daily summary
+    // For other vital signs, look up the most recent raw record to obtain device provenance.
+    // (Daily summaries don't carry device info; the raw record does.)
+    const recentRecords = await db.healthRecords
+      .where("[metricType+startTime]")
+      .between([metricType, cutoff], [metricType, new Date("9999-12-31")])
+      .toArray();
+    const mostRecent =
+      recentRecords.length > 0
+        ? recentRecords.sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0]
+        : undefined;
+
+    const deviceId = getOrCreateDeviceId(mostRecent?.sourceDevice, mostRecent?.sourcePlatform);
+    const sourceText = `Source: ${buildSourceDisplay(mostRecent?.sourceDevice, mostRecent?.sourcePlatform)}`;
+
+    // Use the most recent daily summary for the aggregate value
     const latest = summaries.sort((a, b) => b.date.localeCompare(a.date))[0];
     const value = latest.avg ?? latest.sum;
     if (value == null) continue;
@@ -298,7 +339,7 @@ async function buildVitalSignObservations(
     const unit = getUnitForMetric(metricType);
     const obsId = crypto.randomUUID();
 
-    observations.push({
+    const obs: FHIRResource = {
       resourceType: "Observation",
       id: obsId,
       status: "final",
@@ -315,10 +356,18 @@ async function buildVitalSignObservations(
         system: "http://unitsofmeasure.org",
         code: unit.ucum,
       },
-    });
+      note: [{ text: sourceText }],
+    };
+    if (deviceId) {
+      (obs as Record<string, unknown>).device = { reference: `urn:uuid:${deviceId}` };
+    }
+    observations.push(obs);
   }
 
-  return observations;
+  // Build FHIR Device resources from the unique devices discovered above
+  const deviceResources: FHIRResource[] = Array.from(deviceMap.values()).map(buildDeviceResource);
+
+  return { observations, deviceResources };
 }
 
 async function buildLabResultObservations(
@@ -800,6 +849,48 @@ function emptySection(section: { code: string; display: string }) {
   };
 }
 
+/** Map an internal source platform identifier to a human-readable label. */
+function formatPlatform(sourcePlatform: string | null | undefined): string {
+  if (sourcePlatform === "apple_health") return "Apple Health";
+  if (sourcePlatform === "health_connect") return "Health Connect";
+  return sourcePlatform ?? "consumer health app";
+}
+
+/**
+ * Build a short human-readable source string for a measurement, e.g.:
+ *   "Apple Watch Series 9 via Apple Health"
+ *   "Apple Health"   (when no device name is recorded)
+ */
+function buildSourceDisplay(
+  deviceName?: string | null,
+  sourcePlatform?: string | null,
+): string {
+  const platform = formatPlatform(sourcePlatform);
+  return deviceName ? `${deviceName} via ${platform}` : platform;
+}
+
+/**
+ * Build a minimal FHIR R4 Device resource representing the recording device.
+ * Includes a human-readable name and a note indicating the import platform.
+ */
+function buildDeviceResource(info: {
+  deviceId: string;
+  deviceName?: string;
+  sourcePlatform: string;
+}): FHIRResource {
+  const resource: FHIRResource = {
+    resourceType: "Device",
+    id: info.deviceId,
+    note: [{ text: `Data imported via ${formatPlatform(info.sourcePlatform)}` }],
+  };
+  if (info.deviceName) {
+    (resource as Record<string, unknown>).deviceName = [
+      { name: info.deviceName, type: "user-friendly-name" },
+    ];
+  }
+  return resource;
+}
+
 function getUnitForMetric(metricType: string): { display: string; ucum: string } {
   const unitMap: Record<string, { display: string; ucum: string }> = {
     heart_rate: { display: "beats/minute", ucum: "/min" },
@@ -920,6 +1011,7 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
   const sections =
     (composition?.section as Array<{
       title: string;
+      code?: { coding?: Array<{ system?: string; code?: string }> };
       entry?: Array<{ reference: string }>;
       emptyReason?: unknown;
     }>) ?? [];
@@ -1068,15 +1160,30 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
         margin: [0, 0, 0, 4],
       });
     } else {
-      // Render observations (vital signs, lab results)
-      const tableBody: Array<Array<string | Record<string, unknown>>> = [
-        [
-          { text: "Test", style: "tableHeader" },
-          { text: "Code", style: "tableHeader" },
-          { text: "Value", style: "tableHeader" },
-          { text: "Date", style: "tableHeader" },
-        ],
+      // Render observations (vital signs, lab results).
+      // Vital signs carry device provenance (Source column); lab results do not.
+      const sectionLoincCode = section.code?.coding?.find((c) => c.system?.includes("loinc"))?.code;
+      const isVitalSignsSection = sectionLoincCode === IPS_SECTIONS.vitalSigns.code;
+
+      if (isVitalSignsSection) {
+        content.push({
+          text: "Measurements recorded by consumer wearable devices or health apps — not clinical-grade instruments. See Source column for device provenance.",
+          style: "muted",
+          margin: [0, 0, 0, 6],
+        });
+      }
+
+      const tableHeaders: Array<Record<string, unknown>> = [
+        { text: "Test", style: "tableHeader" },
+        { text: "Code", style: "tableHeader" },
+        { text: "Value", style: "tableHeader" },
+        { text: "Date", style: "tableHeader" },
       ];
+      if (isVitalSignsSection) {
+        tableHeaders.push({ text: "Source", style: "tableHeader" });
+      }
+
+      const tableBody: Array<Array<string | Record<string, unknown>>> = [tableHeaders];
 
       for (const obs of sectionResources) {
         const codeField = obs.code as
@@ -1085,12 +1192,8 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
         const testName = codeField?.text ?? "—";
 
         // Prefer SNOMED CT code for display; fall back to LOINC
-        const snomedEntry = codeField?.coding?.find((c) =>
-          c.system?.includes("snomed"),
-        );
-        const loincEntry = codeField?.coding?.find((c) =>
-          c.system?.includes("loinc"),
-        );
+        const snomedEntry = codeField?.coding?.find((c) => c.system?.includes("snomed"));
+        const loincEntry = codeField?.coding?.find((c) => c.system?.includes("loinc"));
         const preferredEntry = snomedEntry ?? loincEntry;
         const codeLabel = preferredEntry
           ? `${preferredEntry.code}\n(${snomedEntry ? "SNOMED CT" : "LOINC"})`
@@ -1124,13 +1227,27 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
         const effectiveDate = obs.effectiveDateTime as string | undefined;
         const dateStr = effectiveDate ? new Date(effectiveDate).toLocaleDateString() : "—";
 
-        tableBody.push([testName, { text: codeLabel, style: "code" }, value, dateStr]);
+        const row: Array<string | Record<string, unknown>> = [
+          testName,
+          { text: codeLabel, style: "code" },
+          value,
+          dateStr,
+        ];
+
+        if (isVitalSignsSection) {
+          // Extract the source note written by buildVitalSignObservations
+          const noteText =
+            (obs.note as Array<{ text: string }> | undefined)?.[0]?.text?.replace(/^Source:\s*/i, "") ?? "—";
+          row.push({ text: noteText, style: "small" });
+        }
+
+        tableBody.push(row);
       }
 
       content.push({
         table: {
           headerRows: 1,
-          widths: ["*", "auto", "auto", "auto"],
+          widths: isVitalSignsSection ? ["*", "auto", "auto", "auto", "*"] : ["*", "auto", "auto", "auto"],
           body: tableBody,
         },
         layout: "lightHorizontalLines",
