@@ -3,6 +3,7 @@
   "description": "Générez un résumé patient international (IPS) — un dossier de santé standardisé que vous pouvez partager avec vos professionnels de santé.",
   "whatIsIps": "Qu'est-ce qu'un IPS ?",
   "whatIsIpsDetail": "Un résumé patient international est un dossier de santé minimal et portable suivant le standard HL7 FHIR (ISO/EN 27269). Il contient les informations cliniques essentielles pour les soins transfrontaliers ou entre prestataires.",
+  "whatIsIpsLearnMore": "En savoir plus sur le standard IPS →",
   "form": {
     "nameLabel": "Votre nom",
     "namePlaceholder": "Tel qu'il doit apparaître sur le résumé",

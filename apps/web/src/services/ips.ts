@@ -14,6 +14,7 @@ import type { METRIC_CODING } from "@health-app/shared/coding";
 import type { AllergyRow, ClinicalConditionRow, MedicationRow } from "@/db";
 import { db } from "@/db";
 import type { SnomedConcept } from "@/services/snomed";
+import snomedLogoUrl from "@/assets/snomed-logo.png";
 
 // IPS Section LOINC codes
 const IPS_SECTIONS = {
@@ -837,7 +838,10 @@ export async function exportIPSAsJson(options: IPSExportOptions): Promise<void> 
  * Export the IPS Bundle as a human-readable PDF.
  */
 export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
-  const bundle = await generateIPSBundle(options);
+  const [bundle, snomedLogoBase64] = await Promise.all([
+    generateIPSBundle(options),
+    loadImageAsDataUri(snomedLogoUrl),
+  ]);
   const pdfMake = await import("pdfmake/build/pdfmake");
 
   // Extract data from bundle for PDF rendering
@@ -869,10 +873,20 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
 
   const content: Array<Record<string, unknown>> = [];
 
-  // Title
+  // Title + SNOMED International logo — two-column header
   content.push({
-    text: "International Patient Summary",
-    style: "header",
+    columns: [
+      {
+        text: "International Patient Summary",
+        style: "header",
+        width: "*",
+      },
+      {
+        image: "snomedLogo",
+        width: 48,
+        alignment: "right",
+      },
+    ],
     margin: [0, 0, 0, 10],
   });
 
@@ -1134,6 +1148,14 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
 
   const docDefinition = {
     content,
+    images: {
+      snomedLogo: snomedLogoBase64,
+    },
+    footer: (currentPage: number, pageCount: number) => ({
+      text: `Created using tooling developed by SNOMED International (snomed.org)  —  Page ${currentPage} of ${pageCount}`,
+      style: "disclaimer",
+      margin: [40, 10, 40, 0],
+    }),
     styles: {
       header: { fontSize: 18, bold: true },
       subheader: { fontSize: 13, bold: true },
@@ -1226,6 +1248,18 @@ export async function getIPSPreview(
   const allergyCount = await db.allergies.count();
 
   return { vitalSignMetrics, labResults, conditionCount, medicationCount, allergyCount };
+}
+
+/** Fetch an asset URL (as produced by Vite) and return it as a base64 data URI for pdfmake. */
+async function loadImageAsDataUri(url: string): Promise<string> {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 function downloadBlob(blob: Blob, fileName: string): void {

@@ -140,6 +140,14 @@ function PatientSummaryPage() {
           <div>
             <h2 className="mb-1 text-sm font-semibold">{t("whatIsIps")}</h2>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("whatIsIpsDetail")}</p>
+            <a
+              href="https://international-patient-summary.net/patient/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block text-sm text-blue-500 hover:underline"
+            >
+              {t("whatIsIpsLearnMore")}
+            </a>
           </div>
         </div>
       </Card>

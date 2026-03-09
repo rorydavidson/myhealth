@@ -3,6 +3,7 @@
   "description": "Generate an International Patient Summary (IPS) — a standardized health record you can share with healthcare providers.",
   "whatIsIps": "What is an IPS?",
   "whatIsIpsDetail": "An International Patient Summary is a minimal, portable health record following the HL7 FHIR standard (ISO/EN 27269). It contains essential clinical information for cross-border or cross-provider care.",
+  "whatIsIpsLearnMore": "Learn more about the IPS standard →",
   "form": {
     "nameLabel": "Your name",
     "namePlaceholder": "As it should appear on the summary",
