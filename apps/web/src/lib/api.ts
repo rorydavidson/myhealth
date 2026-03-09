@@ -2,7 +2,8 @@
 const API_BASE =
   import.meta.env.DEV ? "" : (import.meta.env.VITE_API_URL ?? "");
 
-export type BiologicalSex = "male" | "female" | "intersex" | "prefer_not_to_say";
+/** SNOMED CT code string from the "Finding related to biological sex" hierarchy (< 429019009). */
+export type BiologicalSex = string;
 
 export interface UserPreferences {
   units: "metric" | "imperial";

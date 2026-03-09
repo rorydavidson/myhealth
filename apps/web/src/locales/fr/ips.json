@@ -9,6 +9,7 @@
     "namePrivacy": "Votre nom est uniquement inclus dans le fichier exporté — il n'est ni stocké ni envoyé à nos serveurs.",
     "dobLabel": "Date de naissance",
     "genderLabel": "Sexe biologique",
+    "sexLoading": "Chargement…",
     "genderOptions": {
       "unspecified": "Préfère ne pas préciser",
       "male": "Homme",

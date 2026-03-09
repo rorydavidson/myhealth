@@ -84,7 +84,8 @@ export const preferencesRoutes: FastifyPluginAsync = async (app) => {
           theme: { type: "string", enum: ["light", "dark", "system"] },
           // ISO 8601 date — YYYY-MM-DD
           dateOfBirth: { type: "string", pattern: "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])$" },
-          biologicalSex: { type: "string", enum: ["male", "female", "intersex", "prefer_not_to_say"] },
+          // SNOMED CT code from the biological sex hierarchy (< 429019009) — numeric string up to 18 digits
+          biologicalSex: { type: "string", maxLength: 40 },
         },
       },
       response: {

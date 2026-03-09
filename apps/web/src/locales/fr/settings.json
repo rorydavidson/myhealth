@@ -10,6 +10,7 @@
     "nameSaved": "Nom mis à jour",
     "dateOfBirth": "Date de naissance",
     "biologicalSex": "Sexe biologique",
+    "sexLoading": "Chargement…",
     "sexOptions": {
       "placeholder": "Préfère ne pas répondre",
       "male": "Masculin",
@@ -57,6 +58,9 @@
     "statsRecords": "Enregistrements de santé",
     "statsSummaries": "Résumés quotidiens",
     "statsLabResults": "Résultats de laboratoire",
+    "statsConditions": "Conditions",
+    "statsMedications": "Médicaments",
+    "statsAllergies": "Allergies",
     "statsImports": "Importations",
     "statsSize": "Taille estimée"
   },

@@ -13,6 +13,7 @@
 import type { METRIC_CODING } from "@health-app/shared/coding";
 import type { AllergyRow, ClinicalConditionRow, MedicationRow } from "@/db";
 import { db } from "@/db";
+import type { SnomedConcept } from "@/services/snomed";
 
 // IPS Section LOINC codes
 const IPS_SECTIONS = {
@@ -37,8 +38,12 @@ export interface IPSExportOptions {
   patientName: string;
   /** Date of birth in YYYY-MM-DD format, entered at export time — never stored on the server. */
   patientBirthDate?: string;
-  /** Administrative gender per FHIR R4 value set. */
-  patientGender?: "male" | "female" | "other" | "unknown";
+  /**
+   * Biological sex as a SNOMED CT concept from the "Finding related to biological sex"
+   * hierarchy (descendants of 429019009).  Stored as a full SnomedConcept so the FHIR
+   * export can include the coded value in the individual-recordedSexOrGender extension.
+   */
+  biologicalSex?: SnomedConcept;
   timeRangeDays: number; // e.g., 30, 90, 180, 365
   includeLabResultIds: string[];
 }
@@ -53,7 +58,7 @@ interface FHIRResource {
  * Generate a FHIR IPS Bundle from local health data.
  */
 export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIRResource> {
-  const { patientName, patientBirthDate, patientGender, timeRangeDays, includeLabResultIds } =
+  const { patientName, patientBirthDate, biologicalSex, timeRangeDays, includeLabResultIds } =
     options;
 
   // Load METRIC_CODING dynamically to avoid circular imports
@@ -65,7 +70,7 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   const now = new Date().toISOString();
 
   // Build Patient resource
-  const patientResource = buildPatientResource(patientId, patientName, patientBirthDate, patientGender);
+  const patientResource = buildPatientResource(patientId, patientName, patientBirthDate, biologicalSex);
 
   // Build Vital Signs observations
   const vitalSignObservations = await buildVitalSignObservations(
@@ -121,11 +126,24 @@ export async function generateIPSBundle(options: IPSExportOptions): Promise<FHIR
   };
 }
 
+/**
+ * Derive the FHIR R4 administrative gender from a SNOMED CT biological sex concept.
+ * The mapping is intentionally conservative:
+ *   248153007 Male   → "male"
+ *   248152002 Female → "female"
+ *   all others       → "other"
+ */
+function snomedSexToFhirGender(code: string): "male" | "female" | "other" {
+  if (code === "248153007") return "male";
+  if (code === "248152002") return "female";
+  return "other";
+}
+
 function buildPatientResource(
   patientId: string,
   name: string,
   birthDate?: string,
-  gender?: "male" | "female" | "other" | "unknown",
+  biologicalSex?: SnomedConcept,
 ): FHIRResource {
   const nameParts = name.trim().split(/\s+/);
   const family = nameParts.length > 1 ? nameParts.slice(-1)[0] : name;
@@ -149,9 +167,32 @@ function buildPatientResource(
     (patient as Record<string, unknown>).birthDate = birthDate;
   }
 
-  // Include administrative gender if provided (FHIR R4 value set)
-  if (gender) {
-    (patient as Record<string, unknown>).gender = gender;
+  if (biologicalSex) {
+    // Derive FHIR administrative gender from the SNOMED code
+    (patient as Record<string, unknown>).gender = snomedSexToFhirGender(biologicalSex.code);
+
+    // Emit the proper FHIR R4 individual-recordedSexOrGender extension with the full
+    // SNOMED CT CodeableConcept — this is the clinically precise representation
+    (patient as Record<string, unknown>).extension = [
+      {
+        url: "http://hl7.org/fhir/StructureDefinition/individual-recordedSexOrGender",
+        extension: [
+          {
+            url: "value",
+            valueCodeableConcept: {
+              coding: [
+                {
+                  system: biologicalSex.system,
+                  code: biologicalSex.code,
+                  display: biologicalSex.display,
+                },
+              ],
+              text: biologicalSex.display,
+            },
+          },
+        ],
+      },
+    ];
   }
 
   return patient;
@@ -841,6 +882,20 @@ export async function exportIPSAsPdf(options: IPSExportOptions): Promise<void> {
     style: "subheader",
     margin: [0, 0, 0, 4],
   });
+  if (options.patientBirthDate) {
+    content.push({
+      text: `Date of birth: ${options.patientBirthDate}`,
+      style: "small",
+      margin: [0, 0, 0, 4],
+    });
+  }
+  if (options.biologicalSex) {
+    content.push({
+      text: `Biological sex: ${options.biologicalSex.display} (SNOMED CT ${options.biologicalSex.code})`,
+      style: "small",
+      margin: [0, 0, 0, 4],
+    });
+  }
   content.push({
     text: `Generated: ${new Date(bundle.timestamp as string).toLocaleDateString()}`,
     style: "small",

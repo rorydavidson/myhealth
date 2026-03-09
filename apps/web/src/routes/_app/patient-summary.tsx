@@ -6,8 +6,10 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { db } from "@/db";
+import { usePreferences, useUpdatePreferences } from "@/hooks/use-preferences";
 import { useSession } from "@/lib/auth-client";
 import { exportIPSAsJson, exportIPSAsPdf, getIPSPreview } from "@/services/ips";
+import { type SnomedConcept, loadBiologicalSexConcepts } from "@/services/snomed";
 
 export const Route = createFileRoute("/_app/patient-summary")({
   component: PatientSummaryPage,
@@ -22,20 +24,46 @@ const inputClassName =
 function PatientSummaryPage() {
   const { t } = useTranslation("ips");
   const { data: session } = useSession();
+  const { data: prefs } = usePreferences();
+  const { mutate: saveToPrefs } = useUpdatePreferences();
 
   const [patientName, setPatientName] = useState(session?.user?.name ?? "");
   const [patientBirthDate, setPatientBirthDate] = useState("");
-  const [patientGender, setPatientGender] = useState<"male" | "female" | "other" | "unknown" | "">(
-    "",
-  );
+  const [biologicalSex, setBiologicalSex] = useState<SnomedConcept | null>(null);
+  const [sexConcepts, setSexConcepts] = useState<SnomedConcept[]>([]);
+  const [sexConceptsLoading, setSexConceptsLoading] = useState(true);
   const [timeRangeDays, setTimeRangeDays] = useState(90);
 
-  // Pre-fill name from session once it loads (only if user hasn't typed anything)
+  // Sync name from session whenever it loads (no guard — handles async session load)
   useEffect(() => {
-    if (session?.user?.name && !patientName) {
+    if (session?.user?.name) {
       setPatientName(session.user.name);
     }
   }, [session?.user?.name]);
+
+  // Always sync DOB from prefs — no guard so async/re-load works correctly
+  useEffect(() => {
+    setPatientBirthDate(prefs?.dateOfBirth ?? "");
+  }, [prefs?.dateOfBirth]);
+
+  // Load biological sex concepts from the FHIR terminology server on mount (cached globally)
+  useEffect(() => {
+    loadBiologicalSexConcepts().then((concepts) => {
+      setSexConcepts(concepts);
+      setSexConceptsLoading(false);
+    });
+  }, []);
+
+  // Always sync sex from prefs when concepts are available — compare by code to avoid object churn
+  useEffect(() => {
+    if (sexConcepts.length === 0) return;
+    const found = prefs?.biologicalSex
+      ? (sexConcepts.find((c) => c.code === prefs.biologicalSex) ?? null)
+      : null;
+    if (found?.code !== biologicalSex?.code) {
+      setBiologicalSex(found);
+    }
+  }, [prefs?.biologicalSex, sexConcepts]);
   const [selectedLabIds, setSelectedLabIds] = useState<string[]>([]);
   const [exporting, setExporting] = useState(false);
   const [preview, setPreview] = useState<{
@@ -67,14 +95,14 @@ function PatientSummaryPage() {
       await exportIPSAsJson({
         patientName: patientName.trim(),
         patientBirthDate: patientBirthDate || undefined,
-        patientGender: patientGender || undefined,
+        biologicalSex: biologicalSex ?? undefined,
         timeRangeDays,
         includeLabResultIds: selectedLabIds,
       });
     } finally {
       setExporting(false);
     }
-  }, [patientName, patientBirthDate, patientGender, timeRangeDays, selectedLabIds]);
+  }, [patientName, patientBirthDate, biologicalSex, timeRangeDays, selectedLabIds]);
 
   const handleExportPdf = useCallback(async () => {
     if (!patientName.trim()) return;
@@ -83,14 +111,14 @@ function PatientSummaryPage() {
       await exportIPSAsPdf({
         patientName: patientName.trim(),
         patientBirthDate: patientBirthDate || undefined,
-        patientGender: patientGender || undefined,
+        biologicalSex: biologicalSex ?? undefined,
         timeRangeDays,
         includeLabResultIds: selectedLabIds,
       });
     } finally {
       setExporting(false);
     }
-  }, [patientName, patientBirthDate, patientGender, timeRangeDays, selectedLabIds]);
+  }, [patientName, patientBirthDate, biologicalSex, timeRangeDays, selectedLabIds]);
 
   const metricDisplayNames: Record<string, string> = {
     heart_rate: "Heart Rate",
@@ -149,6 +177,12 @@ function PatientSummaryPage() {
               type="date"
               value={patientBirthDate}
               onChange={(e) => setPatientBirthDate(e.target.value)}
+              onBlur={(e) => {
+                const val = e.target.value;
+                if (val !== (prefs?.dateOfBirth ?? "")) {
+                  saveToPrefs({ dateOfBirth: val || undefined });
+                }
+              }}
               className={inputClassName}
             />
           </div>
@@ -158,19 +192,25 @@ function PatientSummaryPage() {
             </label>
             <select
               id="patient-gender"
-              value={patientGender}
-              onChange={(e) =>
-                setPatientGender(
-                  e.target.value as "male" | "female" | "other" | "unknown" | "",
-                )
-              }
+              value={biologicalSex?.code ?? ""}
+              onChange={(e) => {
+                const concept = sexConcepts.find((c) => c.code === e.target.value) ?? null;
+                setBiologicalSex(concept);
+                saveToPrefs({ biologicalSex: e.target.value || undefined });
+              }}
+              disabled={sexConceptsLoading}
               className={`${selectClassName} w-full`}
             >
-              <option value="">{t("form.genderOptions.unspecified")}</option>
-              <option value="male">{t("form.genderOptions.male")}</option>
-              <option value="female">{t("form.genderOptions.female")}</option>
-              <option value="other">{t("form.genderOptions.other")}</option>
-              <option value="unknown">{t("form.genderOptions.unknown")}</option>
+              <option value="">
+                {sexConceptsLoading
+                  ? t("form.sexLoading")
+                  : t("form.genderOptions.unspecified")}
+              </option>
+              {sexConcepts.map((concept) => (
+                <option key={concept.code} value={concept.code}>
+                  {concept.display}
+                </option>
+              ))}
             </select>
           </div>
         </div>

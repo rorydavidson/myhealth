@@ -21,6 +21,9 @@ const SNOMED_SYNONYM_CODE = "900000000000013009";
 // SNOMED CT "Clinical finding" hierarchy: 404684003
 const CLINICAL_FINDING_ECL = "< 404684003 |Clinical finding|";
 
+// Biological sex — all descendants of "Finding related to biological sex" (429019009)
+const BIOLOGICAL_SEX_ECL = "< 429019009 |Finding related to biological sex|";
+
 // Pharmaceutical / biologic products — for medication search
 const MEDICATION_ECL = "< 373873005 |Pharmaceutical / biologic product|";
 
@@ -247,6 +250,70 @@ export async function lookupSnomedCode(code: string): Promise<SnomedConcept | nu
   }
 
   return null;
+}
+
+// Hard-coded fallback for biological sex when the terminology server is unavailable.
+// These four concepts are the direct children of 429019009 in the International Edition.
+const BIOLOGICAL_SEX_FALLBACK: SnomedConcept[] = [
+  { code: "248152002", display: "Female", system: SNOMED_SYSTEM },
+  { code: "248153007", display: "Male", system: SNOMED_SYSTEM },
+  { code: "32570681000036106", display: "Indeterminate sex", system: SNOMED_SYSTEM },
+  { code: "32570691000036108", display: "Intersex", system: SNOMED_SYSTEM },
+];
+
+// Module-level singleton — shared across all consumers, fetched at most once per page load.
+let _biologicalSexConceptsCache: Promise<SnomedConcept[]> | null = null;
+
+/**
+ * Load all SNOMED CT concepts in the "Finding related to biological sex" hierarchy
+ * (direct descendants of 429019009) from the configured FHIR terminology server.
+ *
+ * The result is cached at the module level so the network request fires at most once per
+ * page load, regardless of how many components call this function.
+ *
+ * Falls back to a static list of the four standard concepts if the server is
+ * unavailable or returns an error.
+ */
+export function loadBiologicalSexConcepts(): Promise<SnomedConcept[]> {
+  if (!_biologicalSexConceptsCache) {
+    _biologicalSexConceptsCache = _fetchBiologicalSexConcepts();
+  }
+  return _biologicalSexConceptsCache;
+}
+
+async function _fetchBiologicalSexConcepts(): Promise<SnomedConcept[]> {
+  const params = new URLSearchParams({
+    url: `${SNOMED_SYSTEM}?fhir_vs=ecl/${encodeURIComponent(BIOLOGICAL_SEX_ECL)}`,
+    count: "20",
+  });
+
+  try {
+    const res = await fetch(`${FHIR_BASE_URL}/ValueSet/$expand?${params.toString()}`, {
+      headers: { Accept: "application/fhir+json" },
+    });
+
+    if (!res.ok) return BIOLOGICAL_SEX_FALLBACK;
+
+    const data = await res.json();
+    const contains = data.expansion?.contains as FhirConcept[] | undefined;
+
+    if (!contains?.length) return BIOLOGICAL_SEX_FALLBACK;
+
+    const concepts = contains
+      .filter(
+        (c): c is FhirConcept & { code: string; display: string } =>
+          Boolean(c.code && c.display),
+      )
+      .map((c) => ({
+        code: c.code,
+        display: c.display,
+        system: c.system ?? SNOMED_SYSTEM,
+      }));
+
+    return concepts.length > 0 ? concepts : BIOLOGICAL_SEX_FALLBACK;
+  } catch {
+    return BIOLOGICAL_SEX_FALLBACK;
+  }
 }
 
 /**

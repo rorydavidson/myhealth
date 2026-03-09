@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/db";
 import { usePreferences, useUpdatePreferences } from "@/hooks/use-preferences";
 import { authClient, useSession } from "@/lib/auth-client";
-import type { BiologicalSex } from "@/lib/api";
+import { loadBiologicalSexConcepts, type SnomedConcept } from "@/services/snomed";
 import {
   clearAllData,
   exportDataAsCsv,
@@ -27,6 +27,9 @@ interface StorageStats {
   healthRecords: number;
   dailySummaries: number;
   labResults: number;
+  clinicalConditions: number;
+  medications: number;
+  allergies: number;
   imports: number;
   estimatedSizeMB: string;
 }
@@ -38,12 +41,16 @@ function useStorageStats() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const [healthRecords, dailySummaries, labResults, imports] = await Promise.all([
-        db.healthRecords.count(),
-        db.dailySummaries.count(),
-        db.labResults.count(),
-        db.imports.count(),
-      ]);
+      const [healthRecords, dailySummaries, labResults, clinicalConditions, medications, allergies, imports] =
+        await Promise.all([
+          db.healthRecords.count(),
+          db.dailySummaries.count(),
+          db.labResults.count(),
+          db.clinicalConditions.count(),
+          db.medications.count(),
+          db.allergies.count(),
+          db.imports.count(),
+        ]);
 
       // Estimate storage usage via navigator.storage API
       let estimatedSizeMB = "—";
@@ -58,6 +65,9 @@ function useStorageStats() {
         healthRecords,
         dailySummaries,
         labResults,
+        clinicalConditions,
+        medications,
+        allergies,
         imports,
         estimatedSizeMB,
       });
@@ -93,6 +103,17 @@ function SettingsPage() {
   const [sexInput, setSexInput] = useState(prefs?.biologicalSex ?? "");
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
+
+  const [sexConcepts, setSexConcepts] = useState<SnomedConcept[]>([]);
+  const [sexConceptsLoading, setSexConceptsLoading] = useState(true);
+
+  // Load biological sex concepts from the FHIR terminology server on mount (cached globally)
+  useEffect(() => {
+    loadBiologicalSexConcepts().then((concepts) => {
+      setSexConcepts(concepts);
+      setSexConceptsLoading(false);
+    });
+  }, []);
 
   // Sync nameInput when session loads
   useEffect(() => {
@@ -133,7 +154,7 @@ function SettingsPage() {
         update(
           {
             dateOfBirth: dobInput || undefined,
-            biologicalSex: (sexInput as BiologicalSex) || undefined,
+            biologicalSex: sexInput || undefined,
           },
           { onSuccess: () => resolve(), onError: reject },
         );
@@ -323,14 +344,19 @@ function SettingsPage() {
                   id="profile-sex"
                   value={sexInput}
                   onChange={(e) => setSexInput(e.target.value)}
-                  disabled={profileSaving}
-                  className={selectClassName}
+                  disabled={profileSaving || sexConceptsLoading}
+                  className={`${selectClassName} w-full`}
                 >
-                  <option value="">{t("profile.sexOptions.placeholder")}</option>
-                  <option value="male">{t("profile.sexOptions.male")}</option>
-                  <option value="female">{t("profile.sexOptions.female")}</option>
-                  <option value="intersex">{t("profile.sexOptions.intersex")}</option>
-                  <option value="prefer_not_to_say">{t("profile.sexOptions.prefer_not_to_say")}</option>
+                  <option value="">
+                    {sexConceptsLoading
+                      ? t("profile.sexLoading")
+                      : t("profile.sexOptions.placeholder")}
+                  </option>
+                  {sexConcepts.map((concept) => (
+                    <option key={concept.code} value={concept.code}>
+                      {concept.display}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -470,6 +496,24 @@ function SettingsPage() {
               </div>
               <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
                 {stats.labResults.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsConditions")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.clinicalConditions.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsMedications")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.medications.toLocaleString()}
+              </div>
+              <div className="text-neutral-500 dark:text-neutral-400">
+                {t("storage.statsAllergies")}
+              </div>
+              <div className="tabular-nums font-medium text-neutral-900 dark:text-neutral-50">
+                {stats.allergies.toLocaleString()}
               </div>
               <div className="text-neutral-500 dark:text-neutral-400">
                 {t("storage.statsImports")}
