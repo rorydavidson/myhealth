@@ -84,7 +84,10 @@ async function streamXmlFromZipToWorker(
       // Check if this entry is the export.xml file
       const fileName = stream.name.split("/").pop()?.toLowerCase();
       if (fileName !== "export.xml") {
-        // Skip other files in the ZIP
+        // Skip other files in the ZIP (e.g. __MACOSX/._export.xml on macOS-created ZIPs).
+        // fflate throws "no stream handler" (err 5) if start() is called without ondata set,
+        // so assign a no-op handler to discard decompressed bytes before starting the stream.
+        stream.ondata = () => {};
         stream.start();
         return;
       }
