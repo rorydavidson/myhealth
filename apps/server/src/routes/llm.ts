@@ -45,32 +45,32 @@ const querySchema = z.object({
   enhanced: z.boolean().optional(),
 });
 
-// Simple in-memory rate limiter
-const rateLimiter = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 20; // requests per window
-const RATE_WINDOW_MS = 60_000; // 1 minute
-
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = rateLimiter.get(userId);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimiter.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return true;
-  }
-
-  if (entry.count >= RATE_LIMIT) {
-    return false;
-  }
-
-  entry.count++;
-  return true;
-}
-
 export async function llmRoutes(app: FastifyInstance) {
   app.post<{ Body: z.infer<typeof querySchema> }>(
     "/llm/query",
-    { preHandler: [requireAuth] },
+    {
+      preHandler: [requireAuth],
+      // Rate-limit per authenticated user (not per IP) so that users behind
+      // NAT or a shared IP don't interfere with each other, and so that a
+      // single user can't circumvent the limit by rotating IPs.
+      // requireAuth runs first so session is always populated here.
+      config: {
+        rateLimit: {
+          max: 20,
+          timeWindow: "1 minute",
+          keyGenerator: (req) => {
+            const session = (req as unknown as { session?: { user?: { id?: string } } }).session;
+            return session?.user?.id ?? req.ip;
+          },
+          errorResponseBuilder: (_req: unknown, context: { after: string }) => ({
+            type: "https://httpstatuses.com/429",
+            title: "Rate limit exceeded",
+            status: 429,
+            detail: `Too many requests. Please wait ${context.after} before trying again.`,
+          }),
+        },
+      },
+    },
     async (request, reply) => {
       const apiKey = getAnthropicApiKey();
       if (!apiKey) {
@@ -94,19 +94,6 @@ export async function llmRoutes(app: FastifyInstance) {
       }
 
       const { messages, healthContext } = parseResult.data;
-
-      // Rate limiting
-      const session = (request as unknown as { session: { user: { id: string } } }).session;
-      const userId = session.user.id;
-
-      if (!checkRateLimit(userId)) {
-        return reply.status(429).send({
-          type: "https://httpstatuses.com/429",
-          title: "Rate limit exceeded",
-          status: 429,
-          detail: "Too many requests. Please wait a moment before trying again.",
-        });
-      }
 
       // Build system prompt with optional health context
       let systemPrompt = HEALTH_SYSTEM_PROMPT;

@@ -168,11 +168,12 @@ function LoginGate() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const origin = window.location.origin;
     const { error: err } = await signIn.magicLink({
       email,
-      callbackURL: "/admin",
+      callbackURL: `${origin}/admin`,
       // @ts-ignore — Better Auth supports newUserCallbackURL; client types may lag
-      newUserCallbackURL: "/admin",
+      newUserCallbackURL: `${origin}/admin`,
     });
     setLoading(false);
     if (err) {

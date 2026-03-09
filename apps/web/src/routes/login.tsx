@@ -1,12 +1,17 @@
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { createFileRoute } from "@tanstack/react-router";
 import { Lock, ShieldX, TriangleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AuthLayout } from "@/components/layout/auth-layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { signIn, signOut } from "@/lib/auth-client";
+
+// Cloudflare Turnstile site key — optional. When absent (local dev / no env var)
+// the widget and server-side check are both skipped.
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -31,6 +36,11 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [clearState, setClearState] = useState<ClearState>("idle");
+  // Turnstile token — empty string means the challenge hasn't been solved yet.
+  // When TURNSTILE_SITE_KEY is absent we treat it as immediately "ready".
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined);
+  const turnstileReady = !TURNSTILE_SITE_KEY || turnstileToken !== "";
 
   // Clear any existing session on mount to prevent stale-cookie issues
   useEffect(() => {
@@ -48,14 +58,26 @@ function LoginPage() {
       /* not signed in — fine */
     }
 
+    const fetchOptions = TURNSTILE_SITE_KEY && turnstileToken
+      ? { headers: { "X-Turnstile-Token": turnstileToken } }
+      : undefined;
+
+    // Use absolute URLs so Better Auth redirects back to the frontend origin
+    // rather than the API server origin (they differ in local dev).
+    const origin = window.location.origin;
     const { error: signInError } = await signIn.magicLink({
       email,
-      callbackURL: `/auth/callback?expected=${encodeURIComponent(email)}`,
+      callbackURL: `${origin}/auth/callback?expected=${encodeURIComponent(email)}`,
       // @ts-ignore — Better Auth supports this param; client types may lag
-      newUserCallbackURL: `/auth/new-user?expected=${encodeURIComponent(email)}`,
+      newUserCallbackURL: `${origin}/auth/new-user?expected=${encodeURIComponent(email)}`,
+      fetchOptions,
     });
 
     setLoading(false);
+
+    // Reset the Turnstile widget so the token can't be reused.
+    turnstileRef.current?.reset();
+    setTurnstileToken("");
 
     if (signInError) {
       setError(t("errors.generic"));
@@ -109,7 +131,22 @@ function LoginPage() {
                 </p>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              {TURNSTILE_SITE_KEY && (
+                <Turnstile
+                  ref={turnstileRef}
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={setTurnstileToken}
+                  onError={() => setTurnstileToken("")}
+                  onExpire={() => setTurnstileToken("")}
+                  options={{ theme: "auto", size: "flexible" }}
+                />
+              )}
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading || !turnstileReady}
+              >
                 {loading
                   ? `${t("magicLink.submit")}...`
                   : t("magicLink.submit")}

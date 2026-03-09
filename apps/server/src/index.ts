@@ -6,6 +6,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, "../../../.env") });
 
 import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
+import underPressure from "@fastify/under-pressure";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
@@ -81,6 +84,50 @@ async function main() {
     // Trust X-Forwarded-* headers from the upstream reverse proxy (e.g. nginx-proxy-manager).
     // Enabled via TRUST_PROXY=true in docker-compose.npm.yml; keep false in local dev.
     trustProxy: process.env.TRUST_PROXY === "true",
+    // Close idle connections after 30 s to prevent Slowloris-style attacks
+    // where a client opens a connection and sends data very slowly.
+    connectionTimeout: 30_000,
+    keepAliveTimeout: 5_000,
+    // Hard limit on incoming request body size. Large bodies are rejected
+    // immediately, before any route handler runs. The Apple Health import
+    // uploads are handled client-side only; the server never receives raw
+    // health data, so 512 KB is generous for our JSON API payloads.
+    bodyLimit: 512 * 1024,
+  });
+
+  // Security headers — applied to every response. The server is an API so
+  // we disable the default browser-oriented directives (CSP, COEP, etc.) that
+  // would interfere with API clients, while keeping the useful headers.
+  await app.register(helmet, {
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+  });
+
+  // Global IP-based rate limiter. Single in-process store is fine for a
+  // single-instance deployment; swap for a Redis store if you scale out.
+  // Per-route overrides (tighter limits) are set in each route file.
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: "1 minute",
+    // Return Problem Details on 429 to match the rest of the API
+    errorResponseBuilder: (_req, context) => ({
+      type: "https://httpstatuses.com/429",
+      title: "Too Many Requests",
+      status: 429,
+      detail: `Rate limit exceeded. Retry after ${context.after}.`,
+    }),
+  });
+
+  // Back-pressure: return 503 when the process is struggling so the client
+  // can back off rather than hammering an already-overloaded server.
+  await app.register(underPressure, {
+    maxEventLoopDelay: 1_000,   // 1 s event-loop lag
+    maxHeapUsedBytes: 400 * 1024 * 1024, // 400 MB heap
+    retryAfter: 30,
+    message: "Server is under heavy load. Please retry shortly.",
+    exposeStatusRoute: { url: "/health/pressure", routeOpts: {} },
   });
 
   // Plugins

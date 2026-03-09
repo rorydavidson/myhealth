@@ -16,8 +16,11 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@fastify/cors": "^11",
+    "@fastify/helmet": "^13.0.2",
+    "@fastify/rate-limit": "^10.3.0",
     "@fastify/swagger": "^9",
     "@fastify/swagger-ui": "^5",
+    "@fastify/under-pressure": "^9.0.3",
     "@health-app/db": "workspace:*",
     "@health-app/shared": "workspace:*",
     "better-auth": "^1",
