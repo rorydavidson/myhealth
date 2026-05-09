@@ -1,27 +1,48 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import {
   AlertCircle,
   Calendar,
   CheckCircle2,
   FileArchive,
+  Link2,
+  Link2Off,
   Loader2,
+  RefreshCw,
   Shield,
   Trash2,
   Upload,
   XCircle,
+  Zap,
 } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { type ImportState, useImport, useImportHistory } from "@/hooks/use-import";
 import { deleteImport } from "@/services/import";
+import {
+  disconnectWhoop,
+  getLastSyncTime,
+  getStoredClientId,
+  getStoredClientSecret,
+  initiateWhoopAuth,
+  isWhoopConnected,
+  syncWhoopData,
+  type WhoopSyncProgress,
+} from "@/services/whoop-sync";
+
+type ImportSearch = { whoopConnected?: string; whoopError?: string };
 
 export const Route = createFileRoute("/_app/import")({
+  validateSearch: (search: Record<string, unknown>): ImportSearch => ({
+    whoopConnected: typeof search.whoopConnected === "string" ? search.whoopConnected : undefined,
+    whoopError: typeof search.whoopError === "string" ? search.whoopError : undefined,
+  }),
   component: ImportPage,
 });
 
 function ImportPage() {
   const { t } = useTranslation("import");
+  const { whoopConnected, whoopError } = useSearch({ from: "/_app/import" });
 
   return (
     <div>
@@ -64,8 +85,226 @@ function ImportPage() {
         <HealthConnectDropzone />
       </Card>
 
+      {/* Whoop */}
+      <Card className="mb-6">
+        <h2 className="mb-2 text-lg font-semibold">{t("whoop.title")}</h2>
+        <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+          {t("whoop.description")}
+        </p>
+        <WhoopConnect oauthConnected={whoopConnected === "1"} oauthError={whoopError} />
+      </Card>
+
       {/* Import history */}
       <ImportHistory />
+    </div>
+  );
+}
+
+// --- Whoop Connect ---
+
+function WhoopConnect({
+  oauthConnected,
+  oauthError,
+}: {
+  oauthConnected: boolean;
+  oauthError?: string;
+}) {
+  const { t } = useTranslation("import");
+  const [connected, setConnected] = useState(isWhoopConnected);
+  const [clientId, setClientId] = useState(() => getStoredClientId() ?? "");
+  const [clientSecret, setClientSecret] = useState(() => getStoredClientSecret() ?? "");
+  const [showForm, setShowForm] = useState(!isWhoopConnected());
+  const [syncProgress, setSyncProgress] = useState<WhoopSyncProgress | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const notifiedRef = useRef(false);
+
+  // Handle return from OAuth callback
+  useEffect(() => {
+    if (notifiedRef.current) return;
+    notifiedRef.current = true;
+    if (oauthConnected) {
+      setConnected(true);
+      setShowForm(false);
+    }
+  }, [oauthConnected]);
+
+  const handleConnect = () => {
+    if (!clientId.trim()) return;
+    initiateWhoopAuth(clientId.trim(), clientSecret.trim() || undefined);
+  };
+
+  const handleSync = async () => {
+    setSyncError(null);
+    setSyncProgress({ phase: "recovery", recordCount: 0 });
+    try {
+      await syncWhoopData((p) => setSyncProgress(p));
+    } catch (err) {
+      setSyncError(err instanceof Error ? err.message : t("errors.generic"));
+    } finally {
+      setSyncProgress(null);
+    }
+  };
+
+  const handleDisconnect = () => {
+    disconnectWhoop();
+    setConnected(false);
+    setShowForm(true);
+    setSyncProgress(null);
+    setSyncError(null);
+    setClientId("");
+    setClientSecret("");
+  };
+
+  const isSyncing = syncProgress !== null && syncProgress.phase !== "done" && syncProgress.phase !== "error";
+  const lastSync = getLastSyncTime();
+
+  const phaseLabel: Record<WhoopSyncProgress["phase"], string> = {
+    recovery: t("whoop.sync.fetchingRecovery"),
+    sleep: t("whoop.sync.fetchingSleep"),
+    workouts: t("whoop.sync.fetchingWorkouts"),
+    cycles: t("whoop.sync.fetchingCycles"),
+    body: t("whoop.sync.fetchingBody"),
+    storing: t("whoop.sync.storing"),
+    done: t("whoop.sync.done"),
+    error: t("whoop.sync.error"),
+  };
+
+  if (connected && !showForm) {
+    return (
+      <div className="space-y-4">
+        {oauthError && (
+          <div className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-900 dark:bg-rose-950">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+            <p className="text-sm text-rose-700 dark:text-rose-400">{oauthError}</p>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
+          <Zap className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+              {t("whoop.connected")}
+            </p>
+            {lastSync && (
+              <p className="text-xs text-emerald-600 dark:text-emerald-500">
+                {t("whoop.lastSync", {
+                  time: new Intl.DateTimeFormat(undefined, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(lastSync),
+                })}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {isSyncing && syncProgress && (
+          <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
+            <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+            <div className="flex-1">
+              <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                {phaseLabel[syncProgress.phase]}
+              </p>
+              {syncProgress.recordCount > 0 && (
+                <p className="text-xs text-neutral-500">
+                  {t("whoop.sync.recordCount", { count: syncProgress.recordCount })}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {syncError && (
+          <div className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-900 dark:bg-rose-950">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+            <p className="text-sm text-rose-700 dark:text-rose-400">{syncError}</p>
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+          >
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+            {isSyncing ? t("whoop.syncing") : t("whoop.syncNow")}
+          </button>
+          <button
+            type="button"
+            onClick={handleDisconnect}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+          >
+            <Link2Off className="h-4 w-4" />
+            {t("whoop.disconnect")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {oauthError && (
+        <div className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-900 dark:bg-rose-950">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+          <p className="text-sm text-rose-700 dark:text-rose-400">
+            {t("whoop.error.oauth")}: {oauthError}
+          </p>
+        </div>
+      )}
+
+      <p className="text-xs text-neutral-400 dark:text-neutral-500">
+        {t("whoop.instructions")}
+      </p>
+
+      <div className="space-y-3">
+        <div>
+          <label
+            htmlFor="whoop-client-id"
+            className="mb-1 block text-xs font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            {t("whoop.clientId")}
+          </label>
+          <input
+            id="whoop-client-id"
+            type="text"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            placeholder={t("whoop.clientIdPlaceholder")}
+            className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-blue-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="whoop-client-secret"
+            className="mb-1 block text-xs font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            {t("whoop.clientSecret")}{" "}
+            <span className="font-normal text-neutral-400">({t("whoop.optional")})</span>
+          </label>
+          <input
+            id="whoop-client-secret"
+            type="password"
+            value={clientSecret}
+            onChange={(e) => setClientSecret(e.target.value)}
+            placeholder={t("whoop.clientSecretPlaceholder")}
+            className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-blue-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={handleConnect}
+        disabled={!clientId.trim()}
+        className="flex items-center gap-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+      >
+        <Link2 className="h-4 w-4" />
+        {t("whoop.connectButton")}
+      </button>
     </div>
   );
 }
@@ -672,7 +911,11 @@ function ImportHistoryRow({
       </td>
       <td className="py-3 pr-4">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-          {imp.platform === "apple_health" ? "Apple Health" : "Health Connect"}
+          {imp.platform === "apple_health"
+            ? "Apple Health"
+            : imp.platform === "whoop"
+              ? "Whoop"
+              : "Health Connect"}
         </span>
       </td>
       <td className="py-3 pr-4 text-right tabular-nums">{imp.recordCount.toLocaleString()}</td>

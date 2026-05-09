@@ -9,3 +9,4 @@ export {
 } from "./health-connect-mapping.js";
 export type { MetricDefinition } from "./metrics.js";
 export { CATEGORY_COLORS, METRICS } from "./metrics.js";
+export { WHOOP_SCORED_STATES, WHOOP_SPORT_MAP } from "./whoop-mapping.js";

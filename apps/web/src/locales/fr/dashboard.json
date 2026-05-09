@@ -23,7 +23,8 @@
     "sleep": "Sommeil",
     "body": "Corps",
     "vitals": "Signes vitaux",
-    "workouts": "Entraînements"
+    "workouts": "Entraînements",
+    "whoopRecovery": "Récupération Whoop"
   },
   "chart": {
     "steps": "Pas",
@@ -37,7 +38,9 @@
     "bodyFat": "Masse grasse",
     "bloodOxygen": "Oxygène sanguin",
     "bloodPressure": "Pression artérielle",
-    "respiratoryRate": "Fréquence respiratoire"
+    "respiratoryRate": "Fréquence respiratoire",
+    "recoveryScore": "Score de récupération",
+    "strainScore": "Charge"
   },
   "unit": {
     "steps": "pas",
@@ -49,7 +52,8 @@
     "percent": "%",
     "hr": "h",
     "mmHg": "mmHg",
-    "breathsPerMin": "resp/min"
+    "breathsPerMin": "resp/min",
+    "score": "score"
   },
   "empty": {
     "title": "Aucune donnée de santé",

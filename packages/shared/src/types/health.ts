@@ -21,9 +21,11 @@ export type MetricType =
   | "oxygen_saturation"
   | "blood_pressure"
   | "respiratory_rate"
-  | "workout";
+  | "workout"
+  | "recovery_score"
+  | "strain_score";
 
-export type SourcePlatform = "apple_health" | "health_connect";
+export type SourcePlatform = "apple_health" | "health_connect" | "whoop";
 
 export interface HealthRecord {
   id: string;

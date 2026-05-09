@@ -71,6 +71,8 @@ export async function buildStandardContext(profile?: LLMProfile): Promise<string
     "heart_rate",
     "resting_heart_rate",
     "hrv",
+    "recovery_score",
+    "strain_score",
     "body_mass",
     "body_fat",
     "sleep_session",
@@ -165,6 +167,8 @@ export async function buildEnhancedContext(profile?: LLMProfile): Promise<string
     "step_count",
     "heart_rate",
     "resting_heart_rate",
+    "recovery_score",
+    "strain_score",
     "sleep_session",
   ];
 
@@ -218,6 +222,8 @@ function formatValue(value: number, metricType: MetricType): string {
   if (metricType === "body_fat" || metricType === "oxygen_saturation") return value.toFixed(1);
   if (metricType === "body_mass") return value.toFixed(1);
   if (metricType === "hrv") return value.toFixed(0);
+  if (metricType === "strain_score") return value.toFixed(1);
+  if (metricType === "recovery_score") return Math.round(value).toString();
   return Math.round(value).toLocaleString("en-US");
 }
 

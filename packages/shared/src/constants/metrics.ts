@@ -124,6 +124,22 @@ export const METRICS: Record<MetricType, MetricDefinition> = {
     aggregation: "sum",
     icon: "Dumbbell",
   },
+  recovery_score: {
+    type: "recovery_score",
+    category: "heart",
+    label: "Recovery Score",
+    unit: "%",
+    aggregation: "avg",
+    icon: "Zap",
+  },
+  strain_score: {
+    type: "strain_score",
+    category: "workouts",
+    label: "Strain",
+    unit: "score",
+    aggregation: "avg",
+    icon: "Gauge",
+  },
 };
 
 export const CATEGORY_COLORS: Record<MetricCategory, string> = {

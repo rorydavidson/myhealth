@@ -23,7 +23,8 @@
     "sleep": "Sleep",
     "body": "Body",
     "vitals": "Vitals",
-    "workouts": "Workouts"
+    "workouts": "Workouts",
+    "whoopRecovery": "Whoop Recovery"
   },
   "chart": {
     "steps": "Steps",
@@ -37,7 +38,9 @@
     "bodyFat": "Body Fat",
     "bloodOxygen": "Blood Oxygen",
     "bloodPressure": "Blood Pressure",
-    "respiratoryRate": "Respiratory Rate"
+    "respiratoryRate": "Respiratory Rate",
+    "recoveryScore": "Recovery Score",
+    "strainScore": "Strain"
   },
   "unit": {
     "steps": "steps",
@@ -49,7 +52,8 @@
     "percent": "%",
     "hr": "hr",
     "mmHg": "mmHg",
-    "breathsPerMin": "breaths/min"
+    "breathsPerMin": "breaths/min",
+    "score": "score"
   },
   "empty": {
     "title": "No health data yet",

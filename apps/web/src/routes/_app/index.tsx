@@ -16,6 +16,7 @@ import {
   Scale,
   Upload,
   Wind,
+  Zap,
 } from "lucide-react";
 import { lazy, Suspense, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,7 @@ import {
   useDailySummaries,
   useDashboardSnapshot,
   useHasHealthData,
+  useLatestSummary,
 } from "@/hooks/use-health-data";
 import { useLocaleFormat } from "@/hooks/use-locale-format";
 
@@ -252,7 +254,50 @@ function DashboardPage() {
           />
         </div>
       </section>
+
+      {/* Whoop Recovery section — only rendered when data exists */}
+      <WhoopRecoverySection dateRange={dateRange} />
     </div>
+  );
+}
+
+// --- Whoop Recovery Section ---
+
+function WhoopRecoverySection({ dateRange }: { dateRange: DateRangePreset }) {
+  const { t } = useTranslation("dashboard");
+  const { data: latestRecovery, isLoading } = useLatestSummary("recovery_score");
+  if (!isLoading && !latestRecovery) return null;
+
+  return (
+    <section className="mb-8">
+      <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+        {t("section.whoopRecovery")}
+      </h2>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <ChartCard
+          title={t("chart.recoveryScore")}
+          metricType="recovery_score"
+          dateRange={dateRange}
+          color="#22c55e"
+          type="area"
+          valueField="avg"
+          unit={t("unit.percent")}
+          icon={<Zap className="h-4 w-4" />}
+          showYAxis
+        />
+        <ChartCard
+          title={t("chart.strainScore")}
+          metricType="strain_score"
+          dateRange={dateRange}
+          color="#f97316"
+          type="line"
+          valueField="avg"
+          unit={t("unit.score")}
+          icon={<Gauge className="h-4 w-4" />}
+          showYAxis
+        />
+      </div>
+    </section>
   );
 }
 

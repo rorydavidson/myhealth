@@ -65,6 +65,36 @@
     "startImport": "Lancer l'importation",
     "changeFile": "Changer de fichier"
   },
+  "whoop": {
+    "title": "Whoop",
+    "description": "Connectez votre compte Whoop pour synchroniser récupération, sommeil, charge et entraînements directement dans votre tableau de bord.",
+    "instructions": "Créez une application développeur sur developer.whoop.com pour obtenir votre Client ID. Définissez l'URI de redirection : {{redirectUri}}",
+    "clientId": "Client ID",
+    "clientIdPlaceholder": "Votre Client ID Whoop",
+    "clientSecret": "Client Secret",
+    "clientSecretPlaceholder": "Requis pour les applications confidentielles",
+    "optional": "optionnel",
+    "connectButton": "Connecter Whoop",
+    "connected": "Whoop connecté",
+    "lastSync": "Dernière sync : {{time}}",
+    "syncNow": "Synchroniser",
+    "syncing": "Synchronisation…",
+    "disconnect": "Déconnecter",
+    "error": {
+      "oauth": "Échec de la connexion"
+    },
+    "sync": {
+      "fetchingRecovery": "Récupération des données de récupération…",
+      "fetchingSleep": "Récupération des données de sommeil…",
+      "fetchingWorkouts": "Récupération des entraînements…",
+      "fetchingCycles": "Récupération des cycles quotidiens…",
+      "fetchingBody": "Récupération des mesures corporelles…",
+      "storing": "Enregistrement des données…",
+      "done": "Synchronisation terminée",
+      "error": "Échec de la synchronisation",
+      "recordCount": "{{count}} enregistrements traités"
+    }
+  },
   "errors": {
     "invalidFile": "Veuillez sélectionner un fichier .zip de l'export Apple Health.",
     "invalidJsonFile": "Veuillez sélectionner un fichier .json de l'export Health Connect.",

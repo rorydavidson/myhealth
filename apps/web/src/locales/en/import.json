@@ -65,6 +65,36 @@
     "startImport": "Start import",
     "changeFile": "Change file"
   },
+  "whoop": {
+    "title": "Whoop",
+    "description": "Connect your Whoop account to sync recovery, sleep, strain, and workout data directly to your dashboard.",
+    "instructions": "Register a developer app at developer.whoop.com to get your Client ID. Set the redirect URI to: {{redirectUri}}",
+    "clientId": "Client ID",
+    "clientIdPlaceholder": "Your Whoop app Client ID",
+    "clientSecret": "Client Secret",
+    "clientSecretPlaceholder": "Required for confidential apps",
+    "optional": "optional",
+    "connectButton": "Connect Whoop",
+    "connected": "Whoop connected",
+    "lastSync": "Last synced: {{time}}",
+    "syncNow": "Sync now",
+    "syncing": "Syncing…",
+    "disconnect": "Disconnect",
+    "error": {
+      "oauth": "Connection failed"
+    },
+    "sync": {
+      "fetchingRecovery": "Fetching recovery data…",
+      "fetchingSleep": "Fetching sleep data…",
+      "fetchingWorkouts": "Fetching workout data…",
+      "fetchingCycles": "Fetching daily cycles…",
+      "fetchingBody": "Fetching body metrics…",
+      "storing": "Storing records…",
+      "done": "Sync complete",
+      "error": "Sync failed",
+      "recordCount": "{{count}} records processed"
+    }
+  },
   "errors": {
     "invalidFile": "Please select a .zip file from Apple Health export.",
     "invalidJsonFile": "Please select a .json file from Health Connect export.",
