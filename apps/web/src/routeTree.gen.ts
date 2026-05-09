@@ -9,16 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AuthNewUserRouteImport } from './routes/auth.new-user'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as WhoopCallbackRouteImport } from './routes/whoop.callback'
+import { Route as AuthNewUserRouteImport } from './routes/auth.new-user'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AppWorkoutsRouteImport } from './routes/_app/workouts'
 import { Route as AppTrendsRouteImport } from './routes/_app/trends'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
@@ -30,21 +31,6 @@ import { Route as AppImportRouteImport } from './routes/_app/import'
 import { Route as AppConditionsRouteImport } from './routes/_app/conditions'
 import { Route as AppAllergiesRouteImport } from './routes/_app/allergies'
 
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthNewUserRoute = AuthNewUserRouteImport.update({
-  id: '/auth/new-user',
-  path: '/auth/new-user',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -70,6 +56,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -78,6 +69,21 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const WhoopCallbackRoute = WhoopCallbackRouteImport.update({
+  id: '/whoop/callback',
+  path: '/whoop/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthNewUserRoute = AuthNewUserRouteImport.update({
+  id: '/auth/new-user',
+  path: '/auth/new-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppWorkoutsRoute = AppWorkoutsRouteImport.update({
   id: '/workouts',
@@ -133,8 +139,6 @@ const AppAllergiesRoute = AppAllergiesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/admin': typeof AdminRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -150,11 +154,12 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/trends': typeof AppTrendsRoute
   '/workouts': typeof AppWorkoutsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/new-user': typeof AuthNewUserRoute
+  '/whoop/callback': typeof WhoopCallbackRoute
 }
 export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -170,14 +175,15 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/trends': typeof AppTrendsRoute
   '/workouts': typeof AppWorkoutsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/new-user': typeof AuthNewUserRoute
+  '/whoop/callback': typeof WhoopCallbackRoute
   '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/admin': typeof AdminRoute
-  '/auth/callback': typeof AuthCallbackRoute
-  '/auth/new-user': typeof AuthNewUserRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -193,6 +199,9 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/trends': typeof AppTrendsRoute
   '/_app/workouts': typeof AppWorkoutsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/new-user': typeof AuthNewUserRoute
+  '/whoop/callback': typeof WhoopCallbackRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -200,8 +209,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/auth/callback'
-    | '/auth/new-user'
     | '/forgot-password'
     | '/help'
     | '/login'
@@ -217,11 +224,12 @@ export interface FileRouteTypes {
     | '/settings'
     | '/trends'
     | '/workouts'
+    | '/auth/callback'
+    | '/auth/new-user'
+    | '/whoop/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin'
-    | '/auth/callback'
-    | '/auth/new-user'
     | '/forgot-password'
     | '/help'
     | '/login'
@@ -237,13 +245,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/trends'
     | '/workouts'
+    | '/auth/callback'
+    | '/auth/new-user'
+    | '/whoop/callback'
     | '/'
   id:
     | '__root__'
     | '/_app'
     | '/admin'
-    | '/auth/callback'
-    | '/auth/new-user'
     | '/forgot-password'
     | '/help'
     | '/login'
@@ -259,44 +268,27 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/trends'
     | '/_app/workouts'
+    | '/auth/callback'
+    | '/auth/new-user'
+    | '/whoop/callback'
     | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AdminRoute: typeof AdminRoute
-  AuthCallbackRoute: typeof AuthCallbackRoute
-  AuthNewUserRoute: typeof AuthNewUserRoute
   AppRoute: typeof AppRouteWithChildren
+  AdminRoute: typeof AdminRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   SignUpRoute: typeof SignUpRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthNewUserRoute: typeof AuthNewUserRoute
+  WhoopCallbackRoute: typeof WhoopCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/new-user': {
-      id: '/auth/new-user'
-      path: '/auth/new-user'
-      fullPath: '/auth/new-user'
-      preLoaderRoute: typeof AuthNewUserRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -332,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -345,6 +344,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/whoop/callback': {
+      id: '/whoop/callback'
+      path: '/whoop/callback'
+      fullPath: '/whoop/callback'
+      preLoaderRoute: typeof WhoopCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/new-user': {
+      id: '/auth/new-user'
+      path: '/auth/new-user'
+      fullPath: '/auth/new-user'
+      preLoaderRoute: typeof AuthNewUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/workouts': {
       id: '/_app/workouts'
@@ -450,15 +470,16 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  AdminRoute: AdminRoute,
-  AuthCallbackRoute: AuthCallbackRoute,
-  AuthNewUserRoute: AuthNewUserRoute,
   AppRoute: AppRouteWithChildren,
+  AdminRoute: AdminRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   SignUpRoute: SignUpRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthNewUserRoute: AuthNewUserRoute,
+  WhoopCallbackRoute: WhoopCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
