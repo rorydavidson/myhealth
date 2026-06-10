@@ -28,10 +28,10 @@ const WHOOP_API_BASE = "https://api.prod.whoop.com/developer/v2";
  *  being used as an open relay to arbitrary Whoop endpoints. */
 const ALLOWED_PROXY_PATHS = new Set([
   "/recovery",
-  "/sleep",
-  "/workout",
+  "/activity/sleep",
+  "/activity/workout",
   "/cycle",
-  "/body_measurement",
+  "/user/measurement/body",
 ]);
 
 function getUserId(request: unknown): string {
