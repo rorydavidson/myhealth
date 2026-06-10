@@ -36,6 +36,67 @@ function toDateKey(date: Date): string {
 /** Lower value = earlier import = higher priority. */
 type SourceRank = Map<string, number>;
 
+/** Sleep stages that represent time actually asleep (not in bed, not awake). */
+const ASLEEP_STAGES = new Set(["asleep", "core", "deep", "rem"]);
+
+/**
+ * Total hours covered by a set of [start, end] intervals, merging overlaps so
+ * overlapping or duplicate segments are counted once.
+ */
+function mergeIntervalHours(intervals: Array<[number, number]>): number {
+  if (intervals.length === 0) return 0;
+  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);
+  let total = 0;
+  let [curStart, curEnd] = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    const [s, e] = sorted[i];
+    if (s <= curEnd) {
+      // Overlaps or touches the current interval — extend it.
+      if (e > curEnd) curEnd = e;
+    } else {
+      total += curEnd - curStart;
+      [curStart, curEnd] = [s, e];
+    }
+  }
+  total += curEnd - curStart;
+  return total / 3_600_000; // ms → hours
+}
+
+/**
+ * Sleep duration (hours) for one day's records from a single source.
+ *
+ * Apple Health stores sleep as many overlapping segments per night: a top-level
+ * "inBed" interval PLUS the "core/deep/rem/awake" stage segments that tile it,
+ * often duplicated across devices/apps. Naively summing those values massively
+ * overcounts (e.g. 47 h). Instead we take the merged union of the asleep-stage
+ * intervals — the real time asleep. Whoop and Google emit one value-per-session
+ * record (no per-stage metadata), so those keep their value.
+ */
+function computeSleepHours(records: HealthRecordRow[]): number {
+  const staged = records.filter((r) => typeof r.metadata?.sleepStage === "string");
+
+  // No per-stage data (Whoop, or Google without stages): values are already
+  // per-session sleep hours.
+  if (staged.length === 0) {
+    return records.reduce((acc, r) => acc + (r.value ?? 0), 0);
+  }
+
+  const toInterval = (r: HealthRecordRow): [number, number] => [
+    r.startTime.getTime(),
+    r.endTime.getTime(),
+  ];
+
+  const asleep = staged
+    .filter((r) => ASLEEP_STAGES.has(r.metadata?.sleepStage as string))
+    .map(toInterval);
+  if (asleep.length > 0) return mergeIntervalHours(asleep);
+
+  // Only "inBed"/"awake" segments exist — fall back to the in-bed span so the
+  // night still shows something rather than nothing.
+  const inBed = staged.filter((r) => r.metadata?.sleepStage === "inBed").map(toInterval);
+  return mergeIntervalHours(inBed);
+}
+
 /**
  * Build a source-priority map keyed by sourcePlatform. The rank is the earliest
  * import startedAt (ms) for that platform, so the source a user imported first
@@ -102,6 +163,25 @@ function summariseGroups(
   for (const [groupKey, groupRecords] of groups) {
     const [metricType, date] = groupKey.split(":") as [string, string];
     const deduped = keepFirstImportedSource(groupRecords, rank);
+
+    // Sleep needs interval-union aggregation, not a sum of overlapping
+    // stage/in-bed segments (which would massively overcount).
+    if (metricType === "sleep_session") {
+      const hours = Math.round(computeSleepHours(deduped) * 100) / 100;
+      if (hours <= 0) continue;
+      summaries.push({
+        id: groupKey,
+        metricType,
+        date,
+        avg: hours,
+        min: hours,
+        max: hours,
+        sum: hours,
+        count: deduped.length,
+      });
+      continue;
+    }
+
     const values = deduped.map((r) => r.value).filter((v): v is number => v !== null);
     if (values.length === 0) continue;
 

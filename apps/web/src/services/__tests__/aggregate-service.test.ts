@@ -365,3 +365,80 @@ describe("recomputeAllSummaries", () => {
     });
   });
 });
+
+// --- sleep interval-union aggregation ---
+
+function sleepRecord(
+  stage: string | undefined,
+  start: string,
+  end: string,
+  overrides: Partial<HealthRecordRow> = {},
+): HealthRecordRow {
+  return makeRecord({
+    metricType: "sleep_session",
+    unit: "hr",
+    value: (new Date(end).getTime() - new Date(start).getTime()) / 3_600_000,
+    startTime: new Date(start),
+    endTime: new Date(end),
+    metadata: stage ? { sleepStage: stage } : undefined,
+    ...overrides,
+  });
+}
+
+describe("sleep aggregation", () => {
+  it("merges Apple stage segments instead of summing inBed + stages", async () => {
+    // A night made of an 8h inBed container plus tiling stage segments.
+    state.records = [
+      sleepRecord("inBed", "2024-03-15T00:00:00Z", "2024-03-15T08:00:00Z"),
+      sleepRecord("core", "2024-03-15T00:00:00Z", "2024-03-15T03:00:00Z"),
+      sleepRecord("deep", "2024-03-15T03:00:00Z", "2024-03-15T05:00:00Z"),
+      sleepRecord("rem", "2024-03-15T05:00:00Z", "2024-03-15T07:00:00Z"),
+      sleepRecord("awake", "2024-03-15T07:00:00Z", "2024-03-15T08:00:00Z"),
+    ];
+
+    await recomputeAllSummaries();
+
+    const s = lastSummaries().find((x) => x.id === "sleep_session:2024-03-15");
+    // Asleep union = 00:00–07:00 = 7h (NOT 8+3+2+2+1 = 16h).
+    expect(s?.sum).toBe(7);
+  });
+
+  it("counts overlapping duplicate segments from multiple devices once", async () => {
+    state.records = [
+      sleepRecord("core", "2024-03-15T00:00:00Z", "2024-03-15T04:00:00Z"),
+      // Duplicate from a second app/device, fully overlapping.
+      sleepRecord("core", "2024-03-15T00:00:00Z", "2024-03-15T04:00:00Z", {
+        sourceDevice: "AutoSleep",
+      }),
+      sleepRecord("rem", "2024-03-15T04:00:00Z", "2024-03-15T06:00:00Z"),
+    ];
+
+    await recomputeAllSummaries();
+
+    const s = lastSummaries().find((x) => x.id === "sleep_session:2024-03-15");
+    expect(s?.sum).toBe(6); // 00:00–06:00, duplicate counted once
+  });
+
+  it("uses the value for sources without stage metadata (e.g. Whoop)", async () => {
+    state.records = [
+      sleepRecord(undefined, "2024-03-15T23:00:00Z", "2024-03-16T06:30:00Z", {
+        value: 7.5,
+        sourcePlatform: "whoop",
+      }),
+    ];
+
+    await recomputeAllSummaries();
+
+    const s = lastSummaries().find((x) => x.metricType === "sleep_session");
+    expect(s?.sum).toBe(7.5);
+  });
+
+  it("falls back to the in-bed span when only inBed segments exist", async () => {
+    state.records = [sleepRecord("inBed", "2024-03-15T01:00:00Z", "2024-03-15T09:00:00Z")];
+
+    await recomputeAllSummaries();
+
+    const s = lastSummaries().find((x) => x.id === "sleep_session:2024-03-15");
+    expect(s?.sum).toBe(8);
+  });
+});
