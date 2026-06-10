@@ -12,7 +12,7 @@
     {
       "idx": 1,
       "version": "7",
-      "when": 1749513600000,
+      "when": 1781100000000,
       "tag": "0001_whoop_credentials",
       "breakpoints": true
     }
