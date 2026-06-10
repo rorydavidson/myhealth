@@ -693,11 +693,11 @@ export async function syncWhoopData(onProgress: (p: WhoopSyncProgress) => void):
     allRows.push(...(await normalizeRecovery(recoveries, importId)));
 
     onProgress({ phase: "sleep", recordCount: allRows.length });
-    const sleeps = await fetchAllPages<WhoopSleep>("/sleep", sinceParams);
+    const sleeps = await fetchAllPages<WhoopSleep>("/activity/sleep", sinceParams);
     allRows.push(...(await normalizeSleep(sleeps, importId)));
 
     onProgress({ phase: "workouts", recordCount: allRows.length });
-    const workouts = await fetchAllPages<WhoopWorkout>("/workout", sinceParams);
+    const workouts = await fetchAllPages<WhoopWorkout>("/activity/workout", sinceParams);
     allRows.push(...(await normalizeWorkouts(workouts, importId)));
 
     onProgress({ phase: "cycles", recordCount: allRows.length });
@@ -705,7 +705,7 @@ export async function syncWhoopData(onProgress: (p: WhoopSyncProgress) => void):
     allRows.push(...(await normalizeCycles(cycles, importId)));
 
     onProgress({ phase: "body", recordCount: allRows.length });
-    const body = await whoopGet<WhoopBodyMeasurement>("/body_measurement");
+    const body = await whoopGet<WhoopBodyMeasurement>("/user/measurement/body");
     allRows.push(...(await normalizeBodyMeasurement(body, importId)));
 
     onProgress({ phase: "storing", recordCount: allRows.length });
