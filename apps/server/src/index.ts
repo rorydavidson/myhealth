@@ -1,6 +1,6 @@
-import { config } from "dotenv";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { config } from "dotenv";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, "../../../.env") });
@@ -8,16 +8,18 @@ config({ path: resolve(__dirname, "../../../.env") });
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
-import underPressure from "@fastify/under-pressure";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
-import Fastify from "fastify";
+import underPressure from "@fastify/under-pressure";
 import { createDb, runMigrations, user } from "@health-app/db";
+import Fastify from "fastify";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
+import { fhirRoutes } from "./routes/fhir.js";
 import { healthRoutes } from "./routes/health.js";
 import { llmRoutes } from "./routes/llm.js";
 import { preferencesRoutes } from "./routes/preferences.js";
+import { whoopRoutes } from "./routes/whoop.js";
 
 const PORT = Number(process.env.PORT ?? 3001);
 const HOST = process.env.HOST ?? "0.0.0.0";
@@ -123,7 +125,7 @@ async function main() {
   // Back-pressure: return 503 when the process is struggling so the client
   // can back off rather than hammering an already-overloaded server.
   await app.register(underPressure, {
-    maxEventLoopDelay: 1_000,   // 1 s event-loop lag
+    maxEventLoopDelay: 1_000, // 1 s event-loop lag
     maxHeapUsedBytes: 400 * 1024 * 1024, // 400 MB heap
     retryAfter: 30,
     message: "Server is under heavy load. Please retry shortly.",
@@ -156,6 +158,8 @@ async function main() {
   await app.register(preferencesRoutes, { prefix: "/api" });
   await app.register(llmRoutes, { prefix: "/api" });
   await app.register(adminRoutes, { prefix: "/api" });
+  await app.register(whoopRoutes, { prefix: "/api" });
+  await app.register(fhirRoutes, { prefix: "/api" });
 
   // Error handler — RFC 9457 Problem Details
   app.setErrorHandler((error: { statusCode?: number; message: string }, request, reply) => {

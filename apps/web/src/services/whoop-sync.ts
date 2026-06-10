@@ -2,26 +2,33 @@
  * Whoop Integration Service
  *
  * Handles PKCE OAuth flow, token management, API fetching, and normalization
- * of Whoop data into IndexedDB. No health data is sent to the app server —
- * the browser talks directly to the Whoop API.
+ * of Whoop data into IndexedDB.
+ *
+ * Whoop's API sends no CORS headers, so the browser cannot call it directly.
+ * Token exchange, refresh, and data fetches are relayed through our own server
+ * (a thin passthrough — see apps/server/src/routes/whoop.ts). Whoop health data
+ * still lands only in IndexedDB; the server never persists it. The per-user
+ * Whoop client secret is stored server-side encrypted, not in the browser.
  */
 
 import { WHOOP_SCORED_STATES, WHOOP_SPORT_MAP } from "@health-app/shared";
-import { computeDailySummaries } from "@/services/aggregate";
 import { db, type HealthRecordRow } from "@/db";
+import { computeDailySummaries } from "@/services/aggregate";
 
 // --- Whoop OAuth endpoints & config ---
 
 const WHOOP_AUTH_URL = "https://api.prod.whoop.com/oauth/oauth2/auth";
-const WHOOP_TOKEN_URL = "https://api.prod.whoop.com/oauth/oauth2/token";
-const WHOOP_API_BASE = "https://api.prod.whoop.com/developer/v2";
 const WHOOP_SCOPES =
   "read:recovery read:sleep read:workout read:cycles read:body_measurement read:profile offline";
 
+// Our server's Whoop passthrough (same origin; nginx proxies /api → server).
+const PROXY_BASE = "/api/whoop";
+
 // --- localStorage keys ---
+// Note: the client secret is intentionally NOT stored here — it lives
+// server-side, encrypted. Only non-secret values are kept in the browser.
 
 const SK_CLIENT_ID = "whoop_client_id";
-const SK_CLIENT_SECRET = "whoop_client_secret";
 const SK_TOKENS = "whoop_tokens";
 const SK_CODE_VERIFIER = "whoop_pkce_verifier";
 const SK_OAUTH_STATE = "whoop_oauth_state";
@@ -163,10 +170,6 @@ export function getStoredClientId(): string | null {
   return localStorage.getItem(SK_CLIENT_ID);
 }
 
-export function getStoredClientSecret(): string | null {
-  return localStorage.getItem(SK_CLIENT_SECRET);
-}
-
 export function isWhoopConnected(): boolean {
   return !!getTokens();
 }
@@ -195,8 +198,11 @@ function saveTokens(tokens: WhoopTokens): void {
 export function disconnectWhoop(): void {
   localStorage.removeItem(SK_TOKENS);
   localStorage.removeItem(SK_CLIENT_ID);
-  localStorage.removeItem(SK_CLIENT_SECRET);
   localStorage.removeItem(SK_LAST_SYNC);
+  // Best-effort: forget the server-side encrypted credentials too.
+  void fetch(`${PROXY_BASE}/credentials`, { method: "DELETE", credentials: "include" }).catch(
+    () => {},
+  );
 }
 
 // --- PKCE helpers ---
@@ -223,14 +229,23 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 // --- OAuth flow ---
 
 export async function initiateWhoopAuth(clientId: string, clientSecret?: string): Promise<void> {
+  // Store the app credentials server-side (secret encrypted at rest) before
+  // redirecting. The server needs them for the token exchange after callback.
+  const res = await fetch(`${PROXY_BASE}/credentials`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ clientId, ...(clientSecret ? { clientSecret } : {}) }),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to save Whoop credentials");
+  }
+
   const verifier = generateCodeVerifier();
   const challenge = await generateCodeChallenge(verifier);
   const state = base64UrlEncode(crypto.getRandomValues(new Uint8Array(16)));
 
   localStorage.setItem(SK_CLIENT_ID, clientId);
-  if (clientSecret) localStorage.setItem(SK_CLIENT_SECRET, clientSecret);
-  else localStorage.removeItem(SK_CLIENT_SECRET);
-
   localStorage.setItem(SK_CODE_VERIFIER, verifier);
   localStorage.setItem(SK_OAUTH_STATE, state);
 
@@ -253,7 +268,6 @@ export async function handleWhoopCallback(code: string, returnedState: string): 
   const storedState = localStorage.getItem(SK_OAUTH_STATE);
   const verifier = localStorage.getItem(SK_CODE_VERIFIER);
   const clientId = localStorage.getItem(SK_CLIENT_ID);
-  const clientSecret = localStorage.getItem(SK_CLIENT_SECRET);
 
   localStorage.removeItem(SK_OAUTH_STATE);
   localStorage.removeItem(SK_CODE_VERIFIER);
@@ -267,19 +281,12 @@ export async function handleWhoopCallback(code: string, returnedState: string): 
 
   const redirectUri = `${window.location.origin}/whoop/callback`;
 
-  const body = new URLSearchParams({
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: redirectUri,
-    client_id: clientId,
-    code_verifier: verifier,
-  });
-  if (clientSecret) body.set("client_secret", clientSecret);
-
-  const res = await fetch(WHOOP_TOKEN_URL, {
+  // The server holds the client secret and exchanges the code with Whoop.
+  const res = await fetch(`${PROXY_BASE}/token`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ code, codeVerifier: verifier, redirectUri }),
   });
 
   if (!res.ok) {
@@ -304,22 +311,13 @@ export async function handleWhoopCallback(code: string, returnedState: string): 
 
 async function refreshAccessToken(): Promise<string> {
   const tokens = getTokens();
-  const clientId = localStorage.getItem(SK_CLIENT_ID);
-  const clientSecret = localStorage.getItem(SK_CLIENT_SECRET);
+  if (!tokens) throw new Error("Not connected to Whoop");
 
-  if (!tokens || !clientId) throw new Error("Not connected to Whoop");
-
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: tokens.refresh_token,
-    client_id: clientId,
-  });
-  if (clientSecret) body.set("client_secret", clientSecret);
-
-  const res = await fetch(WHOOP_TOKEN_URL, {
+  const res = await fetch(`${PROXY_BASE}/refresh`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ refreshToken: tokens.refresh_token }),
   });
 
   if (!res.ok) {
@@ -358,13 +356,17 @@ async function ensureValidToken(): Promise<string> {
 
 async function whoopGet<T>(path: string, params?: Record<string, string>): Promise<T> {
   const token = await ensureValidToken();
-  const url = new URL(`${WHOOP_API_BASE}${path}`);
+  // Route through our server proxy (Whoop has no CORS). The Whoop path is
+  // passed as a query param and validated server-side against an allowlist.
+  const url = new URL(`${PROXY_BASE}/proxy`, window.location.origin);
+  url.searchParams.set("path", path);
   if (params) {
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   }
 
   const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
+    headers: { "X-Whoop-Token": token },
   });
 
   if (!res.ok) {
@@ -434,12 +436,7 @@ async function normalizeRecovery(
     const dayStart = `${dateStr}T00:00:00.000Z`;
     const dayEnd = `${dateStr}T23:59:59.999Z`;
 
-    const push = async (
-      metricType: string,
-      value: number,
-      unit: string,
-      sourceType: string,
-    ) => {
+    const push = async (metricType: string, value: number, unit: string, sourceType: string) => {
       rows.push({
         id: await makeId(metricType, dayStart, dayEnd, value, sourceType),
         metricType,
@@ -466,10 +463,7 @@ async function normalizeRecovery(
   return rows;
 }
 
-async function normalizeSleep(
-  records: WhoopSleep[],
-  importId: string,
-): Promise<HealthRecordRow[]> {
+async function normalizeSleep(records: WhoopSleep[], importId: string): Promise<HealthRecordRow[]> {
   const rows: HealthRecordRow[] = [];
 
   for (const r of records) {
@@ -486,13 +480,7 @@ async function normalizeSleep(
       score.stage_summary.total_no_data_time_milli;
     const sleepHours = Math.max(0, sleepMs) / 3_600_000;
 
-    const sleepId = await makeId(
-      "sleep_session",
-      r.start,
-      r.end,
-      sleepHours,
-      "whoop_sleep",
-    );
+    const sleepId = await makeId("sleep_session", r.start, r.end, sleepHours, "whoop_sleep");
 
     rows.push({
       id: sleepId,
@@ -595,7 +583,13 @@ async function normalizeCycles(
     const startTime = new Date(r.start);
     const endTime = new Date(r.end);
 
-    const strainId = await makeId("strain_score", r.start, r.end, r.score.strain, `whoop_cycle_${r.id}`);
+    const strainId = await makeId(
+      "strain_score",
+      r.start,
+      r.end,
+      r.score.strain,
+      `whoop_cycle_${r.id}`,
+    );
     rows.push({
       id: strainId,
       metricType: "strain_score",
@@ -612,7 +606,13 @@ async function normalizeCycles(
 
     if (r.score.kilojoule > 0) {
       const kcal = r.score.kilojoule * 0.239006;
-      const energyId = await makeId("active_energy", r.start, r.end, kcal, `whoop_cycle_energy_${r.id}`);
+      const energyId = await makeId(
+        "active_energy",
+        r.start,
+        r.end,
+        kcal,
+        `whoop_cycle_energy_${r.id}`,
+      );
       rows.push({
         id: energyId,
         metricType: "active_energy",
@@ -665,14 +665,10 @@ export interface WhoopSyncProgress {
   error?: string;
 }
 
-export async function syncWhoopData(
-  onProgress: (p: WhoopSyncProgress) => void,
-): Promise<number> {
+export async function syncWhoopData(onProgress: (p: WhoopSyncProgress) => void): Promise<number> {
   const importId = crypto.randomUUID();
   const lastSync = getLastSyncTime();
-  const sinceParams: Record<string, string> = lastSync
-    ? { start: lastSync.toISOString() }
-    : {};
+  const sinceParams: Record<string, string> = lastSync ? { start: lastSync.toISOString() } : {};
 
   const importRow = {
     id: importId,

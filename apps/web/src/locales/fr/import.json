@@ -68,7 +68,7 @@
   "whoop": {
     "title": "Whoop",
     "description": "Connectez votre compte Whoop pour synchroniser récupération, sommeil, charge et entraînements directement dans votre tableau de bord.",
-    "instructions": "Créez une application développeur sur developer.whoop.com pour obtenir votre Client ID. Définissez l'URI de redirection : {{redirectUri}}",
+    "instructions": "Créez une application développeur sur <devLink>developer.whoop.com</devLink> pour obtenir votre Client ID. Définissez l'URI de redirection : <uri>{{redirectUri}}</uri>",
     "clientId": "Client ID",
     "clientIdPlaceholder": "Votre Client ID Whoop",
     "clientSecret": "Client Secret",
