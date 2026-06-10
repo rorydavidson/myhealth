@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, Check, Download, HardDrive, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, Check, Download, HardDrive, RefreshCw, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -8,13 +8,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/db";
 import { usePreferences, useUpdatePreferences } from "@/hooks/use-preferences";
 import { authClient, useSession } from "@/lib/auth-client";
-import { loadBiologicalSexConcepts, type SnomedConcept } from "@/services/snomed";
 import {
   clearAllData,
   exportDataAsCsv,
   exportDataAsJson,
   importDataFromJson,
 } from "@/services/export";
+import { loadBiologicalSexConcepts, type SnomedConcept } from "@/services/snomed";
 
 export const Route = createFileRoute("/_app/settings")({
   component: SettingsPage,
@@ -41,16 +41,23 @@ function useStorageStats() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const [healthRecords, dailySummaries, labResults, clinicalConditions, medications, allergies, imports] =
-        await Promise.all([
-          db.healthRecords.count(),
-          db.dailySummaries.count(),
-          db.labResults.count(),
-          db.clinicalConditions.count(),
-          db.medications.count(),
-          db.allergies.count(),
-          db.imports.count(),
-        ]);
+      const [
+        healthRecords,
+        dailySummaries,
+        labResults,
+        clinicalConditions,
+        medications,
+        allergies,
+        imports,
+      ] = await Promise.all([
+        db.healthRecords.count(),
+        db.dailySummaries.count(),
+        db.labResults.count(),
+        db.clinicalConditions.count(),
+        db.medications.count(),
+        db.allergies.count(),
+        db.imports.count(),
+      ]);
 
       // Estimate storage usage via navigator.storage API
       let estimatedSizeMB = "—";
@@ -174,6 +181,23 @@ function SettingsPage() {
   } | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [rebuilding, setRebuilding] = useState(false);
+  const [rebuildDone, setRebuildDone] = useState(false);
+
+  const handleRebuildSummaries = useCallback(async () => {
+    setRebuilding(true);
+    setRebuildDone(false);
+    try {
+      // Rebuilds every daily summary from current records, deduplicating
+      // overlapping metrics across sources (keeps the first-imported source).
+      const { recomputeAllSummaries } = await import("@/services/aggregate");
+      await recomputeAllSummaries();
+      setRebuildDone(true);
+      refreshStats();
+    } finally {
+      setRebuilding(false);
+    }
+  }, [refreshStats]);
 
   const handleExportJson = useCallback(async () => {
     setExporting(true);
@@ -287,7 +311,9 @@ function SettingsPage() {
                 variant="secondary"
                 size="sm"
                 onClick={handleSaveName}
-                disabled={nameSaving || !nameInput.trim() || nameInput.trim() === session?.user?.name}
+                disabled={
+                  nameSaving || !nameInput.trim() || nameInput.trim() === session?.user?.name
+                }
               >
                 {nameSaving ? t("profile.savingName") : t("profile.saveName")}
               </Button>
@@ -582,6 +608,31 @@ function SettingsPage() {
             {importResult.message}
           </div>
         )}
+
+        {/* Rebuild & deduplicate summaries */}
+        <div className="mb-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
+          <p className="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
+            {t("storage.rebuildHint")}
+          </p>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleRebuildSummaries}
+              disabled={rebuilding}
+            >
+              <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${rebuilding ? "animate-spin" : ""}`} />
+              {rebuilding ? t("storage.rebuilding") : t("storage.rebuild")}
+            </Button>
+            {rebuildDone && !rebuilding && (
+              <span className="flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
+                <Check className="h-3.5 w-3.5" />
+                {t("storage.rebuildDone")}
+              </span>
+            )}
+          </div>
+        </div>
 
         {/* Clear data */}
         <div className="border-t border-neutral-200 pt-4 dark:border-neutral-700">
