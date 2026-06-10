@@ -2,17 +2,19 @@
  * SNOMED CT Terminology Service
  *
  * Uses the FHIR Terminology Services API (R4) to search for SNOMED CT clinical concepts.
- * The FHIR base URL is configurable via VITE_FHIR_TERMINOLOGY_URL environment variable.
  *
- * Default: https://browser.ihtsdotools.org/fhir (SNOMED International snowstorm — reliable public FHIR server)
+ * Requests go through our own server (`/api/fhir`), which relays them to the
+ * upstream FHIR terminology server. The public SNOMED server has no CORS, so the
+ * browser cannot call it directly; the same-origin `/api` path is proxied in both
+ * dev (Vite) and prod (nginx). Override the client base with
+ * VITE_FHIR_TERMINOLOGY_URL only if pointing at a CORS-enabled server directly.
  *
  * Endpoints used:
  * - ValueSet/$expand — search for concepts matching a user query
  * - CodeSystem/$lookup — retrieve details for a specific SNOMED CT code
  */
 
-const FHIR_BASE_URL =
-  import.meta.env.VITE_FHIR_TERMINOLOGY_URL ?? "https://browser.ihtsdotools.org/fhir";
+const FHIR_BASE_URL = import.meta.env.VITE_FHIR_TERMINOLOGY_URL ?? "/api/fhir";
 
 const SNOMED_SYSTEM = "http://snomed.info/sct";
 const SNOMED_SYNONYM_CODE = "900000000000013009";
@@ -300,9 +302,8 @@ async function _fetchBiologicalSexConcepts(): Promise<SnomedConcept[]> {
     if (!contains?.length) return BIOLOGICAL_SEX_FALLBACK;
 
     const concepts = contains
-      .filter(
-        (c): c is FhirConcept & { code: string; display: string } =>
-          Boolean(c.code && c.display),
+      .filter((c): c is FhirConcept & { code: string; display: string } =>
+        Boolean(c.code && c.display),
       )
       .map((c) => ({
         code: c.code,
@@ -371,9 +372,7 @@ async function fhirExpandValueSet(
       // If the preferred term doesn't contain the query, find the synonym that does
       if (!c.display.toLowerCase().includes(queryLower) && c.designation) {
         const matched = c.designation.find(
-          (d) =>
-            d.use?.code === SNOMED_SYNONYM_CODE &&
-            d.value?.toLowerCase().includes(queryLower),
+          (d) => d.use?.code === SNOMED_SYNONYM_CODE && d.value?.toLowerCase().includes(queryLower),
         );
         if (matched?.value) {
           concept.matchedSynonym = matched.value;

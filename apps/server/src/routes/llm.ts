@@ -16,6 +16,11 @@ function getAnthropicApiKey() {
   return process.env.ANTHROPIC_API_KEY;
 }
 
+/** Model is configurable via env; falls back to a current Sonnet model. */
+function getAnthropicModel() {
+  return process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514";
+}
+
 const HEALTH_SYSTEM_PROMPT = `You are a helpful health education assistant. You help users understand their health data, trends, and metrics.
 
 IMPORTANT CONSTRAINTS:
@@ -112,7 +117,7 @@ export async function llmRoutes(app: FastifyInstance) {
 
       try {
         const stream = client.messages.stream({
-          model: "claude-sonnet-4-20250514",
+          model: getAnthropicModel(),
           max_tokens: 2048,
           system: systemPrompt,
           messages: messages.map((m) => ({

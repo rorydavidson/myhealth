@@ -8,6 +8,13 @@
       "when": 1771707040572,
       "tag": "0000_rapid_ultron",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1749513600000,
+      "tag": "0001_whoop_credentials",
+      "breakpoints": true
     }
   ]
 }

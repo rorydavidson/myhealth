@@ -15,7 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { type ImportState, useImport, useImportHistory } from "@/hooks/use-import";
 import { deleteImport } from "@/services/import";
@@ -23,7 +23,6 @@ import {
   disconnectWhoop,
   getLastSyncTime,
   getStoredClientId,
-  getStoredClientSecret,
   initiateWhoopAuth,
   isWhoopConnected,
   syncWhoopData,
@@ -112,11 +111,15 @@ function WhoopConnect({
   const { t } = useTranslation("import");
   const [connected, setConnected] = useState(isWhoopConnected);
   const [clientId, setClientId] = useState(() => getStoredClientId() ?? "");
-  const [clientSecret, setClientSecret] = useState(() => getStoredClientSecret() ?? "");
+  // Secret is never persisted client-side; it's sent to the server (encrypted
+  // at rest) at connect time, so the field always starts empty.
+  const [clientSecret, setClientSecret] = useState("");
   const [showForm, setShowForm] = useState(!isWhoopConnected());
   const [syncProgress, setSyncProgress] = useState<WhoopSyncProgress | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
   const notifiedRef = useRef(false);
+  const redirectUri = `${window.location.origin}/whoop/callback`;
 
   // Handle return from OAuth callback
   useEffect(() => {
@@ -128,9 +131,14 @@ function WhoopConnect({
     }
   }, [oauthConnected]);
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     if (!clientId.trim()) return;
-    initiateWhoopAuth(clientId.trim(), clientSecret.trim() || undefined);
+    setConnectError(null);
+    try {
+      await initiateWhoopAuth(clientId.trim(), clientSecret.trim() || undefined);
+    } catch {
+      setConnectError(t("whoop.error.oauth"));
+    }
   };
 
   const handleSync = async () => {
@@ -155,7 +163,8 @@ function WhoopConnect({
     setClientSecret("");
   };
 
-  const isSyncing = syncProgress !== null && syncProgress.phase !== "done" && syncProgress.phase !== "error";
+  const isSyncing =
+    syncProgress !== null && syncProgress.phase !== "done" && syncProgress.phase !== "error";
   const lastSync = getLastSyncTime();
 
   const phaseLabel: Record<WhoopSyncProgress["phase"], string> = {
@@ -256,7 +265,25 @@ function WhoopConnect({
       )}
 
       <p className="text-xs text-neutral-400 dark:text-neutral-500">
-        {t("whoop.instructions")}
+        <Trans
+          t={t}
+          i18nKey="whoop.instructions"
+          values={{ redirectUri }}
+          components={{
+            devLink: (
+              // biome-ignore lint/a11y/useAnchorContent: content injected by Trans
+              <a
+                href="https://developer.whoop.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 hover:underline"
+              />
+            ),
+            uri: (
+              <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300" />
+            ),
+          }}
+        />
       </p>
 
       <div className="space-y-3">
@@ -295,6 +322,8 @@ function WhoopConnect({
           />
         </div>
       </div>
+
+      {connectError && <p className="text-sm text-rose-600 dark:text-rose-400">{connectError}</p>}
 
       <button
         type="button"

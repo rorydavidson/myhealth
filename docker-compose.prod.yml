@@ -41,8 +41,11 @@ services:
       HOST: 0.0.0.0
       CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required (e.g. https://yourdomain.com)}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      FHIR_TERMINOLOGY_URL: ${FHIR_TERMINOLOGY_URL:-https://r4.ontoserver.csiro.au/fhir}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      WHOOP_ENCRYPTION_KEY: ${WHOOP_ENCRYPTION_KEY:-}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
@@ -62,7 +65,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-https://browser.ihtsdotools.org/fhir}
+        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-}
         VITE_API_URL: ${CORS_ORIGIN}
     restart: unless-stopped
     ports:

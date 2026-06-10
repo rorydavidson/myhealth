@@ -41,7 +41,9 @@
 #   POSTGRES_USER               (default: health)
 #   POSTGRES_DB                 (default: health)
 #   LOG_LEVEL                   (default: info)
-#   VITE_FHIR_TERMINOLOGY_URL   (default: https://browser.ihtsdotools.org/fhir)
+#   FHIR_TERMINOLOGY_URL        Upstream SNOMED FHIR server the /api/fhir proxy relays to (default: https://r4.ontoserver.csiro.au/fhir)
+#   WHOOP_ENCRYPTION_KEY        32-byte key (openssl rand -hex 32) to encrypt per-user Whoop secrets; required if anyone connects Whoop
+#   ANTHROPIC_MODEL             LLM model id (default: claude-sonnet-4-20250514)
 #   RESEND_API_KEY              For magic-link email delivery
 #   RESEND_FROM                 Sender address (must match verified Resend domain)
 #   ADMIN_EMAIL                 Email address that can access /admin (magic-link auth)
@@ -80,8 +82,11 @@ services:
       # Must match the public-facing domain so auth callbacks and magic links work
       CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required (e.g. https://health.example.com)}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      FHIR_TERMINOLOGY_URL: ${FHIR_TERMINOLOGY_URL:-https://r4.ontoserver.csiro.au/fhir}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+      WHOOP_ENCRYPTION_KEY: ${WHOOP_ENCRYPTION_KEY:-}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required (e.g. https://health.example.com)}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
@@ -104,7 +109,7 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         # Baked into the static bundle at build time
-        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-https://browser.ihtsdotools.org/fhir}
+        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-}
         # API base URL seen from the browser — always the same as the public domain.
         # The Better Auth client and LLM service use this to route API calls correctly.
         # We reuse CORS_ORIGIN here since they are always identical in this setup.

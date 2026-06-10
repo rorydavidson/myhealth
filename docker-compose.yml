@@ -37,14 +37,17 @@ services:
       # Web is served at localhost:5173 — CORS must match
       CORS_ORIGIN: http://localhost:5173
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      FHIR_TERMINOLOGY_URL: ${FHIR_TERMINOLOGY_URL:-https://r4.ontoserver.csiro.au/fhir}
       # Pulled from .env — required for LLM proxy
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
       # Pulled from .env — required for Resend email delivery (optional: omit to log magic links to console)
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       # Sender address — must use a domain verified in your Resend account
       RESEND_FROM: ${RESEND_FROM:-}
       # Defaults are fine for local dev
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-secret-change-in-production}
+      WHOOP_ENCRYPTION_KEY: ${WHOOP_ENCRYPTION_KEY:-}
       # Must match the public-facing web URL so magic link emails point to the right origin
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:5173}
       # Admin dashboard access — set to the email address of the admin user
@@ -62,7 +65,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-https://browser.ihtsdotools.org/fhir}
+        VITE_FHIR_TERMINOLOGY_URL: ${VITE_FHIR_TERMINOLOGY_URL:-}
     ports:
       - "5173:80"
     depends_on:

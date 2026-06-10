@@ -68,7 +68,7 @@
   "whoop": {
     "title": "Whoop",
     "description": "Connect your Whoop account to sync recovery, sleep, strain, and workout data directly to your dashboard.",
-    "instructions": "Register a developer app at developer.whoop.com to get your Client ID. Set the redirect URI to: {{redirectUri}}",
+    "instructions": "Register a developer app at <devLink>developer.whoop.com</devLink> to get your Client ID. Set the redirect URI to: <uri>{{redirectUri}}</uri>",
     "clientId": "Client ID",
     "clientIdPlaceholder": "Your Whoop app Client ID",
     "clientSecret": "Client Secret",
