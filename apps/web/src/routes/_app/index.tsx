@@ -14,11 +14,12 @@ import {
   Percent,
   Route as RouteIcon,
   Scale,
+  Sparkles,
   Upload,
   Wind,
   Zap,
 } from "lucide-react";
-import { lazy, Suspense, type ReactNode, useState } from "react";
+import { lazy, type ReactNode, Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle, CardValue } from "@/components/ui/card";
@@ -33,6 +34,7 @@ import {
   useLatestSummary,
 } from "@/hooks/use-health-data";
 import { useLocaleFormat } from "@/hooks/use-locale-format";
+import { getLastSyncTime } from "@/services/whoop-sync";
 
 const MetricChart = lazy(() =>
   import("@/components/charts/metric-chart").then((m) => ({ default: m.MetricChart })),
@@ -84,6 +86,10 @@ function DashboardPage() {
         </h2>
         <SnapshotCards />
       </section>
+
+      {/* Whoop Recovery — promoted near the top; Whoop syncs frequently and is
+          the freshest source. Only rendered when recovery data exists. */}
+      <WhoopRecoverySection dateRange={dateRange} />
 
       {/* Activity section */}
       <section className="mb-8">
@@ -254,25 +260,51 @@ function DashboardPage() {
           />
         </div>
       </section>
-
-      {/* Whoop Recovery section — only rendered when data exists */}
-      <WhoopRecoverySection dateRange={dateRange} />
     </div>
   );
 }
 
 // --- Whoop Recovery Section ---
 
+/** Format a past instant as a localised relative string, e.g. "2 hours ago". */
+function formatRelative(date: Date, locale: string): string {
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  const diffSec = Math.round((date.getTime() - Date.now()) / 1000);
+  const abs = Math.abs(diffSec);
+  if (abs < 60) return rtf.format(Math.round(diffSec), "second");
+  if (abs < 3600) return rtf.format(Math.round(diffSec / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
+  return rtf.format(Math.round(diffSec / 86400), "day");
+}
+
 function WhoopRecoverySection({ dateRange }: { dateRange: DateRangePreset }) {
-  const { t } = useTranslation("dashboard");
+  const { t, i18n } = useTranslation("dashboard");
   const { data: latestRecovery, isLoading } = useLatestSummary("recovery_score");
   if (!isLoading && !latestRecovery) return null;
 
+  const lastSync = getLastSyncTime();
+
   return (
     <section className="mb-8">
-      <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-        {t("section.whoopRecovery")}
-      </h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <h2 className="text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            {t("section.whoopRecovery")}
+          </h2>
+          {lastSync && (
+            <span className="text-xs text-neutral-400 dark:text-neutral-500">
+              {t("whoopRecovery.syncedAgo", { time: formatRelative(lastSync, i18n.language) })}
+            </span>
+          )}
+        </div>
+        <Link
+          to="/insights"
+          className="flex items-center gap-1 text-xs font-medium text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+        >
+          <Sparkles className="h-3 w-3" />
+          {t("whoopRecovery.viewAnalysis")}
+        </Link>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <ChartCard
           title={t("chart.recoveryScore")}

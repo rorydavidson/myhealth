@@ -25,5 +25,9 @@
     "consentConfirm": "Je comprends et je souhaite continuer",
     "neverSent": "Jamais envoyés : votre nom, date de naissance, e-mail ou identifiants d'appareils"
   },
+  "whoop": {
+    "prerunPrompt": "Je viens de synchroniser mes données Whoop. Donne-moi une analyse ciblée de ma récupération, mon effort (strain), mon sommeil et ma VFC de la semaine écoulée. Qu'est-ce qui ressort, et à quoi dois-je prêter attention ?",
+    "prerunBanner": "Analyse automatique de votre dernière synchronisation Whoop."
+  },
   "disclaimer": "Ceci ne constitue pas un avis médical. Consultez toujours un professionnel de santé pour toute question médicale."
 }

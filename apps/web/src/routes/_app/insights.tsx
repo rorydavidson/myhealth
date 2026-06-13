@@ -24,6 +24,7 @@ import {
   type LLMProfile,
   streamLLMQuery,
 } from "@/services/llm";
+import { consumeWhoopSyncInsight } from "@/services/whoop-sync";
 
 export const Route = createFileRoute("/_app/insights")({
   component: InsightsPage,
@@ -48,6 +49,10 @@ function InsightsPage() {
   const [showDataPreview, setShowDataPreview] = useState(false);
   const [healthContext, setHealthContext] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(false);
+  // True when arriving here straight after a Whoop sync — drives a one-off
+  // auto-analysis of the freshly synced data (Standard mode only).
+  const [prerun, setPrerun] = useState(false);
+  const prerunFiredRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -78,6 +83,11 @@ function InsightsPage() {
       cancelled = true;
     };
   }, [enhanced, profile]);
+
+  // Detect a fresh Whoop sync once, on mount. The flag is cleared as it's read.
+  useEffect(() => {
+    if (consumeWhoopSyncInsight()) setPrerun(true);
+  }, []);
 
   const handleSend = useCallback(
     async (text?: string) => {
@@ -155,6 +165,15 @@ function InsightsPage() {
     [input, isStreaming, messages, healthContext, enhanced, scrollToBottom],
   );
 
+  // Fire the post-sync auto-analysis once Standard context is ready. Standard
+  // mode only — Enhanced data is never sent without an explicit per-query click.
+  useEffect(() => {
+    if (!prerun || prerunFiredRef.current) return;
+    if (enhanced || contextLoading || healthContext === null || isStreaming) return;
+    prerunFiredRef.current = true;
+    void handleSend(t("whoop.prerunPrompt"));
+  }, [prerun, enhanced, contextLoading, healthContext, isStreaming, handleSend, t]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -171,6 +190,13 @@ function InsightsPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       <h1 className="mb-4 text-2xl font-bold">{t("title")}</h1>
+
+      {prerun && (
+        <div className="mb-3 flex items-center gap-2 rounded-lg bg-violet-50 px-3 py-2 text-xs text-violet-700 dark:bg-violet-900/20 dark:text-violet-400">
+          <Sparkles className="h-3 w-3 shrink-0" />
+          <span>{t("whoop.prerunBanner")}</span>
+        </div>
+      )}
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">

@@ -33,6 +33,10 @@ const SK_TOKENS = "whoop_tokens";
 const SK_CODE_VERIFIER = "whoop_pkce_verifier";
 const SK_OAUTH_STATE = "whoop_oauth_state";
 const SK_LAST_SYNC = "whoop_last_sync";
+// Set on every successful sync, cleared the first time the insights page reads
+// it. Lets insights auto-run a one-off analysis of a freshly synced dataset
+// exactly once per sync.
+const SK_SYNC_PENDING_INSIGHT = "whoop_sync_pending_insight";
 
 // --- Types ---
 
@@ -179,6 +183,17 @@ export function getLastSyncTime(): Date | null {
   return val ? new Date(Number(val)) : null;
 }
 
+/**
+ * Returns true once if a sync has completed since the last call, then clears
+ * the flag. Used by the insights page to auto-run a single analysis of freshly
+ * synced data without re-firing on every subsequent visit.
+ */
+export function consumeWhoopSyncInsight(): boolean {
+  const pending = localStorage.getItem(SK_SYNC_PENDING_INSIGHT) !== null;
+  if (pending) localStorage.removeItem(SK_SYNC_PENDING_INSIGHT);
+  return pending;
+}
+
 // --- Token storage ---
 
 function getTokens(): WhoopTokens | null {
@@ -199,6 +214,7 @@ export function disconnectWhoop(): void {
   localStorage.removeItem(SK_TOKENS);
   localStorage.removeItem(SK_CLIENT_ID);
   localStorage.removeItem(SK_LAST_SYNC);
+  localStorage.removeItem(SK_SYNC_PENDING_INSIGHT);
   // Best-effort: forget the server-side encrypted credentials too.
   void fetch(`${PROXY_BASE}/credentials`, { method: "DELETE", credentials: "include" }).catch(
     () => {},
@@ -732,6 +748,7 @@ export async function syncWhoopData(onProgress: (p: WhoopSyncProgress) => void):
     });
 
     localStorage.setItem(SK_LAST_SYNC, String(Date.now()));
+    localStorage.setItem(SK_SYNC_PENDING_INSIGHT, String(Date.now()));
     onProgress({ phase: "done", recordCount: allRows.length });
     return allRows.length;
   } catch (err) {
