@@ -63,6 +63,10 @@
   "dateRange": {
     "label": "Date range"
   },
+  "whoopRecovery": {
+    "syncedAgo": "Synced {{time}}",
+    "viewAnalysis": "View AI analysis"
+  },
   "workoutLog": {
     "title": "Workout Log",
     "type": "Type",

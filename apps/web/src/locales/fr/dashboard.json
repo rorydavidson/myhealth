@@ -63,6 +63,10 @@
   "dateRange": {
     "label": "Période"
   },
+  "whoopRecovery": {
+    "syncedAgo": "Synchronisé {{time}}",
+    "viewAnalysis": "Voir l'analyse IA"
+  },
   "workoutLog": {
     "title": "Journal d'entraînement",
     "type": "Type",

@@ -25,5 +25,9 @@
     "consentConfirm": "I understand and want to proceed",
     "neverSent": "Never sent: your name, date of birth, email, or device identifiers"
   },
+  "whoop": {
+    "prerunPrompt": "I just synced my Whoop data. Give me a focused analysis of my recovery, strain, sleep and HRV over the past week. What stands out, and what should I pay attention to?",
+    "prerunBanner": "Auto-analysis of your latest Whoop sync."
+  },
   "disclaimer": "This is not medical advice. Always consult a healthcare professional for medical concerns."
 }
